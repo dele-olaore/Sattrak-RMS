@@ -1,0 +1,109 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div id="subheader">
+            <div class="inner">
+                <div class="subdesc">
+                    <h1 class="page-title">Reschedule Installation</h1>
+                    <div class="customtext"><h2> </h2></div>
+                </div>
+            </div>
+        </div><!-- #subheader -->
+        <div class="pagemid">
+            <div class="inner">
+                <div id="main">
+                    <div class="entry-content">
+                        <div class="section_row clearfix"  style="padding:60px 0px 60px 0px;">
+                            <div class="section_bg" ></div>
+                            <div class="section_inner">
+                            	<div class="wpcf7" id="iva-contact-form">
+                            	<h:form id="bookForm" pt:class="wpcf7-form" pt:novalidate="novalidate">
+                            		<p>Job Code (required)<br />
+                            			<span class="wpcf7-form-control-wrap your-name">
+                            				<h:outputText value="#{userBean.selectedInstallation.jobCode}" />
+                            			</span>
+                            		</p>
+                            		<p>State (required)<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <select jsf:id="state" jsf:value="#{userBean.state_id}" size="1" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+                                                <f:selectItem itemLabel="Choose One" itemValue="0"/>
+                                                <f:selectItems value="#{userBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+                                                <p:ajax listener="#{userBean.onStateChange}" update="lga, installation_point" />
+                                            </select>
+                                        </span> 
+                                    </p>
+                                    <p>LGA (required)<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <select jsf:id="lga" jsf:value="#{userBean.lga_id}" size="1" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+                                                <f:selectItem itemLabel="Choose One" itemValue="0"/>
+                                                <f:selectItems value="#{userBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+                                                <f:ajax render="installation_point" />
+                                            </select>
+                                        </span> 
+                                    </p>
+                                    <p>Installation Point (required)<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <select jsf:id="installation_point" jsf:value="#{userBean.installation_point_id}" size="1" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+                                                <f:selectItem itemLabel="Choose One" itemValue="0"/>
+                                                <f:selectItems value="#{userBean.installersByLGA}" var="c" itemLabel="#{c.companyName}" itemValue="#{c.id}"/>
+												<f:ajax render="installer_photo installer_addr" />
+                                            </select>
+                                        </span> 
+                                    </p>
+                                    <p>Installation Point Photo<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <h:panelGrid id="installer_photo" columns="1">
+												<c:if test="#{userBean.selInstallationPoint != null}">
+													<img src="#{request.contextPath}/imageservlet/#{userBean.selInstallationPoint.id}-installer-#{userBean.randomNumber}" width="150px" height="100px" alt="Photo" />
+												</c:if>
+											</h:panelGrid>
+                                        </span> 
+                                    </p>
+                                    <p>Installation Point Address<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <h:panelGrid id="installer_addr" columns="1">
+												<h:outputText value="#{userBean.selInstallationPoint.address}" />
+												<c:if test="#{userBean.selInstallationPoint != null}">
+												
+												</c:if>
+											</h:panelGrid>
+                                        </span> 
+                                    </p>
+                                    <p>Preferred Installation Date<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <p:calendar id="instdt" pattern="dd/MM/yyyy" showOn="both" mode="popup" value="#{userBean.installation_dt}" navigator="true" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false">
+                                            	<p:ajax event="dateSelect" listener="#{userBean.getSlots}" update="slot" />
+                                            </p:calendar>
+                                        </span> 
+                                    </p>
+                                    <p>Available slot<br />
+                                        <span class="wpcf7-form-control-wrap your-name">
+                                            <h:selectOneMenu id="slot" value="#{userBean.slot_id}" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+												<f:selectItem itemLabel="Choose One" itemValue="0"/>
+												<f:selectItems value="#{userBean.slots}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+											</h:selectOneMenu>
+                                        </span> 
+                                    </p>
+                                    <p>
+                                        <input jsf:id="subButton" jsf:action="#{userBean.rescheduleInstallation}" name="subButton" value="book installation" type="submit" class="wpcf7-form-control wpcf7-submit contactform" />
+                                    </p>
+                            	</h:form>
+                            	</div>
+                            	<div class="clear"></div>
+                            </div><!-- section_inner -->
+                        </div><!-- section_row -->
+                        <div class="clear"></div>
+                    </div><!-- .entry-content -->
+                </div><!-- #main -->
+                <div class="clear"></div>
+            </div><!-- .inner -->
+        </div><!-- .pagemid -->
+    </ui:define>
+</ui:composition>

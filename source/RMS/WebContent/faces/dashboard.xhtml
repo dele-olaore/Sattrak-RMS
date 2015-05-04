@@ -1,0 +1,498 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Dashboard</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-home"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+				</ul>
+				<h4>Dashboard</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<c:if test="#{userBean.sessionUser != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'ADMINISTRATOR'}">
+			<div class="row row-stat">
+				<div class="col-md-4">
+					<div class="panel panel-success-alt noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-dollar"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Today's Earnings</h5>
+								<h1 class="mt5">₦<h:outputText value="#{userBean.todayEarnings}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.yesterEarnings}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.thisWeekEarnings}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-primary noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-users"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">New Customer Accounts</h5>
+								<h1 class="mt5"><h:outputText value="#{userBean.todayNewCustomers}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.yesterdayNewCustomers}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.thisweekNewCustomers}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-dark noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" data-placement="left" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-pencil"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Installations</h5>
+								<h1 class="mt5"><h:outputText value="#{userBean.todayInstallations}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.yesterdayInstallations}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.thisweekInstallations}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+			</div>
+		</c:if>
+		<c:if test="#{userBean.sessionUser != null and userBean.sessionUser.role != null and (userBean.sessionUser.role.name == 'SALES-AGENT' or userBean.sessionUser.role.name == 'TRADE-PARTNER')}">
+			<div class="row row-stat">
+				<div class="col-md-4">
+					<div class="panel panel-success-alt noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-dollar"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Today's Earnings</h5>
+								<h1 class="mt5">₦<h:outputText value="#{userBean.todayEarnings}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.yesterEarnings}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.thisWeekEarnings}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-primary noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-dollar"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Today's Commission</h5>
+								<h1 class="mt5">₦<h:outputText value="#{userBean.todayCommission}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.yesterCommission}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.thisweekCommission}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-dark noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-users"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">New Customer Accounts</h5>
+								<h1 class="mt5"><h:outputText value="#{userBean.todayNewCustomers}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.yesterdayNewCustomers}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.thisweekNewCustomers}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+			</div>
+		</c:if>
+		<c:if test="#{userBean.sessionUser != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'CUSTOMER'}">
+			<h:form>
+			<div class="row row-stat">
+				
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<div class="panel-btns"></div>
+							<h3 class="panel-title">My Products</h3>
+						</div>
+						<div class="panel-body">
+							<table id="basicTable" class="table table-striped table-bordered responsive">
+								<thead class="">
+									<tr>
+										<th>Installed Date</th>
+										<th>Code</th>
+										<th>Product</th>
+										<th>Agent Location</th>
+										<th>Status</th>
+										<th>Renewal</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ui:repeat value="#{appBean.myProducts}" var="itm">
+										<tr>
+											<td>#{itm.booked_dt}</td>
+											<td>#{itm.jobCode}</td>
+											<td>#{itm.productBooked.details}</td>
+											<td>
+												#{itm.job.installer.companyName}, #{itm.job.installer.address}
+												<div id="gmap-marker#{itm.id.longValue()}" style="height:150px; width:400px"></div>
+												<script>
+													jQuery(document).ready(function(){
+														try{
+															var map_marker = new GMaps({
+																div: '#gmap-marker#{itm.id.longValue()}',
+																lat: #{itm.installer.lat},
+																lng: #{itm.installer.lng}
+															});
+															GMaps.geocode({
+																address: '#{itm.job.installer.address}',
+																callback: function(results, status)
+																{
+																	if(status == 'OK')
+																	{
+																		var latlng = results[0].geometry.location;
+																		map_marker.setCenter(latlng.lat(), latlng.lng());
+																		map_marker.addMarker({
+																			lat: latlng.lat(),
+																			lng: latlng.lng()
+																		});
+																	}
+																}
+															});
+														} catch(e){alert(e);}
+													});
+												</script>
+											</td>
+											<td>
+												<h:outputText value="#{itm.status}" />
+											</td>
+											<td>
+												<h:outputText value="N/A" rendered="#{itm.productBooked != null and not itm.productBooked.requiresRenewal}" />
+												<h:outputText value="Next Renewal Due: #{itm.renewal_due_dt}" rendered="#{itm.productBooked != null and itm.productBooked.requiresRenewal}" /><br />
+												<h:outputText value="Last Renewed: #{itm.last_renew_dt}" rendered="#{itm.productBooked != null and itm.productBooked.requiresRenewal and itm.last_renew_dt != null}" /><br />
+												<h:commandLink value="Renew" rendered="#{itm.productBooked != null and itm.productBooked.requiresRenewal}">
+													<f:ajax />
+												</h:commandLink>
+											</td>
+										</tr>
+									</ui:repeat>
+								</tbody>
+							</table>
+						</div>
+					</div>
+			</div>
+			<div class="row row-stat">
+				
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<div class="panel-btns"></div>
+							<h3 class="panel-title">My Schedule</h3>
+						</div>
+						<div class="panel-body">
+							<table id="basicTable" class="table table-striped table-bordered responsive">
+								<thead class="">
+									<tr>
+										<th>Code</th>
+										<th>Date</th>
+										<th>Product</th>
+										<th>Agent Location</th>
+										<th>Time</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ui:repeat value="#{appBean.mySchedules_cus}" var="itm">
+										<tr>
+											<td>#{itm.jobCode}</td>
+											<td>#{itm.booked_dt}</td>
+											<td>#{itm.productBooked.details}</td>
+											<td>
+												#{itm.installer.companyName}, #{itm.installer.address}
+												<div id="gmap-marker#{itm.id.longValue()}" style="height:150px; width:400px"></div>
+												<script>
+													jQuery(document).ready(function(){
+														try{
+															var map_marker = new GMaps({
+																div: '#gmap-marker#{itm.id.longValue()}',
+																lat: #{itm.installer.lat},
+																lng: #{itm.installer.lng}
+															});
+															GMaps.geocode({
+																address: '#{itm.installer.address}',
+																callback: function(results, status)
+																{
+																	if(status == 'OK')
+																	{
+																		var latlng = results[0].geometry.location;
+																		map_marker.setCenter(latlng.lat(), latlng.lng());
+																		map_marker.addMarker({
+																			lat: latlng.lat(),
+																			lng: latlng.lng()
+																		});
+																	}
+																}
+															});
+														} catch(e){alert(e);}
+													});
+												</script>
+											</td>
+											<td>
+												<h:outputText value="#{itm.slot.name}" rendered="#{itm.slot != null}" /><h:outputText value="N/A" rendered="#{itm.slot == null}" /><br />
+											</td>
+											<td>
+												Canceled: <h:outputText value="Yes" rendered="#{itm.cancel}" /><h:outputText value="No" rendered="#{not itm.cancel}" /><br />
+												Paid: <h:outputText value="Yes" rendered="#{itm.paid}" /><h:outputText value="No" rendered="#{not itm.paid}" /><br />
+												Checked In: <h:outputText value="Yes" rendered="#{itm.checkedIn}" /><h:outputText value="No" rendered="#{not itm.checkedIn}" /><br />
+												Completed: <h:outputText value="Yes" rendered="#{itm.completed}" /><h:outputText value="No" rendered="#{not itm.completed}" /><br />
+												Require Confirmation: <h:outputText value="Yes" rendered="#{itm.require_confirmation}" /><h:outputText value="No" rendered="#{not itm.require_confirmation}" /><br />
+												Confirmed: <h:outputText value="Yes" rendered="#{itm.confirmed}" /><h:outputText value="No" rendered="#{not itm.confirmed}" /><br />
+												
+												<h:commandLink value="Click to Cancel" onclick="return confirm('Are you sure?');" rendered="#{not itm.checkedIn}">
+													<f:ajax />
+												</h:commandLink>
+											</td>
+										</tr>
+									</ui:repeat>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				
+			</div>
+			</h:form>
+		</c:if>
+		<c:if test="#{userBean.sessionUser != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'INSTALLER'}">
+			<div class="row row-stat">
+				<div class="col-md-4">
+					<div class="panel panel-success-alt noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-dollar"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Today's Earnings</h5>
+								<h1 class="mt5">₦<h:outputText value="#{userBean.todayEarnings}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.yesterEarnings}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.thisWeekEarnings}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-primary noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-dollar"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Today's Commission</h5>
+								<h1 class="mt5">₦<h:outputText value="#{userBean.todayCommission}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.yesterCommission}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.thisweekCommission}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-dark noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" data-placement="left" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-pencil"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Installations</h5>
+								<h1 class="mt5"><h:outputText value="#{userBean.todayInstallations}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.yesterdayInstallations}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.thisweekInstallations}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+			</div>
+		</c:if>
+		<c:if test="#{userBean.sessionUser != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'PERSONNEL'}">
+			<div class="row row-stat">
+				<div class="col-md-4">
+					<div class="panel panel-success-alt noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-dollar"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Today's Earnings</h5>
+								<h1 class="mt5">₦<h:outputText value="#{userBean.todayEarnings}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.yesterEarnings}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin">₦<h:outputText value="#{userBean.thisWeekEarnings}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-primary noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-users"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">New Customer Accounts</h5>
+								<h1 class="mt5"><h:outputText value="#{userBean.todayNewCustomers}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.yesterdayNewCustomers}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.thisweekNewCustomers}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+				<div class="col-md-4">
+					<div class="panel panel-dark noborder">
+						<div class="panel-heading noborder">
+							<div class="panel-btns">
+								<a href="" class="panel-close tooltips" data-toggle="tooltip" data-placement="left" title="Close Panel"><i class="fa fa-times"></i></a>
+							</div><!-- panel-btns -->
+							<div class="panel-icon"><i class="fa fa-pencil"></i></div>
+							<div class="media-body">
+								<h5 class="md-title nomargin">Installations</h5>
+								<h1 class="mt5"><h:outputText value="#{userBean.todayInstallations}" /></h1>
+							</div><!-- media-body -->
+							<hr />
+							<div class="clearfix mt20">
+								<div class="pull-left">
+									<h5 class="md-title nomargin">Yesterday</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.yesterdayInstallations}" /></h4>
+								</div>
+								<div class="pull-right">
+									<h5 class="md-title nomargin">This Week</h5>
+									<h4 class="nomargin"><h:outputText value="#{userBean.thisweekInstallations}" /></h4>
+								</div>
+							</div>
+						</div><!-- panel-body -->
+					</div><!-- panel -->
+				</div><!-- col-md-4 -->
+			</div>
+		</c:if>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

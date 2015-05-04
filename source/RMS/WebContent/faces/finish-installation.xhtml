@@ -1,0 +1,151 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Finish Installation</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-shopping-cart"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Finish Installation</li>
+				</ul>
+				<h4>Finish Installation</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form enctype="multipart/form-data">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Slot: </label>
+						<div class="col-sm-8">
+							<h:selectOneMenu id="job" value="#{appBean.checkedin_installation_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.myCheckedInJobs}" var="c" itemLabel="#{c.customer.firstname} #{c.customer.lastname} - #{c.slot.name}" itemValue="#{c.id}"/>
+								<f:ajax render="jobdetails" />
+							</h:selectOneMenu>
+							<h:commandLink action="#{appBean.resetMyCheckedInJobs}" value="Refresh">
+								<f:ajax render="job" />
+							</h:commandLink>
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Job: </label>
+						<div class="col-sm-8">
+							<h:panelGrid id="jobdetails" columns="1">
+								<h:outputText value="#{appBean.selCheckedInJob.productBooked.details}" rendered="#{appBean.selCheckedInJob != null}" />
+							</h:panelGrid>
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Installer: </label>
+						<div class="col-sm-8">
+							<h:selectOneMenu id="job_installer_id" value="#{appBean.job_installer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.myAgents}" var="c" itemLabel="#{c.firstname} #{c.lastname}" itemValue="#{c.id}"/>
+							</h:selectOneMenu>
+						</div>
+					</div><!-- form-group -->
+					
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Upload Job Card: </label>
+						<div class="col-sm-8">
+							<h:inputFile value="#{appBean.completeJobCard}" pt:class="form-control" />
+						</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<table id="basicTable" class="table table-striped table-bordered responsive">
+							<thead class="">
+								<tr>
+									<th>Item</th>
+									<th>Count</th>
+									<th>Remove</th>
+								</tr>
+							</thead>
+							<tbody>
+								<ui:repeat value="#{appBean.installationDeviceUseList}" var="itm">
+								<tr>
+									<td>#{itm.item.name}(#{itm.item.model})</td>
+									<td>#{itm.count}</td>
+									<td><button class="btn btn-primary mr5" type="submit" jsf:id="delButton" jsf:action="#{appBean.removeJobDeviceUse(itm.item_id)}" onclick="return confirm('Are you sure?');">Remove</button></td>
+								</tr>
+								</ui:repeat>
+							</tbody>
+							</table>
+							<br/>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Device Used: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="deviceused" value="#{appBean.item_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItem itemLabel="Choose One" itemValue="0" />
+										<f:selectItems value="#{appBean.items}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Device Count Used: </label>
+								<div class="col-sm-8">
+									<h:inputText id="devicecount" value="#{appBean.item_used_count}" pt:class="form-control"/>
+								</div>
+							</div><!-- form-group -->
+						</div>
+						<div class="panel-footer">
+							<button class="btn btn-primary mr5" type="submit" jsf:id="addButton" jsf:action="#{appBean.addJobDeviceUse}" onclick="return confirm('Are you sure?');">Add</button>
+						</div>
+					</div>
+					
+					
+					<div class="form-group">
+						<label class="col-sm-4 control-label">IMEI No: </label>
+						<div class="col-sm-8">
+							<h:inputText id="imeino" value="#{appBean.selCheckedInJob.vehicleIMEINo}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Unit Type: </label>
+						<div class="col-sm-8">
+							<h:inputText id="unittype" value="#{appBean.selCheckedInJob.unitType}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Network: </label>
+						<div class="col-sm-8">
+							<h:inputText id="network" value="#{appBean.selCheckedInJob.network}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">SIM Card No: </label>
+						<div class="col-sm-8">
+							<h:inputText id="simcardno" value="#{appBean.selCheckedInJob.simcardNo}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+					
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Remarks: </label>
+						<div class="col-sm-8">
+							<h:inputTextarea value="#{appBean.selCheckedInJob.installerRemarks}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+				</div>
+				<div class="panel-footer">
+					<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.completeJob}" onclick="return confirm('Are you sure?');">Complete Installation</button>
+					<button type="reset" class="btn btn-default">Reset</button>
+				</div><!-- panel-footer -->
+			</div>
+		</h:form>
+	</div>
+</ui:define>
+</ui:composition>

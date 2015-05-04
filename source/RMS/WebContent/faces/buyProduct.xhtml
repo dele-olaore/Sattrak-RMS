@@ -1,0 +1,127 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Buy Product for Customer</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-shopping-cart"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Buy Product for Customer</li>
+				</ul>
+				<h4>Buy Product for Customer</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="form" pt:class="form-horizontal form-bordered">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<c:if test="#{userBean.sessionPartner.sattrak and userBean.sessionCustomer == null}">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Partner: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									<f:ajax render="customer" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+					</c:if>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Customer: </label>
+						<div class="col-sm-8">
+							<c:if test="#{userBean.sessionCustomer == null}">
+								<h:selectOneMenu id="customer" value="#{appBean.customer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.customers}" var="c" itemLabel="#{c.firstname} #{c.lastname}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</c:if>
+							<c:if test="#{userBean.sessionCustomer != null}">
+								<h:selectOneMenu id="sess_customer" value="#{appBean.customer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="#{userBean.sessionCustomer.firstname} #{userBean.sessionCustomer.lastname}" itemValue="#{userBean.sessionCustomer.id}"/>
+								</h:selectOneMenu>
+							</c:if>
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Product type: </label>
+						<div class="col-sm-8">
+							<h:selectOneMenu id="producttype" value="#{appBean.ptype_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="All products" itemValue="0"/>
+								<f:selectItems value="#{appBean.ptypes}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								<f:ajax render="product_size_str grid" />
+							</h:selectOneMenu>
+						</div>
+					</div><!-- form-group -->
+					
+					<div class="panel panel-dark-head">
+						<div class="panel-heading">
+							<h4 class="panel-title">Available products</h4>
+							<p><h:outputText id="product_size_str" value="#{appBean.products.size()} record(s) found" rendered="#{appBean.products != null}" /></p>
+						</div><!-- panel-heading -->
+						<div class="panel-body">
+							<div class="results-list">
+								<h:panelGrid id="grid" columns="1" pt:style="width:100%">
+									<c:forEach items="#{appBean.products}" var="product">
+										<h:panelGroup>
+										<div class="media">
+				                            <a href="#" class="pull-left">
+				                            	<img src="#{request.contextPath}/imageservlet/#{product.id}-product-#{appBean.randomNumber}" alt="product-img" class="media-object thumbnail" />
+				                            </a>
+				                            <div class="media-body">
+				                            	<h4 class="filename text-primary">
+				                            	<h:commandLink action="#{appBean.selectProduct(product.id)}" rendered="#{not product.selected}">
+													<button class="btn btn-default">Select</button>
+													<f:ajax render="total_cost grid" />
+												</h:commandLink>
+												<h:commandLink action="#{appBean.selectProduct(product.id)}" rendered="#{product.selected}">
+													<button class="btn btn-success">Selected</button>
+													<f:ajax render="total_cost grid" />
+												</h:commandLink> #{product.productName}</h4>
+				                            	<small class="text-muted">First year payment: #{product.firstYearPayment}</small><br />
+				                            	<small class="text-muted">Yearly subscription: #{product.yearlySubscription}</small><br />
+				                            	<small class="text-muted">Lease Module: #{product.leaseModule}</small><br />
+				                            	<small class="text-muted">Special: <h:outputText value="Yes" rendered="#{product.specialProduct}" /><h:outputText value="No" rendered="#{not product.specialProduct}" /></small>
+				                            </div>
+				                        </div>
+				                        </h:panelGroup>
+			                        </c:forEach>
+		                        </h:panelGrid>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Cost: </label>
+						<div class="col-sm-8">
+							<h:outputText id="total_cost" value="#{appBean.total_cost}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Payment type: </label>
+						<div class="col-sm-8">
+							<h:selectOneMenu id="paytype" value="#{appBean.paymentType}" pt:class="width300">
+								<f:selectItem itemLabel="Pay Cash" itemValue="Pay Cash"/>
+								<f:selectItem itemLabel="Pay at Bank" itemValue="Pay at Bank"/>
+							</h:selectOneMenu>
+						</div>
+					</div><!-- form-group -->
+				</div>
+				<div class="panel-footer">
+					<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(112)}" onclick="return confirm('Are you sure?');">Submit</button>
+					<button type="reset" class="btn btn-default">Reset</button>
+				</div><!-- panel-footer -->
+			</div>
+		</h:form>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

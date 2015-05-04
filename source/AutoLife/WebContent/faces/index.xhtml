@@ -1,0 +1,137 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div class="pagemid_section">
+            <!--<script type="text/javascript">
+                jQuery(document).ready(function() {
+                    MySlider(3000,"testimonial70");
+                });
+            </script>-->
+            <div class="section_row clearfix">
+                <div class="section_row clearfix">
+                    <div class="section_bg" style="background-color:#e0e0e0;"></div>
+                    <div class="section_inner">
+                        <h1 class="center">Products</h1>
+                        <div class="one_third">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_autoinsurance.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>Auto Insurance</h4>
+                                    <p>Get access to different insurance packages from top nigerian insurance companies. Buy your insurance online in less than 5 mins.</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product2.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third -->
+                        <div class="one_third">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_trafficmgt.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>Traffic Management</h4>
+                                    <p>The ever rising traffic volume on our roadways demands a scalable, integrated traffic management solution...</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product5.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third -->
+                        <div class="one_third last">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_parkingmgt.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>Parking Management</h4>
+                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean feugiat, nulla ut dictum varius, arcu libero interdum quam, vel ullamcorper odio est vitae lacus</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product3.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third last -->
+                        <div class="one_third">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_trackandtrace.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>Track and Trace</h4>
+                                    <p>At least 1 Vehicle stolen per day per state in Nigeria, 90% ARE NEVER FOUND and 99% vehicles don't have comprehensive Insurance...</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product1.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third -->
+                        <div class="one_third">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_speedlimiter.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>Vehicle Speed Limiter</h4>
+                                    <p>Excessive and inappropriate speed is the most factor contributing to the road injury/accidents faced in our country today.</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product7.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third -->
+                        <div class="one_third last">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_fmis.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>SATTRAK FMIS</h4> <strong>Featured Service</strong>
+                                    <p>Our fleet management solution improves fleet productivity and provides the data needed for better, more - informed decision making.</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product6.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third last -->
+                        <div class="one_third">
+                            <div  data-id="bounceIn" class="bio iva_anim">
+                                <img src="#{request.contextPath}/images/product_fuelcard.jpg" alt="" />
+                                <div class="details bio_meta">
+                                    <h4>SATTRAK Fuel Card</h4> <strong>Featured Service</strong>
+                                    <p>Fuel is often one of the biggest fleet operating expenses - fleet managers can always be in control of fuel expenses through our Fuel Card Products/Solutions.</p>
+                                </div>
+                                <p class="center"><a href="#{request.contextPath}/faces/product4.xhtml" class='btn center medium full orange iva_anim '><span >More Info >></span></a></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div><!-- .one_third -->
+                        <div class="one_third">
+                            <div class="clear"></div>
+                        </div><!-- .one_third -->
+                        <div class="one_third last">
+                            <div class="clear"></div>
+                        </div><!-- .one_third last -->
+                    </div><!-- .section_inner -->
+                </div><!-- .section_row -->
+                <div class="section_row clearfix">
+                    <div class="section_bg"></div>
+                    <div class="section_inner">
+                        <h3>What Our Clients Say</h3>
+                        <div  data-id="bounceIn" class="custom-animation iva_anim">
+                            <div id="testimonial70" class="testimonial_list">
+                                <ul class="testimonials">
+                                    <!-- <li>
+                                        <div class="testimonial-box">
+                                            <div class="testimonial-content">
+                                                <p>Donec sed ligula diam. Sed lorem ligula, ultrices eu tristique vel, pellentesque sed lacus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam odio nunc, laoreet sed elit at, tempor gravida ligula. Etiam non est purus. Praesent justo massa, fringilla sit amet diam sit amet, hendrerit tincidunt nisl. Nulla ornare ligula id lorem euismod viverra posuere sit amet urna. </p>
+                                            </div>
+                                            <div class="client-image">
+                                                <img alt='' src='#{request.contextPath}/images/gravatar.jpg' />
+                                            </div>
+                                            <div class="client-meta">
+                                                <strong class="client-name">Goodluck Ebele Buhari</strong><a target="_blank" href="#">Presidency, Federal Republic of Nigeria</a>
+                                            </div>
+                                            <div class="testimonial-arrow"></div>
+                                        </div>
+                                    </li> -->
+                                    <li>...</li>
+                                </ul>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="clear"></div>
+                    </div><!-- .section_inner -->
+                </div><!-- .section_row -->
+            </div><!-- .section_row -->
+        </div><!-- .pagemid_section -->
+    </ui:define>
+</ui:composition>

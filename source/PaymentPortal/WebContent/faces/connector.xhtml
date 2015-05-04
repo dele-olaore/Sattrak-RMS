@@ -1,0 +1,24 @@
+<html class="no-js" lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+	<head>
+		
+	</head>
+	<body>
+		<form id="connectForm" name="connectForm" method="post" action="https://demo.globalpay.com.ng/globalpay_demo/Paymentgatewaycapture.aspx">
+			<input type="hidden" id="names" name="names" value="#{paymentBean.customerName}" />
+			<input type="hidden" id="amount" name="amount" value="#{paymentBean.amount}" />
+			<input type="hidden" id="email_address" name="email_address" value="#{paymentBean.customerEmail}" />
+			<input type="hidden" id="phone_number" name="phone_number" value="#{paymentBean.customerPhone}" />
+			<!-- Please change the currency as suited to your merchant-->
+			<input type="hidden" id="currency" name="currency" value="NGN" />
+			<input type="hidden" id="merch_txnref" name="merch_txnref" value="#{paymentBean.transactionRef}" />
+			<!-- Merchant reference number should be unique per transaction-->
+			<!-- Merchant Id value should be changed to your merchant id-->
+			<input type="hidden" id="merchantid" name="merchantid" value="6618" />
+		</form>
+	
+		<script>
+			document.connectForm.submit();
+		</script>
+	</body>
+</html>

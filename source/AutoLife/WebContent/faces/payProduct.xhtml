@@ -1,0 +1,75 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div id="subheader">
+            <div class="inner">
+                <div class="subdesc">
+                    <h1 class="page-title">Product Payment</h1>
+                    <div class="customtext"><h2>- Payment Option </h2></div>
+                </div>
+            </div>
+        </div><!-- #subheader -->
+        <div class="pagemid">
+            <div class="inner">
+                <div id="main">
+                    <div class="entry-content">
+                        <div class="section_row clearfix"  style="padding:60px 0px 60px 0px;">
+                            <div class="section_bg" ></div>
+                            <div class="section_inner">
+                            	<div class="two_third">
+                            		<h2>Your Transaction Details</h2>
+                            		<hr/>
+                            		<c:if test="#{userBean.productToBuy != null}">
+                            		<p><strong><h:outputText value="#{userBean.productToBuy.type.name}" rendered="#{userBean.productToBuy != null}" /> </strong><br/><h:outputText value="#{userBean.productToBuy.productName}" rendered="#{userBean.productToBuy != null and userBean.productToBuy.productName != null}" /><br/><br/><h:outputText value="#{userBean.productToBuy.details}" rendered="#{userBean.productToBuy != null}" /><br/><br/><h:outputText value="#{userBean.productToBuy.moreDetails}" rendered="#{userBean.productToBuy != null and userBean.productToBuy.moreDetails != null}" /></p>
+                            		<p><strong>Product Cost - N <h:outputText value="#{userBean.productToBuy.firstYearPayment}" rendered="#{userBean.productToBuy != null}" /></strong></p>
+                            		<hr/>
+                            		<h3>Total : N <h:outputText value="#{userBean.productToBuy.firstYearPayment}" rendered="#{userBean.productToBuy != null}" /></h3>
+                            		</c:if>
+                            		<c:if test="#{userBean.productToBuy == null}">
+                            			<h3>No selected product!</h3>
+                            		</c:if>
+                            	</div><!-- two_third -->
+                            	<div class="one_third last">
+                            		<div class="iva_anim notes">
+                            			<div class="notes_content">
+                            				<h4 class="notes_title">Transaction Summary</h4>
+                            				<p><strong>Amount Due - N <h:outputText value="#{userBean.productToBuy.firstYearPayment}" rendered="#{userBean.productToBuy != null}" /></strong></p>
+                            				<p><strong>Transaction Reference - <h:outputText value="#{userBean.productToBuyRef}" rendered="#{userBean.productToBuyRef != null}"/></strong></p>
+                            				<hr/>
+                            				<h4 class="notes_title">Select a Payment Method</h4>
+                            				<h:form pt:class="contact_form" pt:novalidate="novalidate">
+                            					<p>
+                            					<p:outputPanel id="customPanel" style="margin-bottom:10px">
+                            						<p:selectOneRadio id="payType" value="#{userBean.payType}" layout="custom">
+	                            						<f:selectItem itemLabel="Pay Online" itemValue="Pay Online" />
+	                            						<f:selectItem itemLabel="Pay at Bank" itemValue="Pay at Bank" />
+	                            					</p:selectOneRadio>
+	                            					<h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+	                            						<p:radioButton id="opt1" for="payType" itemIndex="0" /><h:outputText value="&#160;&#160;Pay Online" />
+	                            						<p:radioButton id="opt2" for="payType" itemIndex="1" /><h:outputText value="&#160;&#160;Pay at Bank" />
+	                            					</h:panelGrid>
+	                            				</p:outputPanel>
+                            					</p>
+                            					<p><input jsf:id="subButton" jsf:action="#{userBean.buyProduct}" value="Submit Payment" type="submit" class="wpcf7-form-control wpcf7-submit contactform" /></p>
+                            				</h:form>
+                            			</div>
+                            		</div>
+                            	</div><!-- two_third last -->
+                            	<div class="clear"></div>
+                            </div><!-- section_inner -->
+                        </div><!-- section_row -->
+                        <div class="clear"></div>
+                    </div><!-- .entry-content -->
+                </div><!-- #main -->
+                <div class="clear"></div>
+            </div><!-- .inner -->
+        </div><!-- .pagemid -->
+    </ui:define>
+</ui:composition>

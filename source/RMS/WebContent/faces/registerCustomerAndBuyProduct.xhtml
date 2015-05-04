@@ -1,0 +1,226 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/qlinks_layout.xhtml">
+<ui:define name="title">Register Customer and Buy Product</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-users"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li>Register Customer and Buy Product</li>
+					<li><a href="signin.xhtml">Back to Home</a></li>
+				</ul>
+				<h4>Register Customer and Buy Product</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="form" pt:class="form-horizontal form-bordered">
+			<div class="panel panel-default">
+			<div class="panel-body">
+			<div class="panel panel-default">
+			<div class="panel-header">
+				<h4>Agent Details</h4>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Unique Id: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.uniqueID}" rendered="#{userBean.sessionSalesAgent != null}" />
+						<h:outputText value="#{userBean.sessionTradePartner.uniqueID}" rendered="#{userBean.sessionTradePartner != null}" />
+						<h:inputText value="#{appBean.salesAgentUniqueId}" rendered="#{userBean.sessionSalesAgent == null and userBean.sessionTradePartner == null}" />
+					</div>
+				</div>
+			</div>
+			</div>
+			<div class="panel panel-default">
+			<div class="panel-header">
+				<h4>Customer Details</h4>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Title: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="title" value="#{appBean.customer.title}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItem itemLabel="Mr." itemValue="Mr."/>
+							<f:selectItem itemLabel="Mrs." itemValue="Mrs."/>
+							<f:selectItem itemLabel="Ms." itemValue="Ms."/>
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">First name*: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.customer.firstname}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Last name*: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.customer.lastname}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Date of Birth: </label>
+					<div class="col-sm-8">
+						<div class="input-group">
+							<h:inputText value="#{appBean.dobstr}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" />
+							<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+							<script>
+								try
+					    		{
+					    			// Date Picker
+					                jQuery('#datepicker').datepicker({
+					                	changeMonth: true,
+					                	changeYear: true
+					                });
+					    		}catch(e){alert(e);}
+							</script>
+						</div><!-- input-group -->
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Address*: </label>
+					<div class="col-sm-8">
+						<h:inputTextarea value="#{appBean.customer.address}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Country: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="country" value="#{appBean.ctry_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItems value="#{appBean.countries}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">State*: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="state" value="#{appBean.state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItem itemLabel="Choose One" itemValue="0"/>
+							<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+							<f:ajax render="lga" />
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">LGA*: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="lga" value="#{appBean.lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItem itemLabel="Choose One" itemValue="0"/>
+							<f:selectItems value="#{appBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Phone No: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.customer.phoneNo}" pt:class="form-control" pt:type="tel" pt:pattern="^[1-9][0-9][0-9]{7,14}$" />
+						<h:outputText value=" Format: Prefix with 234, then the mobile number, eg: 234802696XXXX" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Username/Email*: </label>
+					<div class="col-sm-8">
+						 <div class="input-group mb15">
+						 	<span class="input-group-addon">@</span>
+						 	<h:inputText value="#{appBean.cusUser.username}" pt:type="email" pt:class="form-control" pt:required="required" />
+						 </div><!-- input-group -->
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Password*: </label>
+					<div class="col-sm-8">
+						<h:inputSecret type="password" value="#{appBean.cusUser.password}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Confirm Password*: </label>
+					<div class="col-sm-8">
+						<h:inputSecret type="password" value="#{appBean.confirm_password}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+			</div><!-- panel-body -->
+			</div>
+			<div class="panel panel-default">
+			<div class="panel-header">
+				<h4>Product to buy</h4>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Product type: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="producttype" value="#{appBean.ptype_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItem itemLabel="All products" itemValue="0"/>
+							<f:selectItems value="#{appBean.ptypes}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+							<f:ajax render="product_size_str grid" />
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="panel panel-dark-head">
+					<div class="panel-heading">
+						<h4 class="panel-title">Available products</h4>
+						<p><h:outputText id="product_size_str" value="#{appBean.products.size()} record(s) found" rendered="#{appBean.products != null}" /></p>
+					</div><!-- panel-heading -->
+					<div class="panel-body">
+						<div class="results-list">
+							<h:panelGrid id="grid" columns="1" pt:style="width:100%">
+								<c:forEach items="#{appBean.products}" var="product">
+									<h:panelGroup>
+									<div class="media">
+			                            <a href="#" class="pull-left">
+			                            	<img src="#{request.contextPath}/imageservlet/#{product.id}-product-#{appBean.randomNumber}" alt="product-img" class="media-object thumbnail" />
+			                            </a>
+			                            <div class="media-body">
+			                            	<h4 class="filename text-primary">
+			                            	<h:commandLink action="#{appBean.selectProduct(product.id)}" rendered="#{not product.selected}">
+												<button class="btn btn-default">Select</button>
+												<f:ajax render="grid" />
+											</h:commandLink>
+											<h:commandLink action="#{appBean.selectProduct(product.id)}" rendered="#{product.selected}">
+												<button class="btn btn-success">Selected</button>
+												<f:ajax render="grid" />
+											</h:commandLink> #{product.details}</h4>
+			                            	<small class="text-muted">First year payment: #{product.firstYearPayment}</small><br />
+			                            	<small class="text-muted">Yearly subscription: #{product.yearlySubscription}</small><br />
+			                            	<small class="text-muted">Lease Module: #{product.leaseModule}</small><br />
+			                            	<small class="text-muted">Special: <h:outputText value="Yes" rendered="#{product.specialProduct}" /><h:outputText value="No" rendered="#{not product.specialProduct}" /></small>
+			                            </div>
+			                        </div>
+			                        </h:panelGroup>
+		                        </c:forEach>
+	                        </h:panelGrid>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+			<div class="panel panel-default">
+			<div class="panel-header">
+				<h4>Payment Details</h4>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Payment Option: <h:outputText value="Pay at Bank" /></label>
+				</div>
+			</div>
+			</div>
+			</div>
+			<div class="panel-footer">
+				<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(0)}" onclick="return confirm('Are you sure?');">Submit</button>
+				<button type="reset" class="btn btn-default">Reset</button>
+			</div><!-- panel-footer -->
+			</div>
+		</h:form>
+	</div>
+</ui:define>
+</ui:composition>

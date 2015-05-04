@@ -1,0 +1,307 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Device Movements</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-file-text"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Device Movements</li>
+				</ul>
+				<h4>Device Movements</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs nav-info">
+			<c:if test="#{userBean.sessionPartner.sattrak}">
+			<c:if test="#{(userBean.activeIMTab == null or (userBean.activeIMTab != null and userBean.activeIMTab == 'installer'))}">
+				<li class="active"><a href="#installer" data-toggle="tab"><strong>Installation Agent</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeIMTab != null and userBean.activeIMTab != 'installer'}">
+				<li><a href="#installer" data-toggle="tab"><strong>Installation Agent</strong></a></li>
+			</c:if>
+			</c:if>
+			<c:if test="#{userBean.activeIMTab != null and userBean.activeIMTab == 'salesagt'}">
+				<li class="active"><a href="#salesagt" data-toggle="tab"><strong>Sales Agent</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeIMTab == null or (userBean.activeIMTab != null and userBean.activeIMTab != 'salesagt')}">
+				<li><a href="#salesagt" data-toggle="tab"><strong>Sales Agent</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeIMTab != null and userBean.activeIMTab == 'tradeprt'}">
+				<li class="active"><a href="#tradeprt" data-toggle="tab"><strong>Trade Partner</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeIMTab == null or (userBean.activeIMTab != null and userBean.activeIMTab != 'tradeprt')}">
+				<li><a href="#tradeprt" data-toggle="tab"><strong>Trade Partner</strong></a></li>
+			</c:if>
+		</ul>
+		<!-- Tab panes -->
+		<div class="tab-content tab-content-info mb30">
+			<c:if test="#{userBean.sessionPartner.sattrak}">
+			<div class="tab-pane #{userBean.activeIMTab == 'installer' ? 'active' : ''}" id="installer">
+				<h:form pt:class="form-horizontal form-bordered">
+					<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Item type: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="itemtype" value="#{appBean.itmType_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.itmTypes}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									<f:ajax render="item" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Item*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="item" value="#{appBean.itm_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.items}" var="c" itemLabel="#{c.name}[#{c.model}]" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Move type*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="product" value="#{appBean.itmMove.moveType}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="SUPPLY" itemValue="SUPPLY"/>
+									<f:selectItem itemLabel="DISTRIBUTION" itemValue="DISTRIBUTION"/>
+									<f:selectItem itemLabel="RETURNED" itemValue="RETURNED"/>
+									<f:selectItem itemLabel="DAMAGED" itemValue="DAMAGED"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Installer*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="installer" value="#{appBean.installer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.installers}" var="c" itemLabel="#{c.companyName}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Count*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.itmMove.count}" pt:class="form-control" pt:type="number" pt:min="1" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Move date*: </label>
+							<div class="col-sm-8">
+								<div class="input-group">
+									<h:inputText value="#{appBean.itmMove_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" pt:required="required" />
+									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+									<script>
+										try
+							    		{
+							    			// Date Picker
+							                jQuery('#datepicker').datepicker();
+							    		}catch(e){alert(e);}
+									</script>
+								</div><!-- input-group -->
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Remark*: </label>
+							<div class="col-sm-8">
+								<h:inputTextarea value="#{appBean.itmMove.remarks}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+					</div><!-- panel-body -->
+					<div class="panel-footer">
+						<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(9)}" onclick="return confirm('Are you sure?');">Submit</button>
+						<button type="reset" class="btn btn-default">Reset</button>
+					</div><!-- panel-footer -->
+					</div>
+				</h:form>
+			</div>
+			</c:if>
+			<div class="tab-pane #{userBean.activeIMTab == 'salesagt' ? 'active' : ''}" id="salesagt">
+				<h:form pt:class="form-horizontal form-bordered">
+					<div class="panel panel-default">
+					<div class="panel-body">
+						<c:if test="#{userBean.sessionPartner.sattrak}">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Partner: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+										<f:ajax render="salesagent" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+						</c:if>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Item type: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu value="#{appBean.itmType_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.itmTypes}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									<f:ajax render="item2" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Item*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="item2" value="#{appBean.itm_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.items}" var="c" itemLabel="#{c.name}[#{c.model}]" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Move type*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu value="#{appBean.itmMove.moveType}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="SUPPLY" itemValue="SUPPLY"/>
+									<f:selectItem itemLabel="DISTRIBUTION" itemValue="DISTRIBUTION"/>
+									<f:selectItem itemLabel="RETURNED" itemValue="RETURNED"/>
+									<f:selectItem itemLabel="DAMAGED" itemValue="DAMAGED"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Sales Agent*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="salesagent" value="#{appBean.salesAgent_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.salesAgentsWithStock}" var="c" itemLabel="#{c.firstname} #{c.lastname}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Count*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.itmMove.count}" pt:class="form-control" pt:type="number" pt:min="1" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Move date*: </label>
+							<div class="col-sm-8">
+								<div class="input-group">
+									<h:inputText value="#{appBean.itmMove_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" pt:required="required" />
+									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+									<script>
+										try
+							    		{
+							    			// Date Picker
+							                jQuery('#datepicker').datepicker();
+							    		}catch(e){alert(e);}
+									</script>
+								</div><!-- input-group -->
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Remark*: </label>
+							<div class="col-sm-8">
+								<h:inputTextarea value="#{appBean.itmMove.remarks}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+					</div><!-- panel-body -->
+					<div class="panel-footer">
+						<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(92)}" onclick="return confirm('Are you sure?');">Submit</button>
+						<button type="reset" class="btn btn-default">Reset</button>
+					</div><!-- panel-footer -->
+					</div>
+				</h:form>
+			</div>
+			<div class="tab-pane #{userBean.activeIMTab == 'tradeprt' ? 'active' : ''}" id="tradeprt">
+				<h:form pt:class="form-horizontal form-bordered">
+					<div class="panel panel-default">
+					<div class="panel-body">
+						<c:if test="#{userBean.sessionPartner.sattrak}">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Partner: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+										<f:ajax render="tradepartner" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+						</c:if>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Item type: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu value="#{appBean.itmType_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.itmTypes}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									<f:ajax render="item2" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Item*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="item2" value="#{appBean.itm_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.items}" var="c" itemLabel="#{c.name}[#{c.model}]" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Move type*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu value="#{appBean.itmMove.moveType}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="SUPPLY" itemValue="SUPPLY"/>
+									<f:selectItem itemLabel="DISTRIBUTION" itemValue="DISTRIBUTION"/>
+									<f:selectItem itemLabel="RETURNED" itemValue="RETURNED"/>
+									<f:selectItem itemLabel="DAMAGED" itemValue="DAMAGED"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Trade Partner*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="tradepartner" value="#{appBean.tradePartner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.tradePartners}" var="c" itemLabel="#{c.tradePartnerName}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Count*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.itmMove.count}" pt:class="form-control" pt:type="number" pt:min="1" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Move date*: </label>
+							<div class="col-sm-8">
+								<div class="input-group">
+									<h:inputText value="#{appBean.itmMove_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" pt:required="required" />
+									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+									<script>
+										try
+							    		{
+							    			// Date Picker
+							                jQuery('#datepicker').datepicker();
+							    		}catch(e){alert(e);}
+									</script>
+								</div><!-- input-group -->
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Remark*: </label>
+							<div class="col-sm-8">
+								<h:inputTextarea value="#{appBean.itmMove.remarks}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+					</div><!-- panel-body -->
+					<div class="panel-footer">
+						<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(93)}" onclick="return confirm('Are you sure?');">Submit</button>
+						<button type="reset" class="btn btn-default">Reset</button>
+					</div><!-- panel-footer -->
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

@@ -1,0 +1,133 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Registered Agents Report</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-bars"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Registered Agents Report</li>
+				</ul>
+				<h4>Registered Agents Report</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="form" pt:class="form-horizontal form-bordered">
+		
+			<c:if test="#{userBean.sessionPartner.sattrak}">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Partner: </label>
+						<div class="col-sm-8">
+							<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="-- Select One --" itemValue="0"/>
+								<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								<f:ajax render="form" />
+							</h:selectOneMenu>
+						</div>
+					</div><!-- form-group -->
+				</div>
+			</div>
+			</c:if>
+		
+			Sales Agents<br/>
+			Download : <a href="#" onclick="$('#basicTable').tableExport({type:'pdf',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/pdf.png" width="24px" /> PDF</a>
+			<!-- <a href="#" onClick="$('#basicTable').tableExport({type:'doc',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/word.png" width="24px"/> Word</a> -->
+			<a href="#" onClick="$('#basicTable').tableExport({type:'excel',escape:'false'});return false;"> <img src="#{request.contextPath}/images/icons/xls.png" width="24px" /> XLS</a>
+			<a href="#" onClick="$('#basicTable').tableExport({type:'csv',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/csv.png" width="24px" /> CSV</a>
+			<!-- <a href="#" onClick="$('#basicTable').tableExport({type:'txt',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/txt.png" width="24px"/> TXT</a> -->
+			<br/>
+			<table id="basicTable" class="table table-striped table-bordered responsive">
+				<thead class="">
+					<tr>
+						<th>First name</th>
+						<th>Last name</th>
+						<th>Address</th>
+						<th>Phone No</th>
+						<th>Bank</th>
+						<th>Country</th>
+						<th>State</th>
+						<th>LGA</th>
+						<th>Username/Email</th>
+						<th>Created</th>
+					</tr>
+				</thead>
+				<tbody>
+					<ui:repeat value="#{appBean.salesAgents}" var="itm">
+						<tr>
+							<td>#{itm.firstname}</td>
+							<td>#{itm.lastname}</td>
+							<td>#{itm.address}</td>
+							<td>#{itm.phoneNo}</td>
+							<td>Bank: #{itm.bankName}, Account Name: #{itm.accountName}, Account No.: #{itm.accountNo}</td>
+							<td><h:outputText value="#{itm.country.name}" rendered="#{itm.country != null}" /></td>
+							<td><h:outputText value="#{itm.state.name}" rendered="#{itm.state != null}" /></td>
+							<td><h:outputText value="#{itm.lga.name}" rendered="#{itm.lga != null}" /></td>
+							<td><h:outputText value="#{itm.user.username}" rendered="#{itm.user != null}" /></td>
+							<td>#{itm.crt_dt}</td>
+						</tr>
+					</ui:repeat>
+				</tbody>
+			</table>
+			<br/>
+			Installation Agents<br/>
+			Download : <a href="#" onclick="$('#basicTable2').tableExport({type:'pdf',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/pdf.png" width="24px" /> PDF</a>
+			<!-- <a href="#" onClick="$('#basicTable2').tableExport({type:'doc',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/word.png" width="24px"/> Word</a> -->
+			<a href="#" onClick="$('#basicTable2').tableExport({type:'excel',escape:'false'});return false;"> <img src="#{request.contextPath}/images/icons/xls.png" width="24px" /> XLS</a>
+			<a href="#" onClick="$('#basicTable2').tableExport({type:'csv',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/csv.png" width="24px" /> CSV</a>
+			<!-- <a href="#" onClick="$('#basicTable2').tableExport({type:'txt',escape:'false'});return false;"><img src="#{request.contextPath}/images/icons/txt.png" width="24px"/> TXT</a> -->
+			<br/>
+			<table id="basicTable2" class="table table-striped table-bordered responsive">
+				<thead class="">
+					<tr>
+						<th></th>
+						<th>Company name</th>
+						<th>Contact</th>
+						<th>Address</th>
+						<th>Admin</th>
+						<th>Bank</th>
+						<th>Country</th>
+						<th>State</th>
+						<th>LGA</th>
+						<th>Username/Email</th>
+						<th>Created</th>
+					</tr>
+				</thead>
+				<tbody>
+					<ui:repeat value="#{appBean.installers}" var="itm">
+						<tr>
+							<td>
+								<img src="#{request.contextPath}/imageservlet/#{itm.id}-installer-#{appBean.randomNumber}" width="50" height="50" alt="installer" />
+							</td>
+							<td>#{itm.companyName}</td>
+							<td>Phone No: #{itm.phoneNo}, Email: #{itm.email}</td>
+							<td>#{itm.address}<br/>Lat: #{itm.lat}<br/>Lng: #{itm.lng}</td>
+							<td>#{itm.adminFirstname} #{itm.adminLastname}</td>
+							<td>Bank: #{itm.bankName}, Account Name: #{itm.accountName}, Account No.: #{itm.accountNo}</td>
+							<td><h:outputText value="#{itm.country.name}" rendered="#{itm.country != null}" /></td>
+							<td><h:outputText value="#{itm.state.name}" rendered="#{itm.state != null}" /></td>
+							<td><h:outputText value="#{itm.lga.name}" rendered="#{itm.lga != null}" /></td>
+							<td><h:outputText value="#{itm.user.username}" rendered="#{itm.user != null}" /></td>
+							<td>#{itm.crt_dt}</td>
+						</tr>
+					</ui:repeat>
+				</tbody>
+			</table>
+		</h:form>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>
+
+	

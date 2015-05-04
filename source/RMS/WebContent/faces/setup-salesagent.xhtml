@@ -1,0 +1,223 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Sales Agent Registration</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-user-md"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Sales Agent Registration</li>
+				</ul>
+				<h4>Sales Agent Registration</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs nav-info">
+			<c:if test="#{(userBean.activeTab == null or (userBean.activeTab != null and userBean.activeTab == 'create'))}">
+				<li class="active"><a href="#create" data-toggle="tab"><strong>Create</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeTab != null and userBean.activeTab != 'create'}">
+				<li><a href="#create" data-toggle="tab"><strong>Create</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeTab != null and userBean.activeTab == 'manage'}">
+				<li class="active"><a href="#manage" data-toggle="tab"><strong>Manage</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeTab == null or (userBean.activeTab != null and userBean.activeTab != 'manage')}">
+				<li><a href="#manage" data-toggle="tab"><strong>Manage</strong></a></li>
+			</c:if>
+		</ul>
+		<!-- Tab panes -->
+		<div class="tab-content tab-content-info mb30">
+			<div class="tab-pane #{userBean.activeTab == 'create' ? 'active' : ''}" id="create">
+				<h:form id="form" pt:class="form-horizontal form-bordered">
+					<div class="panel panel-default">
+					<div class="panel-body">
+						
+						<c:if test="#{userBean.sessionPartner.sattrak}">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Partner: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+						</c:if>
+						
+						<div class="form-group">
+							<label class="col-sm-4 control-label">First name*: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.salesAgent.firstname}" pt:type="text" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Last name*: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.salesAgent.lastname}" pt:type="text" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Phone No*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.salesAgent.phoneNo}" pt:class="form-control" pt:type="tel" pt:pattern="^[1-9][0-9][0-9]{7,14}$" pt:required="required" />
+								<h:outputText value=" Format: Prefix with 234, then the mobile number, eg: 234802696XXXX" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Address*: </label>
+							<div class="col-sm-8">
+								<h:inputTextarea value="#{appBean.salesAgent.address}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Country: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="country" value="#{appBean.ctry_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.countries}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">State*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="state" value="#{appBean.state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Choose One" itemValue="0"/>
+									<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									<f:ajax render="lga" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">LGA*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="lga" value="#{appBean.lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Username/Email*: </label>
+							<div class="col-sm-8">
+								 <div class="input-group mb15">
+								 	<span class="input-group-addon">@</span>
+								 	<h:inputText value="#{appBean.salesAgentUser.username}" pt:type="email" pt:class="form-control" pt:required="required" />
+								 </div><!-- input-group -->
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Password*: </label>
+							<div class="col-sm-8">
+								<h:inputSecret type="password" value="#{appBean.salesAgentUser.password}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Confirm Password*: </label>
+							<div class="col-sm-8">
+								<h:inputSecret type="password" value="#{appBean.confirm_password}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Bank name: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.salesAgent.bankName}" pt:type="text" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Account name: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.salesAgent.accountName}" pt:type="text" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Account number: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.salesAgent.accountNo}" pt:type="number" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+					</div><!-- panel-body -->
+					<div class="panel-footer">
+						<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(13)}" onclick="return confirm('Are you sure?');">Submit</button>
+						<button type="reset" class="btn btn-default">Reset</button>
+					</div><!-- panel-footer -->
+					</div>
+				</h:form>
+			</div>
+			<div class="tab-pane #{userBean.activeTab == 'manage' ? 'active' : ''}" id="manage">
+				<h:form id="manageFrm">
+					<c:if test="#{userBean.sessionPartner.sattrak}">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Partner: </label>
+									<div class="col-sm-8">
+										<h:selectOneMenu value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+											<f:selectItem itemLabel="-- Select One --" itemValue="0"/>
+											<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+											<f:ajax render="manageFrm" />
+										</h:selectOneMenu>
+									</div>
+								</div><!-- form-group -->
+							</div>
+						</div>
+					</c:if>
+				<table id="basicTable" class="table table-striped table-bordered responsive">
+					<thead class="">
+						<tr>
+							<th>ID</th>
+							<th>First name</th>
+							<th>Last name</th>
+							<th>Address</th>
+							<th>Phone No</th>
+							<th>Bank</th>
+							<th>Country</th>
+							<th>State</th>
+							<th>LGA</th>
+							<th>Username/Email</th>
+							<th>Created</th>
+							<th>Edit</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ui:repeat value="#{appBean.salesAgents}" var="itm">
+							<tr>
+								<td>#{itm.uniqueID}</td>
+								<td>#{itm.firstname}</td>
+								<td>#{itm.lastname}</td>
+								<td>#{itm.address}</td>
+								<td>#{itm.phoneNo}</td>
+								<td>Bank: #{itm.bankName}, Account Name: #{itm.accountName}, Account No.: #{itm.accountNo}</td>
+								<td><h:outputText value="#{itm.country.name}" rendered="#{itm.country != null}" /></td>
+								<td><h:outputText value="#{itm.state.name}" rendered="#{itm.state != null}" /></td>
+								<td><h:outputText value="#{itm.lga.name}" rendered="#{itm.lga != null}" /></td>
+								<td><h:outputText value="#{itm.user.username}" rendered="#{itm.user != null}" /></td>
+								<td>#{itm.crt_dt}</td>
+								<td>
+									<h:commandLink value="Edit" action="#{appBean.initEdit('edit-salesagent')}">
+										<f:setPropertyActionListener value="#{itm}" target="#{appBean.selSalesAgent}" />
+										<f:setPropertyActionListener value="manage" target="#{userBean.activeTab}" />
+									</h:commandLink>
+								</td>
+							</tr>
+						</ui:repeat>
+					</tbody>
+				</table>
+				</h:form>
+			</div><!-- tab-pane -->
+		</div>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

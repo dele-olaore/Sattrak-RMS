@@ -1,0 +1,45 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Confirm Payment at Bank</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-shopping-cart"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Confirm Payment at Bank - #{appBean.selBankDeposit.tranRef}</li>
+				</ul>
+				<h4>Confirm Payment at Bank - #{appBean.selBankDeposit.tranRef}</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="form" pt:class="form-horizontal form-bordered">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Remark: </label>
+						<div class="col-sm-8">
+							<h:inputTextarea value="#{appBean.selBankDeposit.confirmationInfo}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+				</div>
+				<div class="panel-footer">
+					<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.confirmBankDeposit}" onclick="return confirm('Are you sure?');">Submit</button>
+					<button type="reset" class="btn btn-default">Reset</button>
+				</div><!-- panel-footer -->
+			</div>
+		</h:form>
+	</div>
+</ui:define>
+</ui:composition>

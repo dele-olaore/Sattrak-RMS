@@ -1,0 +1,159 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Edit Installation Agent Registration</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-user-md"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Edit Installation Agent Registration</li>
+				</ul>
+				<h4>Edit Installation Agent Registration</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="form" pt:class="form-horizontal form-bordered">
+			<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">ID*: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{appBean.selEditInstaller.uniqueID}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Company name*: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.selEditInstaller.companyName}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Phone No*: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.selEditInstaller.phoneNo}" pt:class="form-control" pt:type="tel" pt:pattern="^[1-9][0-9][0-9]{7,14}$" pt:required="required" />
+						<h:outputText value=" Format: Prefix with 234, then the mobile number, eg: 234802696XXXX" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Email: </label>
+					<div class="col-sm-8">
+						<div class="input-group mb15">
+						 	<span class="input-group-addon">@</span>
+						 	<h:inputText value="#{appBean.selEditInstaller.email}" pt:type="email" pt:class="form-control" pt:required="required" />
+						 </div><!-- input-group -->
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Max Installation Per Slot: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.selEditInstaller.maxMultiSlotInstallation}" pt:class="form-control" />
+						<h:outputText value=" Enter the maximum installation allowed per slot" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Address: </label>
+					<div class="col-sm-8">
+						<h:inputTextarea value="#{appBean.selEditInstaller.address}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Longitude: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.selEditInstaller.lng}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Latitude: </label>
+					<div class="col-sm-8">
+						<h:inputText value="#{appBean.selEditInstaller.lat}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Country: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="country" value="#{appBean.ctry_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItems value="#{appBean.countries}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">State*: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="state" value="#{appBean.state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItem itemLabel="Choose One" itemValue="0"/>
+							<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+							<f:ajax render="lga" />
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">LGA*: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="lga" value="#{appBean.lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItems value="#{appBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Admin First name*: </label>
+					<div class="col-sm-8">
+						 <h:inputText value="#{appBean.selEditInstaller.adminFirstname}" pt:type="text" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Admin Last name*: </label>
+					<div class="col-sm-8">
+						 <h:inputText value="#{appBean.selEditInstaller.adminLastname}" pt:type="text" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Username/Email*: </label>
+					<div class="col-sm-8">
+						 <div class="input-group mb15">
+						 	<span class="input-group-addon">@</span>
+						 	<h:inputText value="#{appBean.selEditInstaller.user.username}" pt:type="email" pt:class="form-control" pt:required="required" />
+						 </div><!-- input-group -->
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank name: </label>
+					<div class="col-sm-8">
+						 <h:inputText value="#{appBean.selEditInstaller.bankName}" pt:type="text" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Account name: </label>
+					<div class="col-sm-8">
+						 <h:inputText value="#{appBean.selEditInstaller.accountName}" pt:type="text" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Account number: </label>
+					<div class="col-sm-8">
+						 <h:inputText value="#{appBean.selEditInstaller.accountNo}" pt:type="number" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+			</div><!-- panel-body -->
+			<div class="panel-footer">
+				<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.update(appBean.selEditInstaller)}" onclick="return confirm('Are you sure?');">Submit</button>
+				<button type="reset" class="btn btn-default">Reset</button>
+			</div><!-- panel-footer -->
+			</div>
+		</h:form>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

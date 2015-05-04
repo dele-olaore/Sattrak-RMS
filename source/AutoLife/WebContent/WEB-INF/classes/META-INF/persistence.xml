@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="AutoLifePU" transaction-type="RESOURCE_LOCAL">
+    <!--<jta-data-source>java:/jboss/datasources/rmsPU</jta-data-source>-->
+    <class>com.iox.rms.model.Agent</class>
+    <class>com.iox.rms.model.AppConfiguration</class>
+    <class>com.iox.rms.model.AppResource</class>
+    <class>com.iox.rms.model.Country</class>
+    <class>com.iox.rms.model.Customer</class>
+    <class>com.iox.rms.model.CustomerProduct</class>
+    <class>com.iox.rms.model.CustomerTransaction</class>
+    <class>com.iox.rms.model.InstallationDeviceUse</class>
+    <class>com.iox.rms.model.InstallationReworkDeviceUse</class>
+    <class>com.iox.rms.model.InstallerLocation</class>
+    <class>com.iox.rms.model.InstallerLocationItem</class>
+    <class>com.iox.rms.model.InstallerLocationJobSchedule</class>
+    <class>com.iox.rms.model.Item</class>
+    <class>com.iox.rms.model.ItemManufacturer</class>
+    <class>com.iox.rms.model.ItemMove</class>
+    <class>com.iox.rms.model.ItemType</class>
+    <class>com.iox.rms.model.LGA</class>
+    <class>com.iox.rms.model.Notification</class>
+    <class>com.iox.rms.model.Partner</class>
+    <class>com.iox.rms.model.PartnerPersonnel</class>
+    <class>com.iox.rms.model.Product</class>
+    <class>com.iox.rms.model.ProductType</class>
+    <class>com.iox.rms.model.ProductTypeCommission</class>
+    <class>com.iox.rms.model.Rating</class>
+    <class>com.iox.rms.model.ReworkInstallation</class>
+    <class>com.iox.rms.model.Role</class>
+    <class>com.iox.rms.model.SalesAgent</class>
+    <class>com.iox.rms.model.SalesAgentItem</class>
+    <class>com.iox.rms.model.Slot</class>
+    <class>com.iox.rms.model.State</class>
+    <class>com.iox.rms.model.TradePartner</class>
+    <class>com.iox.rms.model.TradePartnerItem</class>
+    <class>com.iox.rms.model.User</class>
+    <class>com.iox.rms.model.VehicleMake</class>
+    <class>com.iox.rms.model.VehicleType</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+        <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+        <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/rms"/>
+        <property name="javax.persistence.jdbc.user" value="root"/>
+        <property name="javax.persistence.jdbc.password" value="dexter"/>
+        <!-- EclipseLink should create the database schema automatically -->
+        <property name="eclipselink.ddl-generation" value="create-tables"/>
+        <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+    </properties>
+  </persistence-unit>
+  <persistence-unit name="PaymentPU" transaction-type="RESOURCE_LOCAL">
+    <!--<jta-data-source>java:/jboss/datasources/PaymentPU</jta-data-source>-->
+    <class>com.iox.pp.model.PaymentTransaction</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+        <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+        <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/paymentportal"/>
+        <property name="javax.persistence.jdbc.user" value="root"/>
+        <property name="javax.persistence.jdbc.password" value="dexter"/>
+        <!-- EclipseLink should create the database schema automatically -->
+        <property name="eclipselink.ddl-generation" value="create-tables"/>
+        <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+    </properties>
+  </persistence-unit>
+</persistence>

@@ -1,0 +1,354 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/index_layout.xhtml">
+<ui:define name="content">
+	<div class="panel panel-signup">
+		<div class="panel-body">
+			<div class="logo text-center">
+				<img src="#{request.contextPath}/images/logo-primary.png" alt="RMS Logo" />
+			</div>
+			<br />
+			<h4 class="text-center mb5">Create a new account</h4>
+			<p class="text-center">Please enter your credentials below</p>
+			
+			<div class="mb30"></div>
+			
+			<h:form id="signupForm" method="post">
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="col-sm-4 control-label">Title: </label>
+							<h:selectOneMenu pt:id="title" value="#{appBean.customer.title}" pt:data-placeholder="Select Title" pt:class="width300">
+								<f:selectItem itemLabel="Mr." itemValue="Mr."/>
+								<f:selectItem itemLabel="Mrs." itemValue="Mrs."/>
+								<f:selectItem itemLabel="Ms." itemValue="Ms."/>
+							</h:selectOneMenu>
+						</div><!-- form-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+							<h:inputText value="#{appBean.customer.firstname}" pt:type="text" pt:placeholder="Enter Firstname*" pt:class="form-control" pt:required="required" />
+						</div><!-- input-group -->
+					</div>
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+							<h:inputText value="#{appBean.customer.lastname}" pt:type="text" pt:placeholder="Enter Lastname*" pt:class="form-control" pt:required="required" />
+						</div><!-- input-group -->
+					</div>
+				</div><!-- row -->
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<h:inputText value="#{appBean.dobstr}" pt:type="text" pt:class="form-control" pt:placeholder="Date of birth" pt:id="dob" />
+							<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+							<script>
+								try
+					    		{
+					    			// Date Picker
+					                jQuery('#dob').datepicker();
+					    		}catch(e){alert(e);}
+							</script>
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-road"></i></span>
+							<h:inputTextarea value="#{appBean.customer.address}" pt:placeholder="Enter Your Address*" pt:class="form-control" pt:required="required" />
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="col-sm-4 control-label">Country: </label>
+							<h:selectOneMenu id="country" value="#{appBean.ctry_id}" pt:data-placeholder="Country of residence" pt:class="width300">
+								<f:selectItems value="#{appBean.countries}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+							</h:selectOneMenu>
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="col-sm-4 control-label">State*: </label>
+							<h:selectOneMenu id="state" value="#{appBean.state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								<f:ajax render="lga" />
+							</h:selectOneMenu>
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="col-sm-4 control-label">LGA*: </label>
+							<h:selectOneMenu id="lga" value="#{appBean.lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+							</h:selectOneMenu>
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="col-sm-4 control-label">Phone No: </label>
+							<h:inputText value="#{appBean.customer.phoneNo}" pt:class="form-control" pt:placeholder="Enter Phone Number eg: 234802696XXXX" pt:type="tel" pt:pattern="^[1-9][0-9][0-9]{7,14}$" />
+							<h:outputText value=" Format: Prefix with 234" />
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+							<h:inputText value="#{appBean.cusUser.username}" pt:type="email" pt:class="form-control" pt:placeholder="Enter Username/Email Address*" pt:required="required" />
+						</div><!-- input-group -->
+					</div>
+				</div><!-- row -->
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+							<h:inputSecret pt:type="password" value="#{appBean.cusUser.password}" pt:class="form-control" pt:placeholder="Enter Password*" pt:required="required" />
+						</div><!-- input-group -->
+					</div>
+					<div class="col-sm-6">
+						<div class="input-group mb15">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+							<h:inputSecret pt:type="password" value="#{appBean.confirm_password}" pt:class="form-control" pt:placeholder="Confirm Password*" pt:required="required" />
+						</div><!-- input-group -->
+					</div>
+				</div><!-- row -->
+				<br />
+				<div class="row">
+					<div class="panel panel-dark-head">
+						<div class="panel-heading">
+							<h4 class="panel-title">Select/check the product you'll like to book/purchase</h4>
+							<p><h:outputText id="product_size_str" value="#{appBean.products.size()} record(s) found" rendered="#{appBean.products != null}" /></p>
+						</div><!-- panel-heading -->
+						<div class="panel-body">
+							<div class="results-list">
+								<h:panelGrid id="grid" columns="1" pt:style="width:100%">
+									<c:forEach items="#{appBean.products}" var="product">
+										<h:panelGroup>
+										<div class="media">
+				                            <a href="#" class="pull-left">
+				                            	<img alt="" src="#{request.contextPath}/images/photos/media1.jpg" class="media-object thumbnail" />
+				                            </a>
+				                            <div class="media-body">
+				                            	<h4 class="filename text-primary">
+				                            	<h:selectBooleanCheckbox value="#{product.selected}"><f:ajax render="total_cost" /></h:selectBooleanCheckbox> #{product.details}</h4>
+				                            	<small class="text-muted">First year payment: #{product.firstYearPayment}</small><br />
+				                            	<small class="text-muted">Yearly subscription: #{product.yearlySubscription}</small><br />
+				                            	<small class="text-muted">Lease Module: #{product.leaseModule}</small><br />
+				                            	<small class="text-muted">Special: <h:outputText value="Yes" rendered="#{product.specialProduct}" /><h:outputText value="No" rendered="#{not product.specialProduct}" /></small>
+				                            </div>
+				                        </div>
+				                        </h:panelGroup>
+			                        </c:forEach>
+		                        </h:panelGrid>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="control-label">Preferred Installation State: </label>
+							<h:selectOneMenu id="state2" value="#{appBean.installer_state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								<f:ajax render="lga2 installer" />
+							</h:selectOneMenu>
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="control-label">Preferred Installation LGA: </label>
+							<h:selectOneMenu id="lga2" value="#{appBean.installer_lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.lgas2}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								<f:ajax render="installer" />
+							</h:selectOneMenu>
+						</div><!-- input-group -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="control-label">Installation Point: </label>
+							<h:selectOneMenu id="installer" value="#{appBean.installer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.installersByLGA2}" var="c" itemLabel="#{c.companyName}" itemValue="#{c.id}"/>
+								<f:ajax render="installer_photo installer_addr" />
+							</h:selectOneMenu>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+					<div class="form-group mb15">
+						<label class="control-label">Installation Point Photo: </label>
+						<div class="col-sm-8">
+							<h:panelGrid id="installer_photo" columns="1">
+							<c:if test="#{appBean.selInstaller != null}">
+								<img src="#{request.contextPath}/imageservlet/#{appBean.selInstaller.id}-installer-#{appBean.randomNumber}" width="150px" height="100px" alt="Photo" />
+							</c:if>
+							</h:panelGrid>
+						</div>
+					</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-6">
+					<div class="form-group mb15">
+						<label class="control-label">Installation Point Address: </label>
+						<div class="col-sm-8">
+							<h:panelGrid id="installer_addr" columns="1">
+							<h:outputText value="#{appBean.selInstaller.address}" />
+							<c:if test="#{appBean.selInstaller != null}">
+								<div id="gmap-marker" style="height:150px; width:400px"></div>
+								<script>
+									jQuery(document).ready(function(){
+										try{
+											var map_marker = new GMaps({
+												div: '#gmap-marker',
+												lat: #{appBean.selInstaller.lat},
+												lng: #{appBean.selInstaller.lng}
+											});
+											GMaps.geocode({
+												address: '#{appBean.selInstaller.address}',
+												callback: function(results, status)
+												{
+													if(status == 'OK')
+													{
+														var latlng = results[0].geometry.location;
+														map_marker.setCenter(latlng.lat(), latlng.lng());
+														map_marker.addMarker({
+															lat: latlng.lat(),
+															lng: latlng.lng()
+														});
+													}
+												}
+											});
+										} catch(e){alert(e);}
+									});
+								</script>
+							</c:if>
+							</h:panelGrid>
+						</div>
+					</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="control-label">Preferred Installation Date*: </label>
+							<div class="col-sm-8">
+								<div class="input-group">
+									<h:inputText value="#{appBean.book_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="install_dt" pt:required="required">
+										<f:ajax render="slot" />
+									</h:inputText>
+									<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+									<script>
+										try
+							    		{
+							    			// Date Picker
+							                jQuery('#install_dt').datepicker();
+							    		}catch(e){alert(e);}
+									</script>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group mb15">
+							<label class="control-label">Available slot*: </label>
+							<h:selectOneMenu id="slot" value="#{appBean.slot_id}" pt:data-placeholder="Choose One" pt:class="width300">
+								<f:selectItem itemLabel="Choose One" itemValue="0"/>
+								<f:selectItems value="#{appBean.slots}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+							</h:selectOneMenu>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Total Cost: </label>
+							<div class="col-sm-8">
+								<h:outputText id="total_cost" value="#{appBean.total_cost}" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label class="control-label">Payment type*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="paytype" value="#{appBean.booking.paymentType}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Choose One" itemValue=""/>
+									<f:selectItem itemLabel="PAY-ON-DELIVERY" itemValue="PAY-ON-DELIVERY"/>
+									<f:selectItem itemLabel="CARD" itemValue="CARD"/>
+									<f:selectItem itemLabel="BANK-TRANSFER" itemValue="BANK-TRANSFER"/>
+									<f:selectItem itemLabel="BANK-DEPOSIT" itemValue="BANK-DEPOSIT"/>
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="clearfix">
+					<div class="pull-left">
+						<div class="ckbox ckbox-primary mt5">
+							<input type="hidden" name="partner_id" value="707" />
+							<h:selectBooleanCheckbox value="#{appBean.agreed}" pt:id="agree" pt:required="required" />
+							<label for="agree">I agree with <a href="#" onclick="alert('Under Construction!');return false;">Terms and Conditions*</a></label>
+						</div>
+					</div>
+					<div class="pull-right">
+						<button type="submit" class="btn btn-success" jsf:id="subButton" jsf:action="#{appBean.signup}" onclick="return confirm('Are you sure?');">Create New Account And Book Product <i class="fa fa-angle-right ml5"></i></button>
+					</div>
+				</div>
+			</h:form>
+		</div><!-- panel-body -->
+		<div class="panel-footer">
+			<a href="signin.xhtml" class="btn btn-primary btn-block">Already a Member? Sign In</a>
+		</div><!-- panel-footer -->
+	</div><!-- panel -->
+</ui:define>
+</ui:composition>

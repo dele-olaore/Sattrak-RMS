@@ -1,0 +1,358 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">My Profile</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="glyphicon glyphicon-user"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>My Profile</li>
+				</ul>
+				<h4>My Profile</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form pt:class="form-horizontal form-bordered">
+		<h5 class="lg-title">ACCOUNT DETAILS</h5>
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<c:if test="#{userBean.sessionCustomer != null}">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Title: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.title}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">First name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.firstname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Last name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.lastname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Date of birth: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.dob}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Address: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.address}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Country: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.country.name}" pt:class="form-control" rendered="#{userBean.sessionCustomer.country != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionCustomer.country == null}" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">State: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.state.name}" pt:class="form-control" rendered="#{userBean.sessionCustomer.state != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionCustomer.state == null}" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Local Govt. Area: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.lga.name}" pt:class="form-control" rendered="#{userBean.sessionCustomer.lga != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionCustomer.lga == null}" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Created On: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionCustomer.crt_dt}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				</c:if>
+				<c:if test="#{userBean.sessionPP != null}">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">First name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionPP.firstname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Last name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionPP.lastname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Created On: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionPP.crt_dt}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				</c:if>
+				<c:if test="#{userBean.sessionInstaller != null}">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Company name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.companyName}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Admin First name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.adminFirstname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Admin Last name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.adminLastname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Phone No: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.phoneNo}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Email: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.email}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.bankName}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank-Account name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.accountName}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank-Account No: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.accountNo}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Address: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.address}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Lat: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.lat}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Lng: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.lng}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Country: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.country.name}" pt:class="form-control" rendered="#{userBean.sessionInstaller.country != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionInstaller.country == null}" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">State: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.state.name}" pt:class="form-control" rendered="#{userBean.sessionInstaller.state != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionInstaller.state == null}" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Local Govt. Area: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.lga.name}" pt:class="form-control" rendered="#{userBean.sessionInstaller.lga != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionInstaller.lga == null}" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Created On: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionInstaller.crt_dt}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				</c:if>
+				<c:if test="#{userBean.sessionSalesAgent != null}">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">First name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.firstname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Last name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.lastname}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Phone No: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.phoneNo}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.bankName}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank-Account name: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.accountName}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Bank-Account No: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.accountNo}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Address: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.address}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Country: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.country.name}" pt:class="form-control" rendered="#{userBean.sessionSalesAgent.country != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionSalesAgent.country == null}" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">State: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.state.name}" pt:class="form-control" rendered="#{userBean.sessionSalesAgent.state != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionSalesAgent.state == null}" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Local Govt. Area: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.lga.name}" pt:class="form-control" rendered="#{userBean.sessionSalesAgent.lga != null}" />
+						<h:outputText value="N/A" pt:class="form-control" rendered="#{userBean.sessionSalesAgent.lga == null}" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Created On: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionSalesAgent.crt_dt}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				</c:if>
+			</div>
+		</div>
+		
+		<h5 class="lg-title">USER DETAILS</h5>
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Username/Email: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionUser.username}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Role: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{userBean.sessionUser.role.name}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Password: </label>
+					<div class="col-sm-8">
+						<h:commandLink>
+							<f:ajax />
+							<button class="btn btn-dark btn-sm mr5" data-toggle="modal" data-target=".bs-example-modal-lg">Change Password...</button>
+						</h:commandLink>
+					</div>
+				</div><!-- form-group -->
+			</div>
+		</div>
+		</h:form>
+	</div><!-- contentpanel -->
+</ui:define>
+<ui:define name="below_section_content">
+	<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">X</button>
+					<h4 class="modal-title">Change Password</h4>
+				</div>
+				<div class="modal-body">
+					<h:form id="editForm">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Password: </label>
+									<div class="col-sm-8">
+										<h:inputSecret type="password" value="#{userBean.password}" styleClass="form-control" class="form-control" pt:placeholder="Enter Password" pt:required="required" />
+									</div>
+								</div><!-- form-group -->
+								<div class="form-group">
+									<label class="col-sm-4 control-label">New Password: </label>
+									<div class="col-sm-8">
+										<h:inputSecret type="password" value="#{userBean.new_password}" styleClass="form-control" class="form-control" pt:placeholder="Enter New Password" pt:required="required" />
+									</div>
+								</div><!-- form-group -->
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Confirm New Password: </label>
+									<div class="col-sm-8">
+										<h:inputSecret type="password" value="#{userBean.confirm_password}" styleClass="form-control" class="form-control" pt:placeholder="Enter New Password Again" pt:required="required" />
+									</div>
+								</div><!-- form-group -->
+							</div>
+							<div class="panel-footer">
+								<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{userBean.changePassword}" onclick="return confirm('Are you sure?');">Save</button>
+								<button type="reset" class="btn btn-default">Reset</button>
+							</div><!-- panel-footer -->
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</div>
+	</div>
+</ui:define>
+</ui:composition>

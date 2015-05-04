@@ -1,0 +1,59 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div id="subheader">
+            <div class="inner">
+                <div class="subdesc">
+                    <h1 class="page-title">Login to buy Products</h1>
+                    <div class="customtext"><h2>- TAKE CONTROL </h2></div>
+                </div>
+            </div>
+        </div><!-- #subheader -->
+        <div class="pagemid">
+            <div class="inner">
+                <div id="main">
+                    <div class="entry-content">
+                        <div class="section_row clearfix"  style="padding:60px 0px 60px 0px;">
+                            <div class="section_bg" ></div>
+                            <div class="section_inner">
+                                <div class="one_third">&#160;</div>
+                                <div class="one_third">
+                                    <h3 class="fancy-title textleft"  style="line-height:normal;">Already IN CONTROL ?</h3>
+                                    <div class="wpcf7" id="iva-contact-form">
+                                        <h:form pt:class="wpcf7-form contact_form" pt:novalidate="novalidate">
+                                            <p>Username : <br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <p:inputText id="username" value="#{signinBean.username}" size="40" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" />
+                                                </span> 
+                                            </p>
+                                            <p>Password : <br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <p:password id="password" value="#{signinBean.password}" size="40" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" />
+                                                </span> 
+                                            </p>
+                                            <p><a href="forgotPassword.xhtml">Forgot Your Password?</a></p>
+                                            <p><input jsf:id="subButton" jsf:action="#{signinBean.signin}" name="subButton" value="login" type="submit" class="wpcf7-form-control wpcf7-submit contactform" /></p>
+                                            <p>Don`t have an account? <a href="#{request.contextPath}/faces/register-user.xhtml">REGISTER</a></p>
+                                            <div class="wpcf7-response-output wpcf7-display-none"></div>
+                                            <input type="hidden" name="partner_id" value="707" />
+                                        </h:form>
+                                    </div>
+                                </div><!-- .two_third-->
+                                <div class="one_third last"></div><!-- .one_third-->
+                                <div class="clear"></div>
+                            </div><!-- section_inner -->
+                        </div><!-- section_row -->
+                        <div class="clear"></div>
+                    </div><!-- .entry-content -->
+                </div><!-- #main -->
+                <div class="clear"></div>
+            </div><!-- .inner -->
+        </div><!-- .pagemid -->
+    </ui:define>
+</ui:composition>

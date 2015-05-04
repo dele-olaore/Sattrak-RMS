@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                template="/WEB-INF/layout/layout.xhtml">
+    <ui:define name="content">
+    <div style="background:#CCCCCC">
+    	<div class="row">
+    		<div class="large-7 columns">
+    			<img src="#{request.contextPath}/img/logo_telematics.png" alt="" />
+    		</div>
+    		<div class="large-5 columns">
+    			<h3>Transactions Payments</h3>
+    		</div>
+    	</div>
+    </div>
+    
+    <div class="row">
+    	<div class="large-12 columns">
+    		
+    	</div>
+    </div>
+    <div class="row">
+    	<div class="large-12 columns">
+    		<div data-alert="data-alert" class="alert-box info radius">
+    			<h4  class='alert-heading'>Important</h4>
+    			<p>If you are  using Internet explorer  browser, uncheck support for Use SSL2.0 by following the steps below:</p>
+    			<ol start="1" type="1">
+    				<li>Click on Tool option on the menu bar</li>
+    				<li>Select Internet Options</li>
+    				<li>Click Advance tab</li>
+    				<li>Scroll down to Security option and uncheck Use SSL 2.0</li>
+    			</ol>
+    			<a href="#" class="close">&#215;</a>
+    		</div>
+    	</div>
+    </div>
+    <c:if test="#{paymentBean.parseRequest(param['req'])}">
+    <div class="row">
+    	<div class="large-7 columns">
+    		<h4>Your Transaction Details</h4>
+    		<hr/>
+    		<p><strong>Transaction Source </strong><br/><h:outputText value="#{paymentBean.externalAppCode}" /><!-- SATTRAK Autolife / SATTRAK Fuel Card / SATTRAK FMIS --></p>
+    		<p><strong>Product Name </strong><br/><h:outputText value="#{paymentBean.productName}" /></p>
+    		<p><strong>Product Cost - N <h:outputText value="#{paymentBean.amount}" /></strong></p>
+    		<hr/>
+    		<h3>Total : N <h:outputText value="#{paymentBean.amount}" /></h3>
+    	</div>
+    	<div class="large-5 columns">
+    		<div class="panel callout radius">
+    			<h4 class="notes_title">Customer Details</h4>
+    			<p>Customer Name - <h:outputText value="#{paymentBean.customerName}" /><br/>Portal - <h:outputText value="#{paymentBean.externalAppCode}" /></p>
+    			<hr/>
+    			<h4 class="notes_title">Transaction Summary</h4>
+    			<p>Amount Due - N <h:outputText value="#{paymentBean.amount}" /><br/>
+    			Transaction Reference - <h:outputText value="#{paymentBean.transactionRef}" /></p>
+    			<hr/>
+    			<h4 class="notes_title">Select a Payment Gateway</h4>
+    			<h:form pt:novalidate="novalidate">
+    				<p:outputPanel id="customPanel" style="margin-bottom:10px">
+    					<p:selectOneRadio id="paymentGateway" value="#{paymentBean.paymentGateway}" layout="custom">
+       						<f:selectItem itemLabel="Zenith GlobalPay" itemValue="Zenith GlobalPay" />
+       					</p:selectOneRadio>
+       					<h:panelGrid columns="2" cellpadding="5" cellspacing="5">
+       						<p:radioButton id="opt1" for="paymentGateway" itemIndex="0" /><h:outputText value="&#160;&#160;Zenith GlobalPay" />
+       					</h:panelGrid>
+       				</p:outputPanel>
+    				<br/>
+    				<button jsf:id="subButton" jsf:action="#{paymentBean.gotoPaymentGateway}" type="submit">Go To Payment Gateway</button>
+    			</h:form>
+    		</div>
+    	</div>
+    </div>
+    </c:if>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,76 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Refund</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-shopping-cart"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Refund</li>
+				</ul>
+				<h4>Refund</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Job Code: </label>
+						<div class="col-sm-8">
+							<h:inputText value="#{appBean.jobCode}" pt:type="text" pt:class="form-control" />
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<h:commandLink action="#{appBean.loadJobForRefund}">
+						<button class="btn btn-primary mr5">Load Job</button>
+					</h:commandLink>
+				</div><!-- panel-footer -->
+			</div>
+			
+			<c:if test="#{appBean.jobRefund != null}">
+				<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Customer: </label>
+						<div class="col-sm-8">
+							<h:outputText value="#{appBean.jobRefund.customer.firstname} #{appBean.jobRefund.customer.lastname}" pt:class="form-control" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Booked Date: </label>
+						<div class="col-sm-8">
+							<h:outputText value="#{appBean.jobRefund.booked_dt}" pt:class="form-control" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Product: </label>
+						<div class="col-sm-8">
+							<h:outputText value="#{appBean.jobRefund.productBooked.details}" pt:class="form-control" />
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<h:commandLink action="#{appBean.refundJob}" onclick="return confirm('Are you sure?');">
+						<button class="btn btn-primary mr5">Refund Job</button>
+					</h:commandLink>
+				</div><!-- panel-footer -->
+			</div>
+			</c:if>
+			
+		</h:form>
+	</div>
+</ui:define>
+</ui:composition>

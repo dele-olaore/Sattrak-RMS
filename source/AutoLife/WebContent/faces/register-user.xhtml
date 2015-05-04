@@ -1,0 +1,130 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div id="subheader">
+            <div class="inner">
+                <div class="subdesc">
+                    <h1 class="page-title">Register for our Products</h1>
+                    <div class="customtext"><h2>- to TAKE CONTROL </h2></div>
+                </div>
+            </div>
+        </div><!-- #subheader -->
+        <div class="pagemid">
+            <div class="inner">
+                <div id="main">
+                    <div class="entry-content">
+                        <div class="section_row clearfix"  style="padding:60px 0px 60px 0px;">
+                            <div class="section_bg" ></div>
+                            <div class="section_inner">
+                                <div class="one_third">&#160;</div>
+                                <div class="one_third">
+                                    <h3 class="fancy-title textleft"  style="line-height:normal;">Register to TAKE CONTROL</h3>
+                                    <div id="response" class="response"></div>
+                                    <div class="wpcf7" id="iva-contact-form">
+                                        <h:form id="regForm" pt:class="wpcf7-form" pt:novalidate="novalidate">
+                                            <p>Title<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <h:selectOneMenu id="title" value="#{regBean.customer.title}" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false">
+                                                        <f:selectItem itemLabel="Mr." itemValue="Mr."/>
+                                                        <f:selectItem itemLabel="Mrs." itemValue="Mrs."/>
+                                                        <f:selectItem itemLabel="Ms." itemValue="Ms."/>
+                                                    </h:selectOneMenu>
+                                                </span> 
+                                            </p>
+                                            <p>First Name (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <h:inputText id="firstname" value="#{regBean.customer.firstname}" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" pt:required="required" />
+                                                </span> 
+                                            </p>
+                                            <p>Last Name (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <h:inputText id="lastname" value="#{regBean.customer.lastname}" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" pt:required="required" />
+                                                </span> 
+                                            </p>
+                                            <p>Date of Birth <br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <p:calendar id="cusdob" pattern="dd/MM/yyyy" yearRange="-60:-18" showOn="both" mode="popup" value="#{regBean.customer.dob}" navigator="true" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" />
+                                                    <br/>
+                                                    You can manually enter your date of birth. Format: dd/mm/yyyy, eg. 01/04/2015 means April 1, 2015
+                                                </span> 
+                                            </p>
+                                            <p>Address (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <h:inputTextarea id="address" value="#{regBean.customer.address}" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" pt:required="required" />
+                                                </span> 
+                                            </p>
+                                            <p>Country<br />
+                                                <span class="wpcf7-form-control-wrap">
+                                                    <select jsf:id="country" jsf:value="#{regBean.ctry_id}" size="1" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+                                                        <f:selectItems value="#{regBean.countries}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+                                                    </select>
+                                                </span> 
+                                            </p>
+                                            <p>State (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <select jsf:id="state" jsf:value="#{regBean.state_id}" size="1" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+                                                        <f:selectItem itemLabel="Choose One" itemValue="0"/>
+                                                        <f:selectItems value="#{regBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+                                                        <p:ajax listener="#{regBean.onStateChange}" update="lga" />
+                                                    </select>
+                                                </span> 
+                                            </p>
+                                            <p>LGA (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <select jsf:id="lga" jsf:value="#{regBean.lga_id}" size="1" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required">
+                                                        <f:selectItem itemLabel="Choose One" itemValue="0"/>
+                                                        <f:selectItems value="#{regBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+                                                    </select>
+                                                </span> 
+                                            </p>
+                                            <p>Phone No (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <h:inputText id="phonenumber" value="#{regBean.customer.phoneNo}" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" pt:type="tel" pt:pattern="^[1-9][0-9][0-9]{7,14}$" /><br/>
+                                                    <h:outputText value=" Format: Prefix with 234, then the mobile number, eg: 234802696XXXX" />
+                                                </span> 
+                                            </p>
+                                            <p>Username/Email (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-email">
+                                                    <h:inputText id="username_email" value="#{regBean.cusUser.username}" pt:type="email" pt:class="wpcf7-form-control wpcf7-text wpcf7-email wpcf7-validates-as-required wpcf7-validates-as-email" pt:aria-required="true" pt:aria-invalid="false" pt:required="required" />
+                                                </span> 
+                                            </p>
+                                            <p>Password (required) <a href="#" onclick="window.open('');return false;">Password policy</a><br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <p:password id="pwd" value="#{regBean.cusUser.password}" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" pt:required="required" />
+                                                </span> 
+                                            </p>
+                                            <p>Confirm Password (required)<br />
+                                                <span class="wpcf7-form-control-wrap your-name">
+                                                    <p:password id="confirm_pwd" value="#{regBean.confirm_password}" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false" pt:required="required" />
+                                                </span> 
+                                            </p>
+                                            <p>
+                                                <h:selectBooleanCheckbox value="#{regBean.agreed}" pt:id="agree" pt:required="required" pt:title="Terms and Conditions" />
+                                                By clicking here you have accepted our  <a href="#" target="_blank">Terms and Conditions</a></p>
+                                            <p>
+                                                <input jsf:id="subButton" jsf:action="#{regBean.register}" name="subButton" value="register" type="submit" class="wpcf7-form-control wpcf7-submit contactform" />
+                                            </p>
+                                            <p>Already have an account? <a href="register.xhtml">LOGIN</a></p>
+                                            <div class="wpcf7-response-output wpcf7-display-none"></div>
+                                            <input type="hidden" name="partner_id" value="707" />
+                                        </h:form>
+                                    </div>
+                                </div><!-- .two_third-->
+                                <div class="one_third last">&#160;</div><!-- .one_third-->
+                                <div class="clear"></div>
+                            </div><!-- section_inner -->
+                        </div><!-- section_row -->
+                        <div class="clear"></div>
+                    </div><!-- .entry-content -->
+                </div><!-- #main -->
+                <div class="clear"></div>
+            </div><!-- .inner -->
+        </div><!-- .pagemid -->
+    </ui:define>
+</ui:composition>

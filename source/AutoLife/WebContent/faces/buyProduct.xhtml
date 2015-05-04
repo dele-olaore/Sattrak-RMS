@@ -1,0 +1,88 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div id="subheader">
+            <div class="inner">
+                <div class="subdesc">
+                    <h1 class="page-title">Buy Product</h1>
+                    <div class="customtext"><h2> </h2></div>
+                </div>
+            </div>
+        </div><!-- #subheader -->
+        <div class="pagemid">
+            <div class="inner">
+                <div id="main">
+                    <div class="entry-content">
+                        <div class="section_row clearfix"  style="padding:60px 0px 60px 0px;">
+                            <div class="section_bg" ></div>
+                            <div class="section_inner">
+                            	<h3 class="fancy-title textleft" style="line-height:normal;">Select Product</h3>
+                                <div class="wpcf7" id="iva-contact-form">
+                            	<h:form id="buyForm" pt:class="wpcf7-form" pt:novalidate="novalidate">
+                            		<p>Category<br />
+                            			<span class="wpcf7-form-control-wrap your-name">
+                            				<h:selectOneMenu id="producttype" value="#{userBean.ptype_id}" pt:data-placeholder="Choose One" pt:class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" pt:aria-required="true" pt:aria-invalid="false">
+												<f:selectItem itemLabel="All products" itemValue="0"/>
+												<f:selectItems value="#{userBean.ptypes}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+												<f:ajax render="grid" />
+											</h:selectOneMenu>
+                            			</span>
+                            		</p>
+                            		<p>Available Products<br />
+                            			<span class="wpcf7-form-control-wrap your-name">
+                            				<h:panelGrid id="grid" columns="1" pt:style="width:100%">
+											<c:forEach items="#{userBean.products}" var="product">
+												<h:panelGroup>
+												<div class="column">
+													<img src="#{request.contextPath}/imageservlet/#{product.id}-product-#{userBean.randomNumber}" class="imageborder" style="height:100px;width:150px" alt="Photo" />
+	                                                <div class="price-head" style="color:#ffffff; background-color:#424242;">
+	                                                    <h2 class="title">#{product.details}</h2>
+	                                                    <h4 class="price-font">N <h:outputText value="#{product.firstYearPayment}" />
+	                                                        <span>
+	                                                            <c:if test="${product.requiresRenewal}">/ pa</c:if>
+	                                                            <c:if test="${not product.requiresRenewal}">- one-time</c:if>
+	                                                        </span>
+	                                                    </h4>
+	                                                </div>
+	                                                <div class="price-content">
+	                                                    <ul>
+	                                                        <li>First year payment: #{product.firstYearPayment}</li>
+	                                                        <li>Yearly subscription: #{product.yearlySubscription}</li>
+	                                                        <li>Lease Module: #{product.leaseModule}</li>
+	                                                        <li>Special: <h:outputText value="Yes" rendered="#{product.specialProduct}" /><h:outputText value="No" rendered="#{not product.specialProduct}" /></li>
+	                                                    </ul>
+	                                                    <p class="center">
+	                                                    	<c:if test="#{userBean.sessionUser == null}">
+	                                                    		<a href="register.xhtml" class='btn center medium full orange iva_anim'><span>BUY NOW</span></a>
+	                                                    	</c:if>
+	                                                    	<c:if test="#{userBean.sessionUser != null}">
+	                                                    		<a jsf:action="#{userBean.initBuyProduct(product.id)}" href="#" class='btn center medium full orange iva_anim'><span>BUY NOW</span></a>
+	                                                    	</c:if>
+	                                                    </p>
+	                                                </div>
+	                                            </div>
+						                        </h:panelGroup>
+					                        </c:forEach>
+				                        </h:panelGrid>
+                            			</span>
+                            		</p>
+                            	</h:form>
+                            	</div>
+                            	<div class="clear"></div>
+                            </div><!-- section_inner -->
+                        </div><!-- section_row -->
+                        <div class="clear"></div>
+                    </div><!-- .entry-content -->
+                </div><!-- #main -->
+                <div class="clear"></div>
+            </div><!-- .inner -->
+        </div><!-- .pagemid -->
+    </ui:define>
+</ui:composition>

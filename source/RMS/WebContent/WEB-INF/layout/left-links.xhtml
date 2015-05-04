@@ -1,0 +1,334 @@
+<ui:composition
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    
+    <h:form>
+    <div class="media profile-left">
+    	<a class="pull-left profile-thumb" href="myprofile.xhtml">
+    		<img class="img-circle" src="#{request.contextPath}/images/photos/profile.png" alt="USER" />
+    	</a>
+    	<div class="media-body">
+    		<h4 class="media-heading">
+    			<h:outputText value="#{userBean.sessionCustomer.firstname} #{userBean.sessionCustomer.lastname}" rendered="#{userBean.sessionCustomer != null}" />
+    			<h:outputText value="#{userBean.sessionPP.firstname} #{userBean.sessionPP.lastname}" rendered="#{userBean.sessionPP != null}" />
+    			<h:outputText value="#{userBean.sessionInstaller.companyName}" rendered="#{userBean.sessionInstaller != null}" /><h:outputText value="(#{userBean.sessionInstaller.uniqueID})" rendered="#{userBean.sessionInstaller != null and userBean.sessionInstaller.uniqueID != null}" />
+    			<h:outputText value="#{userBean.sessionSalesAgent.firstname} #{userBean.sessionSalesAgent.lastname}" rendered="#{userBean.sessionSalesAgent != null}" /><h:outputText value="(#{userBean.sessionSalesAgent.uniqueID})" rendered="#{userBean.sessionSalesAgent != null and userBean.sessionSalesAgent.uniqueID != null}" />
+    		</h4>
+    		<small class="text-muted"><h:outputText value="#{userBean.sessionUser.role.name}" rendered="#{userBean.sessionUser != null and userBean.sessionUser.role != null}" /></small>
+    	</div>
+    </div><!-- media -->
+    
+    <h5 class="leftpanel-title">Navigation</h5>
+    <ul class="nav nav-pills nav-stacked">
+    	<li><a href="dashboard.xhtml"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
+    	
+    	<c:if test="#{userBean.sessionPP != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'ADMINISTRATOR'}">
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Sales and Booking</span></a>
+	    		<ul class="children">
+	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
+	    			<c:if test="#{userBean.sessionPartner.sattrak}">
+	    				<li><a href="confirmPaymentAtBank.xhtml">Confirm Payment at Bank</a></li>
+	    			</c:if>
+	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="schedules.xhtml">Dispatch</a></li>
+	    			<li><a href="manage-schedule.xhtml">Manage Schedules</a></li>
+	    			<li><a href="refund.xhtml">Refund</a></li>
+	    		</ul>
+	    	</li>
+    		<li class="parent"><a href=""><i class="fa fa-user-md"></i> <span>Agent Management</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-salesagent.xhtml">Sales Agent Registration</a></li>
+	    			<c:if test="#{userBean.sessionPartner.sattrak}">
+	    				<li><a href="setup-agent.xhtml">Installation Agent Registration</a></li>
+	    				<li><a href="setup-ratings.xhtml">Installer Ratings</a></li>
+	    			</c:if>
+	    			<li><a href="setup-installer.xhtml">Installer Registration</a></li>
+	    			<li><a href="setup-tradepartner.xhtml">Trade Partner Registration</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Customer and Personnel</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-customer.xhtml">Customer Registration</a></li>
+	    			<li><a href="setup-personnel.xhtml">Personnel Registration</a></li>
+	    		</ul>
+	    	</li>
+	    	<c:if test="#{userBean.sessionPartner.sattrak}">
+	    		<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Partners</span></a>
+		    		<ul class="children">
+		    			<li><a href="setup-partner.xhtml">Partner Registration</a></li>
+		    		</ul>
+		    	</li>
+	    	</c:if>
+	    	<li class="parent"><a href=""><i class="fa fa-cogs"></i> <span>Service and Product</span></a>
+	    		<ul class="children">
+	    			<c:if test="#{userBean.sessionPartner.sattrak}">
+	    				<li><a href="product-types.xhtml">Product Types</a></li>
+	    				<li><a href="products.xhtml">Products and Prices</a></li>
+	    			</c:if>
+	    			<li><a href="products-commission.xhtml">Commission</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-file-text"></i> <span>Inventory</span></a>
+	    		<ul class="children">
+	    			<c:if test="#{userBean.sessionPartner.sattrak}">
+	    				<li><a href="manufacturers.xhtml">Device Manufacturers</a></li>
+	    				<li><a href="item-types.xhtml">Device Types</a></li>
+	    				<li><a href="items.xhtml">Devices</a></li>
+	    			</c:if>
+	    			<li><a href="item-movements.xhtml">Device Movement</a></li>
+	    			<c:if test="#{userBean.sessionPartner.sattrak}">
+	    			<li><a href="setup-resources.xhtml">Platform Resource Management</a></li>
+	    			</c:if>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-comments-o"></i> <span>Messages</span></a>
+	    		<ul class="children">
+	    			<li><a href="messages-email.xhtml">Send Email</a></li>
+	    			<li><a href="messages-sms.xhtml">Send SMS</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>General Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-subscriptionlist.xhtml">Total Service/Product Subscription</a></li>
+	    			<li><a href="report-renewallist.xhtml">Total Renewal Subscription</a></li>
+	    			<li><a href="report-salesagentssummary.xhtml">Sales Agents Sales Summary</a></li>
+	    			<li><a href="report-installationagentsummary.xhtml">Installation Agent Job Summary</a></li>
+	    			<li><a href="report-agents.xhtml">Registered Agents</a></li>
+	    			<li><a href="report-installers.xhtml">Registered Installers</a></li>
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    			<li><a href="report-installations.xhtml">Installations</a></li>
+	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-money"></i> <span>Financial Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-salesbyproduct.xhtml">Total Sales</a></li>
+	    			<li><a href="report-salesagentcommissionpayable.xhtml">Sales Agent Commission Payable</a></li>
+	    			<li><a href="report-installationagentcommissionpayable.xhtml">Installation Agent Commission Payable</a></li>
+	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionSalesAgent != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'SALES-AGENT'}">
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Sales and Booking</span></a>
+	    		<ul class="children">
+	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
+	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="mybookings.xhtml">My Bookings</a></li>
+	    		</ul>
+	    	</li>
+    		<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Customer Management</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-customer.xhtml">Customer Registration</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>General Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-money"></i> <span>Financial Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-salesagentcommissionpayable.xhtml">Sales Agent Commission Payable</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionSalesAgent != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'TRADE-PARTNER'}">
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Sales and Booking</span></a>
+	    		<ul class="children">
+	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
+	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="mybookings.xhtml">My Bookings</a></li>
+	    		</ul>
+	    	</li>
+    		<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Customer Management</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-customer.xhtml">Customer Registration</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>General Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-money"></i> <span>Financial Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-salesbyproduct.xhtml">Total Sales</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionPP != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'PERSONNEL'}">
+    		<li class="parent"><a href=""><i class="fa fa-user-md"></i> <span>Agent Management</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-salesagent.xhtml">Sales Agent Registration</a></li>
+	    			<li><a href="setup-ratings.xhtml">Installer Ratings</a></li>
+	    			<li><a href="setup-agent.xhtml">Installation Agent Registration</a></li>
+	    			<li><a href="setup-installer.xhtml">Installer Registration</a></li>
+	    		</ul>
+	    	</li>
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Sales and Booking</span></a>
+	    		<ul class="children">
+	    			<li><a href="confirmPaymentAtBank.xhtml">Confirm Payment at Bank</a></li>
+	    			<li><a href="confirm-installations.xhtml">Confirm Installations</a></li>
+	    			<li><a href="schedules.xhtml">Dispatch</a></li>
+	    			<li><a href="manage-schedule.xhtml">Manage Schedules</a></li>
+	    			<li><a href="refund.xhtml">Refund</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-file-text"></i> <span>Inventory</span></a>
+	    		<ul class="children">
+	    			<li><a href="manufacturers.xhtml">Device Manufacturers</a></li>
+	    			<li><a href="item-types.xhtml">Device Types</a></li>
+	    			<li><a href="items.xhtml">Devices</a></li>
+	    			<li><a href="item-movements.xhtml">Device Movement</a></li>
+	    			<li><a href="setup-resources.xhtml">Platform Resource Management</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-comments-o"></i> <span>Messages</span></a>
+	    		<ul class="children">
+	    			<li><a href="messages-email.xhtml">Send Email</a></li>
+	    			<li><a href="messages-sms.xhtml">Send SMS</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-installations.xhtml">Installations</a></li>
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionInstaller != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'INSTALLER'}">
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Booking Management</span></a>
+	    		<ul class="children">
+	    			<li><a href="myschedules2.xhtml">My Schedules</a></li>
+	    			<li><a href="checkin-customer.xhtml">Check-In Customer</a></li>
+	    			<li><a href="finish-installation.xhtml">Finish Installation</a></li>
+	    		</ul>
+	    	</li>
+    		<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Installer Management</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-installer.xhtml">Installer Registration</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-file-text"></i> <span>Inventory</span></a>
+	    		<ul class="children">
+	    			<li><a href="return-devices.xhtml">Return Devices</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-installations.xhtml">Installations</a></li>
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionCustomer != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'CUSTOMER'}">
+    		<li><a href="book-installation.xhtml"><i class="fa fa-shopping-cart"></i> <span>Book Installation</span></a></li>
+    		<li><a href="myschedules_cus.xhtml"><i class="fa fa-edit"></i> <span>My Schedules</span></a></li>
+    		<li><a href="myproducts.xhtml"><i class="fa fa-edit"></i> <span>My Products</span></a></li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionPP != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'FINANCIAL REPORTS'}">
+    		<li class="parent"><a href=""><i class="fa fa-money"></i> <span>Financial Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-salesbyproduct.xhtml">Total Sales</a></li>
+	    			<li><a href="report-salesagentcommissionpayable.xhtml">Sales Agent Commission Payable</a></li>
+	    			<li><a href="report-installationagentcommissionpayable.xhtml">Installation Agent Commission Payable</a></li>
+	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	
+    	<c:if test="#{userBean.sessionPP != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'CONTROL ROOM'}">
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Sales and Booking</span></a>
+	    		<ul class="children">
+	    			<li><a href="schedules.xhtml">Dispatch</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-file-text"></i> <span>Inventory</span></a>
+	    		<ul class="children">
+	    			<li><a href="manufacturers.xhtml">Device Manufacturers</a></li>
+	    			<li><a href="item-types.xhtml">Device Types</a></li>
+	    			<li><a href="items.xhtml">Devices</a></li>
+	    			<li><a href="item-movements.xhtml">Device Movement</a></li>
+	    			<li><a href="setup-resources.xhtml">Platform Resource Management</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-comments-o"></i> <span>Messages</span></a>
+	    		<ul class="children">
+	    			<li><a href="messages-email.xhtml">Send Email</a></li>
+	    			<li><a href="messages-sms.xhtml">Send SMS</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>General Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-subscriptionlist.xhtml">Total Service/Product Subscription</a></li>
+	    			<li><a href="report-renewallist.xhtml">Total Renewal Subscription</a></li>
+	    			<li><a href="report-salesagentssummary.xhtml">Sales Agents Sales Summary</a></li>
+	    			<li><a href="report-installationagentsummary.xhtml">Installation Agent Job Summary</a></li>
+	    			<li><a href="report-agents.xhtml">Registered Agents</a></li>
+	    			<li><a href="report-installers.xhtml">Registered Installers</a></li>
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    			<li><a href="report-installations.xhtml">Installations</a></li>
+	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    	<c:if test="#{userBean.sessionPP != null and userBean.sessionUser.role != null and userBean.sessionUser.role.name == 'SALES EXECUTIVE'}">
+    		<li class="parent"><a href=""><i class="fa fa-shopping-cart"></i> <span>Sales and Booking</span></a>
+	    		<ul class="children">
+	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
+	    			<li><a href="confirmPaymentAtBank.xhtml">Confirm Payment at Bank</a></li>
+	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Customer</span></a>
+	    		<ul class="children">
+	    			<li><a href="setup-customer.xhtml">Customer Registration</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-cogs"></i> <span>Service and Product</span></a>
+	    		<ul class="children">
+	    			<li><a href="product-types.xhtml">Product Types</a></li>
+	    			<li><a href="products.xhtml">Products and Prices</a></li>
+	    			<li><a href="products-commission.xhtml">Commission</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-comments-o"></i> <span>Messages</span></a>
+	    		<ul class="children">
+	    			<li><a href="messages-email.xhtml">Send Email</a></li>
+	    			<li><a href="messages-sms.xhtml">Send SMS</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-bars"></i> <span>General Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-subscriptionlist.xhtml">Total Service/Product Subscription</a></li>
+	    			<li><a href="report-renewallist.xhtml">Total Renewal Subscription</a></li>
+	    			<li><a href="report-salesagentssummary.xhtml">Sales Agents Sales Summary</a></li>
+	    			<li><a href="report-installationagentsummary.xhtml">Installation Agent Job Summary</a></li>
+	    			<li><a href="report-agents.xhtml">Registered Agents</a></li>
+	    			<li><a href="report-installers.xhtml">Registered Installers</a></li>
+	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
+	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    			<li><a href="report-installations.xhtml">Installations</a></li>
+	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
+	    		</ul>
+	    	</li>
+	    	<li class="parent"><a href=""><i class="fa fa-money"></i> <span>Financial Report</span></a>
+	    		<ul class="children">
+	    			<li><a href="report-salesbyproduct.xhtml">Total Sales</a></li>
+	    			<li><a href="report-salesagentcommissionpayable.xhtml">Sales Agent Commission Payable</a></li>
+	    			<li><a href="report-installationagentcommissionpayable.xhtml">Installation Agent Commission Payable</a></li>
+	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
+	    		</ul>
+	    	</li>
+    	</c:if>
+    </ul>
+    </h:form>
+</ui:composition>

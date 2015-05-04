@@ -1,0 +1,70 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+    <ui:define name="content">
+        <div id="subheader">
+            <div class="inner">
+                <div class="subdesc">
+                    <h1 class="page-title">Dashboard</h1>
+                    <div class="customtext"><h2> </h2></div>
+                </div>
+            </div>
+        </div><!-- #subheader -->
+        <div class="pagemid">
+            <div class="inner">
+                <div id="main">
+                	<h:form>
+                    <div class="entry-content">
+                        <div class="section_row clearfix"  style="padding:60px 0px 60px 0px;">
+                            <div class="section_bg" ></div>
+                            <div class="section_inner">
+                                <div class="two_third">
+                                    <h3 class="fancy-title textleft"  style="line-height:normal;">Welcome #{userBean.sessionCustomer.title} #{userBean.sessionCustomer.firstname} #{userBean.sessionCustomer.lastname}</h3>
+                                    <div id="response" class="response"></div>
+                                    <h3>Active subscriptions</h3>
+                                    <ul>
+                                    	<ui:repeat value="#{userBean.myProducts}" var="itm">
+                                    		<li><strong><h:outputText value="#{itm.productBooked.productName}" rendered="#{itm.productBooked.productName != null}" /><h:outputText value="N/A" rendered="#{itm.productBooked.productName == null}" /></strong> (Valid till <h:outputText value="forever" rendered="#{itm.productBooked != null and not itm.productBooked.requiresRenewal}" /><h:outputText value="#{itm.renewal_due_dt}" rendered="#{itm.productBooked != null and itm.productBooked.requiresRenewal}" />) - <a href="#">view details</a> </li>
+                                    	</ui:repeat>
+                                    	<c:if test="#{userBean.myProducts == null or userBean.myProducts.size() == 0}">
+                                    		<li>No active subscription</li>
+                                    	</c:if>
+                                    </ul>
+                                    You can buy any of our product by clicking the link: - <a href="buyProduct.xhtml">Buy Product</a> or browsing through our site to read more about the various products before making your decision on what to buy. You can also contact our support team at sales@sattrakservices.com for further assistance.
+                                    <br/>
+                                    <br/>
+                                    <h3>Pending installation schedule</h3>
+                                    <ul>
+                                    	<ui:repeat value="#{userBean.mySchedules_cus}" var="itm">
+                                    		<li><strong>(#{itm.jobCode}) #{itm.productBooked.productName}</strong> (Installation on #{itm.booked_dt} at #{itm.installer.companyName}, #{itm.installer.address}) - <a href="#">view details</a> | 
+                                    		<h:commandLink action="#{userBean.initEdit('reschedule_installation')}">
+												<f:setPropertyActionListener value="#{itm}" target="#{userBean.selectedInstallation}" />
+												reschedule
+											</h:commandLink>
+                                    		 </li>
+                                    	</ui:repeat>
+                                    	<c:if test="#{userBean.mySchedules_cus == null or userBean.mySchedules_cus.size() == 0}">
+                                    		<li>No pending installation</li>
+                                    	</c:if>
+                                    </ul>
+                                    Place an installation schedule for any of your un-installed purchased products using this link: - <a href="bookInstallation.xhtml">Book an Installation</a> or contact our support at sales@sattrakservices.com for assistance.
+                                </div><!-- .two_third-->
+                                <!-- <div class="one_third last">
+                                    <img src="#{request.contextPath}/images/profile.png" alt=""/>
+                                </div> --><!-- .one_third-->
+                                <div class="clear"></div>
+                            </div><!-- section_inner -->
+                        </div><!-- section_row -->
+                        <div class="clear"></div>
+                    </div><!-- .entry-content -->
+                    </h:form>
+                </div><!-- #main -->
+                <div class="clear"></div>
+            </div><!-- .inner -->
+        </div><!-- .pagemid -->
+    </ui:define>
+</ui:composition>

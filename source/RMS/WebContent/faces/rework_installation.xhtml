@@ -1,0 +1,131 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Rework Installation</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-edit"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Rework Installation</li>
+				</ul>
+				<h4>Rework Installation</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="form" pt:class="form-horizontal form-bordered">
+			<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Main Job Code: </label>
+					<div class="col-sm-8">
+						<h:outputText value="#{appBean.selectedInstallation.jobCode}" pt:class="form-control" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Rework Date: </label>
+					<div class="col-sm-8">
+						<div class="input-group">
+							<h:inputText value="#{appBean.rework_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" />
+							<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+							<script>
+								try
+					    		{
+					    			// Date Picker
+					                jQuery('#datepicker').datepicker({
+					                	changeMonth: true,
+					                	changeYear: true
+					                });
+					    		}catch(e){alert(e);}
+							</script>
+						</div>
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Installer: </label>
+					<div class="col-sm-8">
+						<h:selectOneMenu id="job_installer_id" value="#{appBean.job_installer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+							<f:selectItem itemLabel="Choose One" itemValue="0"/>
+							<f:selectItems value="#{appBean.myAgents}" var="c" itemLabel="#{c.firstname} #{c.lastname}" itemValue="#{c.id}"/>
+						</h:selectOneMenu>
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Reason for Rework*: </label>
+					<div class="col-sm-8">
+						<h:inputTextarea value="#{appBean.reworkInstallation.reasonForRework}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+				
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<table id="basicTable" class="table table-striped table-bordered responsive">
+						<thead class="">
+							<tr>
+								<th>Item</th>
+								<th>Count</th>
+								<th>Remove</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat value="#{appBean.installationReworkDeviceUseList}" var="itm">
+							<tr>
+								<td>#{itm.item.name}(#{itm.item.model})</td>
+								<td>#{itm.count}</td>
+								<td><button class="btn btn-primary mr5" type="submit" jsf:id="delButton" jsf:action="#{appBean.removeJobReworkDeviceUse(itm.item_id)}" onclick="return confirm('Are you sure?');">Remove</button></td>
+							</tr>
+							</ui:repeat>
+						</tbody>
+						</table>
+						<br/>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Device Used: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="deviceused" value="#{appBean.item_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Choose One" itemValue="0" />
+									<f:selectItems value="#{appBean.items}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Device Count Used: </label>
+							<div class="col-sm-8">
+								<h:inputText id="devicecount" value="#{appBean.item_used_count}" />
+							</div>
+						</div><!-- form-group -->
+					</div>
+					<div class="panel-footer">
+						<button class="btn btn-primary mr5" type="submit" jsf:id="addButton" jsf:action="#{appBean.addJobReworkDeviceUse}" onclick="return confirm('Are you sure?');">Add</button>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Remarks*: </label>
+					<div class="col-sm-8">
+						<h:inputTextarea value="#{appBean.reworkInstallation.installerRemarks}" pt:class="form-control" pt:required="required" />
+					</div>
+				</div><!-- form-group -->
+			</div>
+			<div class="panel-footer">
+				<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.reworkInstallation}" onclick="return confirm('Are you sure?');">Save</button>
+				<button type="reset" class="btn btn-default">Reset</button>
+			</div><!-- panel-footer -->
+			</div>
+		</h:form>
+	</div>
+</ui:define>
+</ui:composition>

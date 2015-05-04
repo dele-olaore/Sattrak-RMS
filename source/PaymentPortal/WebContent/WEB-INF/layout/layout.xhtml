@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="en-US" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="en-US" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8) ]><!-->
+<html class="no-js" lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+<h:head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SATTRAK Telematics - Payment</title>
+<link rel="stylesheet" href="#{request.contextPath}/css/foundation.css" />
+<script src="#{request.contextPath}/js/vendor/modernizr.js"></script>
+
+<style>
+    .ui-widget, .ui-widget .ui-widget, .ui-state-default, .ui-widget-content {
+        font-size: 12px !important;
+    }
+</style>
+
+<ui:insert name="head"/>
+</h:head>
+<h:body>
+	<p:growl id="messages3" sticky="true" showDetail="true" />
+	
+	<!-- Body should be inserted here -->
+	<ui:insert name="content"/>
+	
+	<div class="row">
+		<div class="large-12 columns">
+		<hr/>
+		</div>
+	</div>
+	<div class="row">
+		<div class="large-6 columns">
+			<img src="#{request.contextPath}/img/pay_globalpay.jpg" />
+			<img src="#{request.contextPath}/img/pay_interswitch.jpg" />
+			<img src="#{request.contextPath}/img/pay_mc.jpg" />
+			<img src="#{request.contextPath}/img/pay_verve.jpg" />
+			<img src="#{request.contextPath}/img/pay_visa.jpg" />
+			<img src="#{request.contextPath}/img/pay_etransact.jpg" />
+		</div>
+		<div class="large-6 columns">
+			<h4>Customer Support</h4>
+			<p><strong>Phone :</strong> 08021234567 | <strong>Email :</strong> support@sattrakservices.com <br/>
+			<strong>Note :</strong> All enquires would be responded to not later than 48 hours from time of receipt.</p>
+			<hr/>
+			<a href="#" data-reveal-id="DeliveryModal" >Delivery Policy</a> | 
+			<a href="#" data-reveal-id="ReturnModal" >Return Policy</a> | 
+			<a href="#" data-reveal-id="RefundModal" >Refund Policy</a> | 
+			<a href="#" data-reveal-id="CancelModal" >Cancellation Policy </a>
+		</div>
+	</div>
+	<div class="row">
+		<hr/>
+		<div class="reveal-modal" id="first-modal" data-reveal="data-reveal"> <!--I'm the firstborn! <a class='open-second'>Click me!</a>--> </div> 
+		<div class="reveal-modal" id="second-modal" data-reveal="data-reveal"> <!--I'm the secondborn! <a class='close'>Close modal</a> </div> <a class='open-first'>Click me!</a>--></div>
+	</div>
+	
+	<script src="#{request.contextPath}/js/vendor/jquery.js"></script>
+	<script src="#{request.contextPath}/js/foundation.min.js"></script>
+	<script src="#{request.contextPath}/js/foundation/foundation.alert.js"></script>
+	<script src="#{request.contextPath}/js/foundation/foundation.reveal.js"></script>
+	
+	<script>
+		$(document).foundation();
+	</script>
+	
+	<div id="DeliveryModal" class="reveal-modal" data-reveal="data-reveal" aria-labelledby="DeliveryModalTitle" aria-hidden="true" role="dialog">
+		<h2 id="DeliveryModalTitle">Delivery Policy</h2>
+		<p></p>
+		<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+	</div>
+	
+	<div id="ReturnModal" class="reveal-modal" data-reveal="data-reveal" aria-labelledby="ReturnModalTitle" aria-hidden="true" role="dialog">
+		<h2 id="ReturnModalTitle">Return Policy</h2>
+		<p></p>
+		<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+	</div>
+	
+	<div id="RefundModal" class="reveal-modal" data-reveal="data-reveal" aria-labelledby="RefundModalTitle" aria-hidden="true" role="dialog">
+		<h2 id="RefundModalTitle">Refund Policy</h2>
+		<p></p>
+		<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+	</div>
+	
+	<div id="CancelModal" class="reveal-modal" data-reveal="data-reveal" aria-labelledby="CancelModalTitle" aria-hidden="true" role="dialog">
+		<h2 id="CancelModalTitle">Cancellation Policy</h2>
+		<p></p>
+		<a class="close-reveal-modal" aria-label="Close">&#215;</a>
+	</div>
+</h:body>
+</html>

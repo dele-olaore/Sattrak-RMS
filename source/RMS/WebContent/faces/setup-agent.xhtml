@@ -1,0 +1,245 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Installation Agent Registration</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-user-md"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Installation Agent Registration</li>
+				</ul>
+				<h4>Installation Agent Registration</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs nav-info">
+			<c:if test="#{(userBean.activeTab == null or (userBean.activeTab != null and userBean.activeTab == 'create'))}">
+				<li class="active"><a href="#create" data-toggle="tab"><strong>Create</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeTab != null and userBean.activeTab != 'create'}">
+				<li><a href="#create" data-toggle="tab"><strong>Create</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeTab != null and userBean.activeTab == 'manage'}">
+				<li class="active"><a href="#manage" data-toggle="tab"><strong>Manage</strong></a></li>
+			</c:if>
+			<c:if test="#{userBean.activeTab == null or (userBean.activeTab != null and userBean.activeTab != 'manage')}">
+				<li><a href="#manage" data-toggle="tab"><strong>Manage</strong></a></li>
+			</c:if>
+		</ul>
+		<!-- Tab panes -->
+		<div class="tab-content tab-content-info mb30">
+			<div class="tab-pane #{userBean.activeTab == 'create' ? 'active' : ''}" id="create">
+				<h:form pt:class="form-horizontal form-bordered" enctype="multipart/form-data">
+					<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Company name*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.installer.companyName}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Photo: </label>
+							<div class="col-sm-8">
+								<h:inputFile value="#{appBean.installer_photo}" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Phone No*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.installer.phoneNo}" pt:class="form-control" pt:type="tel" pt:pattern="^[1-9][0-9][0-9]{7,14}$" pt:required="required" />
+								<h:outputText value=" Format: Prefix with 234, then the mobile number, eg: 234802696XXXX" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Email: </label>
+							<div class="col-sm-8">
+								<div class="input-group mb15">
+								 	<span class="input-group-addon">@</span>
+								 	<h:inputText value="#{appBean.installer.email}" pt:type="email" pt:class="form-control" pt:required="required" />
+								 </div><!-- input-group -->
+							</div>
+						</div><!-- form-group -->
+						
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Max Installation Per Slot: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.installer.maxMultiSlotInstallation}" pt:class="form-control" />
+								<h:outputText value=" Enter the maximum installation allowed per slot" />
+							</div>
+						</div><!-- form-group -->
+						
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Address: </label>
+							<div class="col-sm-8">
+								<h:inputTextarea value="#{appBean.installer.address}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Longitude: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.installer.lng}" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Latitude: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.installer.lat}" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Country: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="country" value="#{appBean.ctry_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.countries}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">State*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="state" value="#{appBean.state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Choose One" itemValue="0"/>
+									<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+									<f:ajax render="lga" immediate="true" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">LGA*: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="lga" value="#{appBean.lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItems value="#{appBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Admin First name*: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.installer.adminFirstname}" pt:type="text" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Admin Last name*: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.installer.adminLastname}" pt:type="text" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Username/Email*: </label>
+							<div class="col-sm-8">
+								 <div class="input-group mb15">
+								 	<span class="input-group-addon">@</span>
+								 	<h:inputText value="#{appBean.installerUser.username}" pt:type="email" pt:class="form-control" pt:required="required" />
+								 </div><!-- input-group -->
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Password*: </label>
+							<div class="col-sm-8">
+								<h:inputSecret type="password" value="#{appBean.installerUser.password}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Confirm Password*: </label>
+							<div class="col-sm-8">
+								<h:inputSecret type="password" value="#{appBean.confirm_password}" pt:class="form-control" pt:required="required" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Bank name: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.installer.bankName}" pt:type="text" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Account name: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.installer.accountName}" pt:type="text" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Account number: </label>
+							<div class="col-sm-8">
+								 <h:inputText value="#{appBean.installer.accountNo}" pt:type="number" pt:class="form-control" />
+							</div>
+						</div><!-- form-group -->
+					</div><!-- panel-body -->
+					<div class="panel-footer">
+						<button class="btn btn-primary mr5" type="submit" jsf:id="subButton" jsf:action="#{appBean.save(7)}" onclick="return confirm('Are you sure?');">Submit</button>
+						<button type="reset" class="btn btn-default">Reset</button>
+					</div><!-- panel-footer -->
+					</div>
+				</h:form>
+			</div>
+			<div class="tab-pane #{userBean.activeTab == 'manage' ? 'active' : ''}" id="manage">
+				<h:form id="manageForm" method="post">
+				<table id="basicTable" class="table table-striped table-bordered responsive">
+					<thead class="">
+						<tr>
+							<th></th>
+							<th>ID</th>
+							<th>Company name</th>
+							<th>Contact</th>
+							<th>Slot</th>
+							<th>Address</th>
+							<th>Admin</th>
+							<th>Bank</th>
+							<th>Country</th>
+							<th>State</th>
+							<th>LGA</th>
+							<th>Username/Email</th>
+							<th>Created</th>
+							<th>Edit</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ui:repeat value="#{appBean.installers}" var="itm">
+							<tr>
+								<td>
+									<img src="#{request.contextPath}/imageservlet/#{itm.id}-installer-#{appBean.randomNumber}" width="50" height="50" alt="installer" />
+								</td>
+								<td>#{itm.uniqueID}</td>
+								<td>#{itm.companyName}</td>
+								<td>Phone No: #{itm.phoneNo}<br/>Email: #{itm.email}</td>
+								<td>
+									Max Inst./Slot: #{itm.maxMultiSlotInstallation}
+								</td>
+								<td>#{itm.address}<br/>Lat: #{itm.lat}<br/>Lng: #{itm.lng}</td>
+								<td>#{itm.adminFirstname} #{itm.adminLastname}</td>
+								<td>Bank: #{itm.bankName}, Account Name: #{itm.accountName}, Account No.: #{itm.accountNo}</td>
+								<td><h:outputText value="#{itm.country.name}" rendered="#{itm.country != null}" /></td>
+								<td><h:outputText value="#{itm.state.name}" rendered="#{itm.state != null}" /></td>
+								<td><h:outputText value="#{itm.lga.name}" rendered="#{itm.lga != null}" /></td>
+								<td><h:outputText value="#{itm.user.username}" rendered="#{itm.user != null}" /></td>
+								<td>#{itm.crt_dt}</td>
+								<td>
+									<h:commandLink action="#{appBean.initEdit('edit-agent')}">
+										<f:setPropertyActionListener value="manage" target="#{userBean.activeTab}" />
+										<f:setPropertyActionListener value="#{itm}" target="#{appBean.selEditInstaller}" />
+										<button class="btn btn-dark btn-sm mr5">Edit...</button>
+									</h:commandLink>
+								</td>
+							</tr>
+						</ui:repeat>
+					</tbody>
+				</table>
+				</h:form>
+			</div><!-- tab-pane -->
+		</div>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

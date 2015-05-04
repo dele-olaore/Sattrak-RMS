@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<!--[if IE 6]>
+<html id="ie6" lang="en-US">
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" lang="en-US">
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" lang="en-US">
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html lang="en-US">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Page not found | AivahThemes</title>
+	
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<link rel="pingback" href="http://www.aivahthemes.com/xmlrpc.php" />
+
+<!--[if lt IE 9]>
+<script src="http://www.aivahthemes.com/wp-content/themes/concept/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+
+
+<link rel="alternate" type="application/rss+xml" title="AivahThemes &raquo; Feed" href="http://www.aivahthemes.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="AivahThemes &raquo; Comments Feed" href="http://www.aivahthemes.com/comments/feed/" />
+<link rel='stylesheet' id='contact-form-7-css'  href='http://www.aivahthemes.com/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=4.0.3' type='text/css' media='all' />
+<link rel='stylesheet' id='rs-plugin-settings-css'  href='http://www.aivahthemes.com/wp-content/plugins/revslider/rs-plugin/css/settings.css?ver=4.6.5' type='text/css' media='all' />
+<style id='rs-plugin-settings-inline-css' type='text/css'>
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,800,300,700);.tp-caption.roundedimage img{-webkit-border-radius:300px;  -moz-border-radius:300px;  border-radius:300px}.tp-caption a{color:#ff7302;text-shadow:none;-webkit-transition:all 0.2s ease-out;-moz-transition:all 0.2s ease-out;-o-transition:all 0.2s ease-out;-ms-transition:all 0.2s ease-out}.tp-caption a:hover{color:#ffa902}.tp-caption a{color:#ff7302;text-shadow:none;-webkit-transition:all 0.2s ease-out;-moz-transition:all 0.2s ease-out;-o-transition:all 0.2s ease-out;-ms-transition:all 0.2s ease-out}.tp-caption a:hover{color:#ffa902}
+</style>
+<link rel='stylesheet' id='concept-style-css'  href='http://www.aivahthemes.com/wp-content/themes/aivahthemes/style.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='animate-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/animate.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='prettyphoto-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/prettyPhoto.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='eislideshow-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/eislideshow.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='responsive-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/responsive.css?ver=1' type='text/css' media='all' />
+<link rel='stylesheet' id='jplayer.blue.monday-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/blue.monday/jplayer.blue.monday.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='datepicker-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/framework/admin/css/datepicker.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='flexslider-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/flexslider.css?ver=1' type='text/css' media='all' />
+<link rel='stylesheet' id='atp-nivoslider-css'  href='http://www.aivahthemes.com/wp-content/themes/concept/css/nivo-slider.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='iva-downloadform-css'  href='http://www.aivahthemes.com/wp-content/themes/aivahthemes/getthemefiles/css/downloadform.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='iva-document-css'  href='http://www.aivahthemes.com/wp-content/themes/aivahthemes/getthemefiles/css/document.css?ver=4.1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-business-css'  href='http://www.aivahthemes.com/wp-content/plugins/businesshours/business-hours.css?ver=1.0' type='text/css' media='screen' />
+<script type='text/javascript'>
+/* <![CDATA[ */
+var atp_panel = {"SiteUrl":"http:\/\/www.aivahthemes.com\/wp-content\/themes\/aivahthemes"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-includes/js/jquery/jquery.js?ver=1.11.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/plugins/revslider/rs-plugin/js/jquery.themepunch.tools.min.js?ver=4.6.5'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/plugins/revslider/rs-plugin/js/jquery.themepunch.revolution.min.js?ver=4.6.5'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.aivahthemes.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.aivahthemes.com/wp-includes/wlwmanifest.xml" /> 
+<meta name="generator" content="WordPress 4.1.1" />
+		<script type="text/javascript">
+			jQuery(document).ready(function() {
+				// CUSTOM AJAX CONTENT LOADING FUNCTION
+				var ajaxRevslider = function(obj) {
+				
+					// obj.type : Post Type
+					// obj.id : ID of Content to Load
+					// obj.aspectratio : The Aspect Ratio of the Container / Media
+					// obj.selector : The Container Selector where the Content of Ajax will be injected. It is done via the Essential Grid on Return of Content
+					
+					var content = "";
+
+					data = {};
+					
+					data.action = 'revslider_ajax_call_front';
+					data.client_action = 'get_slider_html';
+					data.token = '81adb106df';
+					data.type = obj.type;
+					data.id = obj.id;
+					data.aspectratio = obj.aspectratio;
+					
+					// SYNC AJAX REQUEST
+					jQuery.ajax({
+						type:"post",
+						url:"http://www.aivahthemes.com/wp-admin/admin-ajax.php",
+						dataType: 'json',
+						data:data,
+						async:false,
+						success: function(ret, textStatus, XMLHttpRequest) {
+							if(ret.success == true)
+								content = ret.data;								
+						},
+						error: function(e) {
+							console.log(e);
+						}
+					});
+					
+					 // FIRST RETURN THE CONTENT WHEN IT IS LOADED !!
+					 return content;						 
+				};
+				
+				// CUSTOM AJAX FUNCTION TO REMOVE THE SLIDER
+				var ajaxRemoveRevslider = function(obj) {
+					return jQuery(obj.selector+" .rev_slider").revkill();
+				};
+
+				// EXTEND THE AJAX CONTENT LOADING TYPES WITH TYPE AND FUNCTION
+				var extendessential = setInterval(function() {
+					if (jQuery.fn.tpessential != undefined) {
+						clearInterval(extendessential);
+						if(typeof(jQuery.fn.tpessential.defaults) !== 'undefined') {
+							jQuery.fn.tpessential.defaults.ajaxTypes.push({type:"revslider",func:ajaxRevslider,killfunc:ajaxRemoveRevslider,openAnimationSpeed:0.3});   
+							// type:  Name of the Post to load via Ajax into the Essential Grid Ajax Container
+							// func: the Function Name which is Called once the Item with the Post Type has been clicked
+							// killfunc: function to kill in case the Ajax Window going to be removed (before Remove function !
+							// openAnimationSpeed: how quick the Ajax Content window should be animated (default is 0.3)
+						}
+					}
+				},30);
+			});
+		</script>
+		
+<!-- Google Fonts -->
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700|Lato:400,700" rel="stylesheet" type="text/css" />
+
+<style>
+
+body { background-color:#f9f9f9; }
+body { font-size:14px;   font-style:normal; font-weight:;}
+
+.pagemid {  }
+h1, h2, h3, h4, h5, h6 { font-family:Lato; }
+body { font-family:Open Sans; }
+.topbar { background-color:#acc716;}
+.topbar { color:#ffffff;}
+#header, #header-s2, #header-s3, #header-s4 {  }
+
+#featured_slider {  }
+.homepage_teaser {  }
+
+#subheader {
+				}
+#subheader .subdesc,
+#subheader .page-title {  }
+
+h1#site-title a{  color:#2078a1;   font-weight:; }
+h2#site-description {     font-weight:; }
+.logo {   }
+#sticky { background:#d6e6c1; }
+
+#atp_menu a { font-size:13px; color:#999999;   font-weight:bold;font-family:Lato; }
+#atp_menu li:hover, 
+#atp_menu li.sfHover {
+ background-color:#ffffff; 
+}
+
+#atp_menu li:hover, 
+#atp_menu li.sfHover,
+#atp_menu a:focus, 
+#atp_menu a:hover, 
+#atp_menu a:active {
+ color:#97ba37;}
+
+#atp_menu ul li {  }
+#atp_menu ul a {  }
+
+#atp_menu li li:hover, #atp_menu li li.sfHover,
+#atp_menu li li a:focus, #atp_menu li li a:hover, #atp_menu li li a:active {
+   }
+
+#atp_menu ul li {  }
+
+#atp_menu li.current-cat > a, 
+#atp_menu li.current_page_item > a,
+#atp_menu li.current-page-ancestor > a { color:#97ba37; }
+
+h1 { font-size:40px;  line-height:46px; font-style:normal; font-weight:300; }
+h2 { font-size:32px;  line-height:36px; font-style:normal; font-weight:300; }
+h3 { font-size:28px;  line-height:30px; font-style:normal; font-weight:300; }
+h4 { font-size:24px;  line-height:28px; font-style:normal; font-weight:300; }
+h5 { font-size:18px;  line-height:22px; font-style:normal; font-weight:300; }
+h6 { font-size:12px;  line-height:14px; font-style:normal; font-weight:300; }
+
+
+h4.widget-title { font-family:Lato; }
+#footer h3.widget-title { font-family:Lato; }
+
+h2.entry-title a { font-size:22px; color:#a7d6e3; line-height:24px; font-style:normal;  }
+h2.entry-title a:hover {  }
+.widget-title { font-size:16px;   font-style:normal; font-weight:; }
+#footer .widget-title {     font-weight:; }
+
+a,.entry-title a { color:#39afcc; }
+a:hover,.entry-title a:hover { color:#97ba37; }
+
+#subheader a {  }
+#subheader a:hover {  }
+
+#footer {      font-weight:; }
+.copyright {     font-weight:;  }
+
+#footer .widget-title {  }
+.breadcrumbs {  }
+#footer a { color:#39afcc; }
+#footer a:hover { color:#97ba37; }
+
+.pagemid { border-top:1px solid #ddd;}
+</style>
+</head>
+
+<body class="error404">
+	
+
+	
+	<div id="stretched" class="fullwidth switchlayout">
+	<div class="bodyoverlay"></div>
+			<div id="trigger" class="tarrow"></div>
+		<div id="sticky">'Boom' Our New Wordpress Theme 'Hostmev2' is on Sale on Themeforest  <a href="http://bit.ly/18j7sIZ">Click Here → </a></div>
+	
+	<div id="wrapper">
+				<div class="topbar">
+	<div class="inner">
+		<div class="one_half ">
+			Email : info@aivahthemes.com		</div>
+		<div class="one_half last">
+			<div id="social-icons">
+				<ul class="atpsocials"><li class="twitter"><a href="http://www.twitter.com/aivahthemes"><img src="http://www.aivahthemes.com/wp-content/themes/concept/images/sociables/twitter.png" alt="Twitter"  /> </a></li><li class="dribbble"><a href="http://dribbble.com/aivah"><img src="http://www.aivahthemes.com/wp-content/themes/concept/images/sociables/dribbble.png" alt="Dribbble"  /> </a></li><li class="deviant"><a href="http://femkhan.deviantart.com/"><img src="http://www.aivahthemes.com/wp-content/themes/concept/images/sociables/deviant.png" alt="Deviant"  /> </a></li></ul>			</div>
+		</div>
+
+	</div><!-- /inner -->
+</div><!-- /topbar -->
+<div id="header" class="header clearfix">
+	<div class="header-area">
+
+		<div class="logo">
+						<a href="http://www.aivahthemes.com" title="AivahThemes">
+					<img src="http://www.aivahthemes.com/wp-content/uploads/2012/11/aivahlogo1.png" alt="AivahThemes" />
+				</a>
+					</div><!-- /logo -->	
+
+		<div class="primarymenu menuwrap">
+			<ul id="atp_menu" class="sf-menu"><li id="menu-item-808" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home"><a href="http://www.aivahthemes.com/">Home</a></li>
+<li id="menu-item-1241" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://www.aivahthemes.com/wordpress-themes/">Themes</a></li>
+<li id="menu-item-1113" class="menu-item menu-item-type-custom menu-item-object-custom"><a href="http://support.aivahthemes.com">Support</a></li>
+<li id="menu-item-810" class="menu-item menu-item-type-post_type menu-item-object-page"><a href="http://www.aivahthemes.com/contact-us/">Contact Us</a></li>
+</ul>		</div>
+
+	</div><!-- /header-area-->
+</div><!-- #header -->					
+		<div class="pagemid">
+	<div class="inner">
+
+		<div class="entry-content">
+			<div class="error_404">
+				<h2>Ooops... Error 404</h2>
+				<h5>We're sorry, but the page you are looking for doesn't exist.</h5>
+				<p class="center"><a class="btn blue flat medium" href="http://www.aivahthemes.com"><span>Go To Homepage</span></a></p>
+			</div>			
+		</div><!-- .entry-content -->
+
+	</div><!-- .inner -->
+</div><!-- .pagemid -->
+				<div id="footer">
+			<div class="inner">
+				<div class="fullwidth "><aside id="sys_twitter_widget-3" class="textcenter f22 widget twitter_widget"><ul class="tweet"><li><i class="icon-twitter"></i> I just got a step closer to the future. You can too. Tweet with <a href="http://twitter.com/#search?q=iamtheFuture" class="twitter-link">#iamtheFuture</a> <a href="http://twitter.com/BMWIndia" class="twitter-user">@BMWIndia</a> &amp; unlock BMW's newest video. <a href="http://t.co/bwywOonzTk" class="twitter-link">http://t.co/bwywOonzTk</a> <span> - 12 days ago</span></li></ul></aside><aside id="sociable_widget-3" class="widget socials-wg"><ul class="atpsocials"><li class="twitter"><a href="http://www.twitter.com/aivahthemes"><img src="http://www.aivahthemes.com/wp-content/themes/concept/images/sociables/twitter.png" alt="Twitter"  /> </a></li><li class="dribbble"><a href="http://dribbble.com/aivah"><img src="http://www.aivahthemes.com/wp-content/themes/concept/images/sociables/dribbble.png" alt="Dribbble"  /> </a></li><li class="deviant"><a href="http://femkhan.deviantart.com/"><img src="http://www.aivahthemes.com/wp-content/themes/concept/images/sociables/deviant.png" alt="Deviant"  /> </a></li></ul></aside>				</div>			</div>
+		</div><!-- #footer -->
+		
+		<div class="copyright clearfix">
+			<div class="inner">
+				<div class="copyright_left">
+					&copy; Copyright 2013 - All Rights Reserved - www.aivahthemes.com				</div>
+				<div class="copyright_right">
+					Designed by <a href="http://www.aivah.com">Aivah</a> &amp; Powered by <a href="http://www.wordpress.org">Wordpress</a>				</div>
+
+			</div><!-- .inner -->
+		</div><!-- .copyright -->
+
+	</div><!-- #wrapper -->
+</div><!-- #layout -->
+
+
+<div id="back-top"><a href="#header"><span></span></a></div>
+
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/plugins/contact-form-7/includes/js/jquery.form.min.js?ver=3.51.0-2014.06.20'></script>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var _wpcf7 = {"loaderUrl":"http:\/\/www.aivahthemes.com\/wp-content\/plugins\/contact-form-7\/images\/ajax-loader.gif","sending":"Sending ...","cached":"1"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/plugins/contact-form-7/includes/js/scripts.js?ver=4.0.3'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.easing.1.3.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/hoverIntent.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/superfish.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.jplayer.min.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.preloadify.min.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.prettyPhoto.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.fitvids.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/sys_custom.js?ver=1.0'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.flexslider.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/jquery.eislideshow.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/concept/js/waypoints.js?ver=4.1.1'></script>
+<script type='text/javascript' src='http://www.aivahthemes.com/wp-content/themes/aivahthemes/getthemefiles/js/apiscript.js?ver=4.1.1'></script>
+
+</body>
+</html>

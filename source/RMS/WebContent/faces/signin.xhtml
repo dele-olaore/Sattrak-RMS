@@ -1,0 +1,56 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                template="/WEB-INF/layout/index_layout.xhtml">
+<ui:define name="title">Sign In</ui:define>
+<ui:define name="content">
+	<div class="panel panel-signin">
+		<div class="panel-body">
+			<div class="logo text-center">
+				<img src="#{request.contextPath}/images/logo-primary.png" alt="RMS Logo" />
+			</div>
+			<br />
+			<h4 class="text-center mb5">Welcome to Sattrak's RMS Console</h4>
+			<p class="text-center">Sign in to your account</p>
+			
+			<div class="mb30"></div>
+			
+			<h:form id="loginForm" method="post">
+				<div class="input-group mb15">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+					<h:inputText type="text" value="#{signinBean.username}" styleClass="form-control" class="form-control" pt:placeholder="Username" pt:required="required" />
+				</div><!-- input-group -->
+				<div class="input-group mb15">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+					<h:inputSecret type="password" value="#{signinBean.password}" styleClass="form-control" class="form-control" pt:placeholder="Password" pt:required="required" />
+				</div><!-- input-group -->
+				
+				<div class="clearfix">
+					<div class="pull-left">
+						<div class="ckbox ckbox-primary mt10">
+							<input type="checkbox" id="rememberMe" value="1" />
+							<label for="rememberMe">Remember Me</label>
+							<!-- <input type="hidden" name="partner_id" value="707" /> -->
+						</div>
+					</div>
+					<div class="pull-right">
+						<button type="submit" class="btn btn-success" jsf:id="subButton" jsf:action="#{signinBean.signin}">Sign In <i class="fa fa-angle-right ml5"></i></button>
+					</div>
+				</div>
+			</h:form>
+		</div><!-- panel-body -->
+		<div class="panel-footer">
+			<a href="forgot_password.xhtml">Forgot your password?</a>
+			<br/>
+			Sales Agent/Trade Partner Quick Links: -
+			<ul>
+			<li><a href="registerCustomerAndBuyProduct.xhtml">Register New Customer and Buy Product</a></li>
+			<li><a href="buyProductForCustomer.xhtml">Buy Product for Existing Customer</a></li>
+			</ul>
+		</div><!-- panel-footer -->
+	</div><!-- panel -->
+</ui:define>
+</ui:composition>
