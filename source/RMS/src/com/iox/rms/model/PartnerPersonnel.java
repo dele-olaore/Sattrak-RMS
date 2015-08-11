@@ -35,6 +35,8 @@ public class PartnerPersonnel implements Serializable
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date crt_dt;
 	
+	private boolean active = true;
+	
 	@Transient
 	private boolean selected;
 	
@@ -95,6 +97,14 @@ public class PartnerPersonnel implements Serializable
 
 	public void setCrt_dt(Date crt_dt) {
 		this.crt_dt = crt_dt;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 	public boolean isSelected() {

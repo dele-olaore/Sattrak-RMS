@@ -28,6 +28,8 @@ public class Customer implements Serializable
 	@Column(unique=true)
 	private String uniqueID;
 	
+	private String customerType = "INDIVIDUAL"; // INDIVIDUAL, CORPORATE
+	
 	private String title;
 	private String firstname;
 	private String lastname;
@@ -51,8 +53,12 @@ public class Customer implements Serializable
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date crt_dt;
 	
+	private boolean active = true;
+	
 	@Transient
 	private boolean selected;
+	@Transient
+	private CorporateCustomer corCustomer;
 	
 	public Customer()
 	{}
@@ -79,6 +85,14 @@ public class Customer implements Serializable
 
 	public void setUniqueID(String uniqueID) {
 		this.uniqueID = uniqueID;
+	}
+
+	public String getCustomerType() {
+		return customerType;
+	}
+
+	public void setCustomerType(String customerType) {
+		this.customerType = customerType;
 	}
 
 	public String getTitle() {
@@ -177,12 +191,28 @@ public class Customer implements Serializable
 		this.crt_dt = crt_dt;
 	}
 
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	public boolean isSelected() {
 		return selected;
 	}
 
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+	}
+
+	public CorporateCustomer getCorCustomer() {
+		return corCustomer;
+	}
+
+	public void setCorCustomer(CorporateCustomer corCustomer) {
+		this.corCustomer = corCustomer;
 	}
 	
 }

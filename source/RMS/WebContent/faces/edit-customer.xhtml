@@ -27,6 +27,31 @@
 		<h:form id="form" pt:class="form-horizontal form-bordered">
 			<div class="panel panel-default">
 			<div class="panel-body">
+			
+				<c:if test="#{appBean.selCustomer != null and appBean.selCustomer.customerType == 'CORPORATE'}">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Company name*: </label>
+						<div class="col-sm-8">
+							<h:inputText value="#{appBean.selCustomer.corCustomer.companyName}" pt:class="form-control" pt:required="required" />
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">RC Number: </label>
+						<div class="col-sm-8">
+							<h:inputText value="#{appBean.selCustomer.corCustomer.rcNumber}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Corporate Phone No: </label>
+						<div class="col-sm-8">
+							<h:inputText value="#{appBean.selCustomer.corCustomer.phoneNumber}" pt:class="form-control" />
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<h4>Contact below: -</h4>
+					</div>
+				</c:if>
+			
 				<div class="form-group">
 					<label class="col-sm-4 control-label">Title: </label>
 					<div class="col-sm-8">

@@ -1,7 +1,9 @@
 package com.iox.rms.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -24,11 +27,11 @@ public class CustomerTransaction implements Serializable
 	
 	@ManyToOne
 	private Customer customer;
-	@ManyToOne
-	private Product product;
+	//@ManyToOne
+	//private Product product;
 	@Column(unique=true)
 	private String tranRef;
-	private double amount;
+	private double amount; // Total amount of transaction
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date tranInitDate;
 	private String payFor; // PURCHASE, RENEWAL
@@ -42,6 +45,9 @@ public class CustomerTransaction implements Serializable
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date crt_dt;
+	
+	@Transient
+	private List<CustomerProduct> pending_bookings;
 	
 	public CustomerTransaction()
 	{}
@@ -62,13 +68,13 @@ public class CustomerTransaction implements Serializable
 		this.customer = customer;
 	}
 
-	public Product getProduct() {
+	/*public Product getProduct() {
 		return product;
 	}
 
 	public void setProduct(Product product) {
 		this.product = product;
-	}
+	}*/
 
 	public String getTranRef() {
 		return tranRef;
@@ -149,5 +155,15 @@ public class CustomerTransaction implements Serializable
 	public void setCrt_dt(Date crt_dt) {
 		this.crt_dt = crt_dt;
 	}
-	
+
+	public List<CustomerProduct> getPending_bookings() {
+		if(pending_bookings == null)
+			pending_bookings = new ArrayList<CustomerProduct>();
+		return pending_bookings;
+	}
+
+	public void setPending_bookings(List<CustomerProduct> pending_bookings) {
+		this.pending_bookings = pending_bookings;
+	}
+
 }

@@ -26,12 +26,37 @@
 		<h:form>
 			<div class="panel panel-default">
 				<div class="panel-body">
+					<c:if test="#{userBean.sessionInstaller == null}">
+						<c:if test="#{userBean.sessionPartner.sattrak and userBean.sessionCustomer == null}">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Partner: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItem itemLabel="Select one" itemValue="0"/>
+										<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+										<f:ajax render="insPoint job jobdetails" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+						</c:if>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Installation Point: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="insPoint" value="#{appBean.installation_point_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Choose One" itemValue="0"/>
+									<f:selectItems value="#{appBean.installers}" var="c" itemLabel="#{c.companyName} - #{c.address}" itemValue="#{c.id}"/>
+									<f:ajax render="job jobdetails" />
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</c:if>
+				
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Job Code / Slot: </label>
 						<div class="col-sm-8">
 							<h:selectOneMenu id="job" value="#{appBean.not_checkedin_installation_id}" pt:data-placeholder="Choose One" pt:class="width300">
 								<f:selectItem itemLabel="Choose One" itemValue="0"/>
-								<f:selectItems value="#{appBean.myNotCheckInJobs}" var="c" itemLabel="#{c.jobCode} - #{c.slot.name} - #{c.customer.firstname} #{c.customer.lastname}" itemValue="#{c.id}"/>
+								<f:selectItems value="#{appBean.myNotCheckInJobs}" var="c" itemLabel="#{c.jobCode} - #{c.booked_dt} - #{c.slot.name} - #{c.customer.firstname} #{c.customer.lastname}" itemValue="#{c.id}"/>
 								<f:ajax render="jobdetails" />
 							</h:selectOneMenu>
 							<h:commandLink action="#{appBean.resetMyNotCheckInJobs}" value="Refresh">
@@ -43,7 +68,7 @@
 						<label class="col-sm-4 control-label">Job: </label>
 						<div class="col-sm-8">
 							<h:panelGrid id="jobdetails" columns="1">
-								<h:outputText value="#{appBean.selNotCheckInJob.productBooked.details}" rendered="#{appBean.selNotCheckInJob != null}" />
+								<h:outputText value="#{appBean.selNotCheckInJob.productBooked.productName} - #{appBean.selNotCheckInJob.productBooked.details}" rendered="#{appBean.selNotCheckInJob != null}" />
 							</h:panelGrid>
 						</div>
 					</div><!-- form-group -->

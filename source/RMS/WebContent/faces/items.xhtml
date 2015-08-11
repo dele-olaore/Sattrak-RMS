@@ -78,6 +78,13 @@
 							</div>
 						</div><!-- form-group -->
 						<div class="form-group">
+							<label class="col-sm-4 control-label">Serial Numbers*: </label>
+							<div class="col-sm-8">
+								<h:inputText value="#{appBean.itm.serialNumbers}" pt:class="form-control" />
+								<h:outputText value="Format eg. 1001-2000 or comma seperated values" />
+							</div>
+						</div><!-- form-group -->
+						<div class="form-group">
 							<label class="col-sm-4 control-label">Device manufacturer*: </label>
 							<div class="col-sm-8">
 								<h:selectOneMenu id="itmmanu" value="#{appBean.itmManu_id}" pt:data-placeholder="Choose One" pt:class="width300">

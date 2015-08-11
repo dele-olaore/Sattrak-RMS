@@ -196,6 +196,8 @@
 										<f:setPropertyActionListener value="#{itm}" target="#{appBean.selProduct}" />
 										<button class="btn btn-dark btn-sm mr5">Edit...</button>
 									</h:commandLink>
+									<br/><br/>
+									<button class="btn btn-default" type="submit" jsf:action="#{appBean.deleteProduct(itm.id)}" onclick="return confirm('Are you sure?');">Delete</button>
 								</td>
 							</tr>
 						</ui:repeat>

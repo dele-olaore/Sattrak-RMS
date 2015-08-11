@@ -32,7 +32,7 @@
 							<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
 								<f:selectItem itemLabel="-- Select One --" itemValue="0"/>
 								<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
-								<f:ajax render="upcomingfrm inprogressfrm overduefrm completedfrm cancelledfrm" />
+								<f:ajax render=":upcomingfrm :inprogressfrm :overduefrm :completedfrm :cancelledfrm" />
 							</h:selectOneMenu>
 						</div>
 					</div><!-- form-group -->
@@ -209,7 +209,22 @@
 					<ui:repeat value="#{appBean.myCompletedJobs}" var="itm">
 					<tr>
 						<td>#{itm.booked_dt}</td>
-						<td>#{itm.jobCode} <a href="http://sattrakservices.com/jobcards/#{itm.jobCode}.img" onclick="window.open('http://sattrakservices.com/jobcards/#{itm.jobCode}.img');return false;">Job Card</a></td>
+						<td>
+							#{itm.jobCode}
+							<!-- <a href="http://sattrakservices.com/jobcards/#{itm.jobCode}.img" onclick="window.open('http://sattrakservices.com/jobcards/#{itm.jobCode}.img');return false;">Job Card</a> -->
+							<br/>
+							<h:commandLink action="#{appBean.downloadJobCard}" rendered="#{itm.completed}">
+								<f:setPropertyActionListener value="#{itm}" target="#{appBean.selectedInstallation}" />
+								<button class="btn btn-dark btn-sm mr5">Job Card</button>
+							</h:commandLink>
+							<br/><br/>
+							<img src="http://sattrakservices.com/barbecue/barcode?data=#{itm.jobCode}&amp;height=50&amp;width=1&amp;type=Code128" />
+							<br/><br/>
+							<h:commandLink action="#{appBean.downloadCertificate}" rendered="#{itm.completed and itm.productBooked.type.name.toLowerCase().contains('speed limiter')}">
+								<f:setPropertyActionListener value="#{itm}" target="#{appBean.selectedInstallation}" />
+								<button class="btn btn-dark btn-sm mr5">Certificate</button>
+							</h:commandLink>
+						</td>
 						<td>#{itm.customer.firstname} #{itm.customer.lastname}</td>
 						<td>#{itm.installer.companyName}</td>
 						<td>#{itm.productBooked.details}</td>

@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -43,6 +44,9 @@ public class ItemMove implements Serializable
 	private User createdBy;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date crt_dt;
+	
+	@Transient
+	private String serialNumbers;
 	
 	public ItemMove()
 	{}
@@ -149,6 +153,14 @@ public class ItemMove implements Serializable
 
 	public void setCrt_dt(Date crt_dt) {
 		this.crt_dt = crt_dt;
+	}
+
+	public String getSerialNumbers() {
+		return serialNumbers;
+	}
+
+	public void setSerialNumbers(String serialNumbers) {
+		this.serialNumbers = serialNumbers;
 	}
 	
 }

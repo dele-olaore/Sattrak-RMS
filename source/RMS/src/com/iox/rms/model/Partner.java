@@ -23,7 +23,7 @@ public class Partner implements Serializable
 	
 	private String contact_firstname, contact_lastname, contact_phoneno, contact_email;
 	
-	private boolean active;
+	private boolean active = true;
 	private boolean sattrak;
 	
 	@Temporal(TemporalType.TIMESTAMP)

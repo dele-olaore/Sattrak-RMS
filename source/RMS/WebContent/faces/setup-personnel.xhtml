@@ -154,6 +154,8 @@
 										<f:setPropertyActionListener value="#{itm}" target="#{appBean.selPP}" />
 										<f:setPropertyActionListener value="manage" target="#{userBean.activeTab}" />
 									</h:commandLink>
+									<br/><br/>
+									<button class="btn btn-primary" type="submit" jsf:action="#{appBean.delete(itm)}" onclick="return confirm('Are you sure?');">Delete</button>
 								</td>
 							</tr>
 						</ui:repeat>

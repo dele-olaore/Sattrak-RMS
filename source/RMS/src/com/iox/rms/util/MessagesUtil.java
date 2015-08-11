@@ -1,7 +1,11 @@
 package com.iox.rms.util;
 
+import java.util.List;
+
 import com.iox.rms.model.Customer;
 import com.iox.rms.model.CustomerProduct;
+import com.iox.rms.model.CustomerProductPurchase;
+import com.iox.rms.model.CustomerTransaction;
 import com.iox.rms.model.InstallerLocationJobSchedule;
 
 public class MessagesUtil
@@ -9,16 +13,24 @@ public class MessagesUtil
 	public MessagesUtil()
 	{}
 	
-	public static String getHowToPayMessage(final String tranRef, final CustomerProduct cp)
+	public static String getHowToPayMessage(final String tranRef, final CustomerTransaction ct, List<CustomerProductPurchase> pList, double total_cost)
     {
         StringBuilder sb = new StringBuilder();
 
         sb.append("<html><body>");
-        sb.append("<p><strong>Dear ").append(cp.getCustomer().getFirstname()).append("!,</strong></p>");
+        sb.append("<p><strong>Dear ").append(ct.getCustomer().getFirstname()).append("!,</strong></p>");
         sb.append("<p>Thank you for your interest in our product. Please follow the steps below to make your payment: -</p>");
-        sb.append("<p><ol><li>Confirm that the product details below is the product you want to purchase: -<br/>");
-        sb.append("Product: ").append(cp.getProductBooked().getDetails()).append("<br/>Amount: N ").append(cp.getPurchasedAmount()).append("</li>");
-        sb.append("<li>Make a deposit of the above amount in any of <strong>Zenith Bank</strong> branches nationwide into our account with below details: -<br />Transaction Ref: ").append(tranRef).append("<br/ >Account Name: Sattrak Telematics Plc<br/>Account Number: 1234567890</li>");
+        sb.append("<p><ol><li>Confirm that the product(s) details below is/are the product(s) you want to purchase: -<br/>");
+        
+        sb.append("<ul>");
+        for(CustomerProductPurchase cpp : pList)
+        {
+        	sb.append("<li>Product: ").append(cpp.getProductBooked().getProductName()).append("<br/>Count: ").append(cpp.getCount()).append("<br/>Amount: N ").append(cpp.getPurchasedAmount()).append("</li>");
+        }
+        sb.append("</ul>");
+        sb.append("</li>");
+        
+        sb.append("<li>Make a deposit of N").append(total_cost).append(" in any of <strong>Zenith Bank</strong> branches nationwide into our account with below details: -<br />Transaction Ref: ").append(tranRef).append("<br/ >Account Name: Sattrak Telematics Plc<br/>Account Number: 1234567890</li>");
         sb.append("<li>For faster response and confirmation of your payment, please send a notification of your deposit to our support team at support@sattrakservices.com</li>");
         sb.append("<li>You will be notified on confirmation of your payment.<li></ol></p>");
         sb.append("<p>Please contact us for further assistance</p>");
@@ -134,9 +146,31 @@ public class MessagesUtil
 		sb.append("<p><table border=0>");
 		sb.append("<tr><td>Job Code</td><td>").append(job.getJobCode()).append("</td></tr>");
 		sb.append("<tr><td>Installation Date and Time</td><td>").append(job.getBooked_dt()).append(" ").append(job.getSlot().getName()).append("</td></tr>");
-		sb.append("<tr><td>Product</td><td>").append(job.getProductBooked().getDetails()).append("</td></tr>");
+		sb.append("<tr><td>Product</td><td>").append(job.getProductBooked().getProductName()).append("</td></tr>");
 		sb.append("<tr><td>Installation Point</td><td>").append(job.getInstaller().getCompanyName()).append("</td></tr>");
 		sb.append("<tr><td>Installation Point Address</td><td>").append(job.getInstaller().getAddress()).append("</td></tr>");
+		sb.append("</table></p>");
+		sb.append("<p>Please remember the above details and ensure you are at the installation point at least 15 minutes before your booked time.</p>");
+		sb.append("<p>For enquires, please send mail to support@sattrakservices.com. Please include the Job Code above in your email.</p>");
+		sb.append("<p>Best Regards,<br/>Sattrak Telematics Limited<br/><img src=\"http://sattrakservices.com/rms/images/sattrak-logo.png\" style=\"width:300px;height:70px\" /></p>");
+		sb.append("</body></html>");
+		return sb.toString();
+	}
+	public static String getJobsScheduleEmailMessage(final String cusFirstName, final List<InstallerLocationJobSchedule> jobs) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<html><body>");
+		sb.append("<p><strong>Dear ").append(cusFirstName).append(",</strong></p>");
+		sb.append("<p>").append("You have successfully placed bulk-booking on our site with the below details: -").append("</p>");
+		sb.append("<p>");
+		sb.append("Product: ").append(jobs.get(0).getProductBooked().getProductName()).append("<br/>");
+		sb.append("Installation Point: ").append(jobs.get(0).getInstaller().getCompanyName()).append("<br/>");
+		sb.append("Installation Point Address: ").append(jobs.get(0).getInstaller().getAddress()).append("<br/>");
+		sb.append("<table border=1>");
+		sb.append("<tr><th>Job Code</th><th>Installation Date and Time</th></tr>");
+		for(InstallerLocationJobSchedule job : jobs) {
+			sb.append("<tr><td>").append(job.getJobCode()).append("</td><td>").append(job.getBooked_dt()).append(" ").append(job.getSlot().getName()).append("</td></tr>");
+		}
 		sb.append("</table></p>");
 		sb.append("<p>Please remember the above details and ensure you are at the installation point at least 15 minutes before your booked time.</p>");
 		sb.append("<p>For enquires, please send mail to support@sattrakservices.com. Please include the Job Code above in your email.</p>");
@@ -170,6 +204,12 @@ public class MessagesUtil
 		sb.append("Dear ").append(cusFirstName).append(", you have successfully placed a booking with Job Code: ").append(job.getJobCode()).append(" on the RMS platform. More details has been sent to your email.");
 		return sb.toString();
 	}
+	public static String getJobsScheduleSMSMessage(final String cusFirstName, final String transRef)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("Dear ").append(cusFirstName).append(", you have successfully placed a bulk-booking for Trans Ref: ").append(transRef).append(" on the RMS platform. More details has been sent to your email.");
+		return sb.toString();
+	}
 	public static String getJobRescheduleSMSMessage(final String cusFirstName, final InstallerLocationJobSchedule job)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -187,8 +227,31 @@ public class MessagesUtil
 		sb.append("<p><table border=0>");
 		sb.append("<tr><td>Job Code</td><td>").append(job.getJobCode()).append("</td></tr>");
 		sb.append("<tr><td>Installation Date and Time</td><td>").append(job.getBooked_dt()).append(" ").append(job.getSlot().getName()).append("</td></tr>");
-		sb.append("<tr><td>Product</td><td>").append(job.getProductBooked().getDetails()).append("</td></tr>");
+		sb.append("<tr><td>Product</td><td>").append(job.getProductBooked().getProductName()).append("</td></tr>");
 		sb.append("<tr><td>Customer</td><td>").append(job.getCustomer().getFirstname()).append(" ").append(job.getCustomer().getLastname()).append("</td></tr>");
+		sb.append("</table></p>");
+		sb.append("<p>For enquires, please send mail to support@sattrakservices.com. Please include the Job Code above in your email.</p>");
+		sb.append("<p>Best Regards,<br/>Sattrak Telematics Limited<br/><img src=\"http://sattrakservices.com/rms/images/sattrak-logo.png\" style=\"width:300px;height:70px\" /></p>");
+		sb.append("</body></html>");
+		return sb.toString();
+	}
+	public static String getJobsScheduleInstallerEmailMessage(final List<InstallerLocationJobSchedule> jobs)
+	{
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<html><body>");
+		sb.append("<p><strong>Hello,</strong></p>");
+		sb.append("<p>").append("A bulk-installation schedule as been placed with your company as the installation point. See below details: -").append("</p>");
+		sb.append("<p>");
+		sb.append("Customer: ").append(jobs.get(0).getCustomer().getFirstname()).append("<br/>");
+		sb.append("Product: ").append(jobs.get(0).getProductBooked().getProductName()).append("<br/>");
+		sb.append("Total count: ").append(jobs.size()).append("<br/>");
+		sb.append("Date: ").append(jobs.get(0).getBooked_dt()).append("<br/>");
+		sb.append("<table border=1>");
+		sb.append("<tr><th>Job Code</th><th>Installation Date and Time</th></tr>");
+		for(InstallerLocationJobSchedule job : jobs){
+			sb.append("<tr><td>").append(job.getJobCode()).append("</td><td>").append(job.getBooked_dt()).append(" ").append(job.getSlot().getName()).append("</td></tr>");
+		}
 		sb.append("</table></p>");
 		sb.append("<p>For enquires, please send mail to support@sattrakservices.com. Please include the Job Code above in your email.</p>");
 		sb.append("<p>Best Regards,<br/>Sattrak Telematics Limited<br/><img src=\"http://sattrakservices.com/rms/images/sattrak-logo.png\" style=\"width:300px;height:70px\" /></p>");
@@ -214,8 +277,7 @@ public class MessagesUtil
 		return sb.toString();
 	}
 	
-	public static String getJobScheduleSupportEmailMessage(final InstallerLocationJobSchedule job)
-	{
+	public static String getJobScheduleSupportEmailMessage(final InstallerLocationJobSchedule job) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("<html><body>");
@@ -228,6 +290,29 @@ public class MessagesUtil
 		sb.append("<tr><td>Product</td><td>").append(job.getProductBooked().getDetails()).append("</td></tr>");
 		sb.append("<tr><td>Installation Point</td><td>").append(job.getInstaller().getCompanyName()).append("</td></tr>");
 		sb.append("<tr><td>Installation Point Address</td><td>").append(job.getInstaller().getAddress()).append("</td></tr>");
+		sb.append("</table></p>");
+		sb.append("<p>Best Regards,<br/>Sattrak Telematics Limited<br/><img src=\"http://sattrakservices.com/rms/images/sattrak-logo.png\" style=\"width:300px;height:70px\" /></p>");
+		sb.append("</body></html>");
+		return sb.toString();
+	}
+	public static String getJobsScheduleSupportEmailMessage(List<InstallerLocationJobSchedule> jobs) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<html><body>");
+		sb.append("<p><strong>Hello,</strong></p>");
+		sb.append("<p>").append("A bulk-installation schedule as been placed on RMS with below details: -").append("</p>");
+		sb.append("<p>");
+		sb.append("Customer: ").append(jobs.get(0).getCustomer().getFirstname()).append("<br/>");
+		sb.append("Product: ").append(jobs.get(0).getProductBooked().getProductName()).append("<br/>");
+		sb.append("Installation Date: ").append(jobs.get(0).getBooked_dt()).append("<br/>");
+		sb.append("Installation Point: ").append(jobs.get(0).getInstaller().getCompanyName()).append("<br/>");
+		sb.append("Installation Point Address: ").append(jobs.get(0).getInstaller().getAddress()).append("<br/>");
+		sb.append("Total: ").append(jobs.size()).append("<br/>");
+		sb.append("<table border=0>");
+		sb.append("<tr><th>Job Code</th><th>Installation Date and Time</th></tr>");
+		for(InstallerLocationJobSchedule job : jobs) {
+			sb.append("<tr><td>").append(job.getJobCode()).append("</td><td>").append(job.getBooked_dt()).append(" ").append(job.getSlot().getName()).append("</td></tr>");
+		}
 		sb.append("</table></p>");
 		sb.append("<p>Best Regards,<br/>Sattrak Telematics Limited<br/><img src=\"http://sattrakservices.com/rms/images/sattrak-logo.png\" style=\"width:300px;height:70px\" /></p>");
 		sb.append("</body></html>");

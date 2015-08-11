@@ -65,6 +65,7 @@
 										<f:selectItem itemLabel="INSTALLATION AGENTS" itemValue="INSTALLATION_AGENT"/>
 										<f:selectItem itemLabel="SALES AGENTS" itemValue="SALES_AGENT"/>
 										<f:selectItem itemLabel="PERSONNEL" itemValue="PERSONNEL"/>
+										<f:selectItem itemLabel="TRADE PARTNERS" itemValue="TRADE PARTNERS"/>
 									</h:selectOneMenu>
 									
 									<button class="btn btn-primary" jsf:id="sortButton" jsf:action="#{messageBean.sortEmailRecipients}">Sort Recipients</button>
@@ -86,8 +87,8 @@
 									<ui:repeat value="#{messageBean.customers}" var="itm">
 										<tr>
 											<td><h:selectBooleanCheckbox value="#{itm.selected}" /></td>
-											<td>#{itm.firstname} #{itm.lastname}</td>
-											<td>CUSTOMER</td>
+											<td><h:outputText value="#{itm.corCustomer.companyName} - " rendered="#{itm.corCustomer != null}" /> #{itm.firstname} #{itm.lastname}</td>
+											<td><h:outputText value="CORPORATE " rendered="#{itm.corCustomer != null}" /> CUSTOMER</td>
 											<td>#{itm.user.username}</td>
 											<td>N/A</td>
 										</tr>
@@ -123,6 +124,17 @@
 											<td>CUSTOMER SERVICE</td>
 											<td>#{itm.user.username}</td>
 											<td>N/A</td>
+										</tr>
+									</ui:repeat>
+									</c:if>
+									<c:if test="#{messageBean.sendToCategory != null and (messageBean.sendToCategory=='ALL' or messageBean.sendToCategory=='TRADE PARTNERS')}">
+									<ui:repeat value="#{messageBean.tradePartners}" var="itm">
+										<tr>
+											<td><h:selectBooleanCheckbox value="#{itm.selected}" /></td>
+											<td>#{itm.tradePartnerName}</td>
+											<td>TRADE PARTNER</td>
+											<td>#{itm.user.username}</td>
+											<td>#{itm.phoneNo}</td>
 										</tr>
 									</ui:repeat>
 									</c:if>

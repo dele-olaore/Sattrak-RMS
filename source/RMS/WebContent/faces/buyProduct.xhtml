@@ -32,6 +32,7 @@
 							<label class="col-sm-4 control-label">Partner: </label>
 							<div class="col-sm-8">
 								<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Select one" itemValue="0"/>
 									<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
 									<f:ajax render="customer" />
 								</h:selectOneMenu>
@@ -53,6 +54,7 @@
 							</c:if>
 						</div>
 					</div><!-- form-group -->
+					
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Product type: </label>
 						<div class="col-sm-8">
@@ -79,19 +81,24 @@
 				                            	<img src="#{request.contextPath}/imageservlet/#{product.id}-product-#{appBean.randomNumber}" alt="product-img" class="media-object thumbnail" />
 				                            </a>
 				                            <div class="media-body">
-				                            	<h4 class="filename text-primary">
-				                            	<h:commandLink action="#{appBean.selectProduct(product.id)}" rendered="#{not product.selected}">
-													<button class="btn btn-default">Select</button>
-													<f:ajax render="total_cost grid" />
-												</h:commandLink>
-												<h:commandLink action="#{appBean.selectProduct(product.id)}" rendered="#{product.selected}">
-													<button class="btn btn-success">Selected</button>
-													<f:ajax render="total_cost grid" />
-												</h:commandLink> #{product.productName}</h4>
+				                            	<h4 class="filename text-primary">#{product.productName}</h4>
 				                            	<small class="text-muted">First year payment: #{product.firstYearPayment}</small><br />
 				                            	<small class="text-muted">Yearly subscription: #{product.yearlySubscription}</small><br />
 				                            	<small class="text-muted">Lease Module: #{product.leaseModule}</small><br />
-				                            	<small class="text-muted">Special: <h:outputText value="Yes" rendered="#{product.specialProduct}" /><h:outputText value="No" rendered="#{not product.specialProduct}" /></small>
+				                            	<small class="text-muted">Special: <h:outputText value="Yes" rendered="#{product.specialProduct}" /><h:outputText value="No" rendered="#{not product.specialProduct}" /></small><br/>
+				                            	<input type="text" id="spinner#{product.id}" size="2" jsf:value="#{product.count}" />
+				                            	<script>
+				                            		jQuery(document).ready(function() {
+					                            		// Spinner
+					                            		var spinner = jQuery('#spinner#{product.id}').spinner();
+					                            		spinner.spinner('value', 1);
+				                            		});
+				                            	</script>
+				                            	
+				                            	<c:if test="#{not product.selected}">
+													<button class="btn btn-default" type="submit" jsf:action="#{appBean.selectProduct(product.id)}" onclick="return confirm('Are you sure?');">Add To Cart</button>
+												</c:if>
+												<h:outputText value="Already in cart" rendered="#{product.selected}" />
 				                            </div>
 				                        </div>
 				                        </h:panelGroup>
@@ -100,6 +107,55 @@
 							</div>
 						</div>
 					</div>
+					
+					<!-- Display table of products selected herewith the count beside each, editable -->
+					<div class="form-group">
+						<strong>Shopping Cart</strong>
+						<table id="cart" class="table table-striped table-bordered responsive">
+						<thead class="">
+							<tr>
+								<th>Product</th>
+								<th>Count</th>
+								<th>Update</th>
+								<th>Actual Cost</th>
+								<th>Selling Amount</th>
+								<th>Remove</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat value="#{appBean.cart}" var="itm">
+							<tr>
+								<td>#{itm.productBooked.productName}</td>
+								<td>#{itm.count}</td>
+								<td>
+									<input type="text" id="edtspinner#{itm.productBooked.id}" size="2" jsf:value="#{itm.productBooked.count}" />
+	                            	<script>
+	                            		jQuery(document).ready(function() {
+		                            		// Spinner
+		                            		var spinner = jQuery('#edtspinner#{itm.productBooked.id}').spinner();
+		                            		spinner.spinner('value', #{itm.productBooked.count});
+	                            		});
+	                            	</script>
+	                            	<button class="btn btn-default" type="submit" jsf:action="#{appBean.updateProductInCart(itm.productBooked.id)}" onclick="return confirm('Are you sure?');">Update</button>
+								</td>
+								<td>
+									Total: #{itm.productBooked.firstYearPayment*itm.count}
+									<br/>
+									Unit: #{itm.productBooked.firstYearPayment}
+								</td>
+								<td>
+									<input type="text" jsf:value="#{itm.productBooked.sellingAmount}" />
+									<button class="btn btn-default" type="submit" jsf:action="#{appBean.updateProductSellingAmount(itm.productBooked.id)}" onclick="return confirm('Are you sure?');">Update</button>
+								</td>
+								<td>
+									<button class="btn btn-default" type="submit" jsf:action="#{appBean.removeProductInCart(itm.productBooked.id)}" onclick="return confirm('Are you sure?');">Remove</button>
+								</td>
+							</tr>
+							</ui:repeat>
+						</tbody>
+						</table>
+					</div>
+					
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Cost: </label>
 						<div class="col-sm-8">

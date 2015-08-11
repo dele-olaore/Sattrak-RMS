@@ -836,7 +836,7 @@ public class UserBean implements Serializable
 		}
 		else if(getSessionPartner() != null && !getSessionPartner().isSattrak())
 		{
-			q = gDAO.createQuery("Select COUNT(e.id) from Customer e where e.customer.partner=:partner and (e.crt_dt between :st and :end)");
+			q = gDAO.createQuery("Select COUNT(e.id) from Customer e where e.partner=:partner and (e.crt_dt between :st and :end)");
 			q.setParameter("partner", getSessionPartner());
 			q.setParameter("st", st);
 			q.setParameter("end", end);
@@ -894,7 +894,7 @@ public class UserBean implements Serializable
 		}
 		else if(getSessionPartner() != null && !getSessionPartner().isSattrak())
 		{
-			q = gDAO.createQuery("Select COUNT(e.id) from Customer e where e.customer.partner=:partner and (e.crt_dt between :st and :end)");
+			q = gDAO.createQuery("Select COUNT(e.id) from Customer e where e.partner=:partner and (e.crt_dt between :st and :end)");
 			q.setParameter("partner", getSessionPartner());
 			q.setParameter("st", st);
 			q.setParameter("end", end);
@@ -959,7 +959,7 @@ public class UserBean implements Serializable
 		}
 		else if(getSessionPartner() != null && !getSessionPartner().isSattrak())
 		{
-			q = gDAO.createQuery("Select COUNT(e.id) from Customer e where e.customer.partner=:partner and (e.crt_dt between :st and :end)");
+			q = gDAO.createQuery("Select COUNT(e.id) from Customer e where e.partner=:partner and (e.crt_dt between :st and :end)");
 			q.setParameter("partner", getSessionPartner());
 			q.setParameter("st", st);
 			q.setParameter("end", end);

@@ -37,6 +37,8 @@ public class Agent implements Serializable
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date crt_dt;
 	
+	private boolean active = true;
+	
 	public Agent()
 	{}
 
@@ -102,6 +104,14 @@ public class Agent implements Serializable
 
 	public void setCrt_dt(Date crt_dt) {
 		this.crt_dt = crt_dt;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	
 }

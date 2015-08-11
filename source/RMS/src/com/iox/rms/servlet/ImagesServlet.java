@@ -120,7 +120,7 @@ public class ImagesServlet extends HttpServlet
 					} catch(Exception ex){}
 				}
 				
-				if(data != null)
+				if(data != null || photo.equalsIgnoreCase("jobcard"))
 				{
 					response.setHeader("Content-Type", getServletContext().getMimeType("image/jpeg"));
 			        response.setHeader("Content-Disposition", "inline; filename=\"photo\"");
@@ -130,7 +130,14 @@ public class ImagesServlet extends HttpServlet
 	
 			        try
 			        {
-			        	input = new BufferedInputStream(new ByteArrayInputStream(data)); // Creates buffered input stream.
+			        	if(photo.equalsIgnoreCase("jobcard"))
+			        	{
+			        		File folder = new File("c:/files/jobcards");
+							File file = new File(folder, r_id + ".img");
+							input = new BufferedInputStream(new FileInputStream(file));
+			        	}
+			        	else
+			        		input = new BufferedInputStream(new ByteArrayInputStream(data)); // Creates buffered input stream.
 			        	
 			            output = new BufferedOutputStream(response.getOutputStream());
 			            byte[] buffer = new byte[8192];

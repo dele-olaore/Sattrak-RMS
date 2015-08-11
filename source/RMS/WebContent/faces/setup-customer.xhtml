@@ -95,6 +95,41 @@
 								</div>
 							</div><!-- form-group -->
 						</c:if>
+						
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Type: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="cusType" value="#{appBean.customer.customerType}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="INDIVIDUAL" itemValue="INDIVIDUAL"/>
+									<f:selectItem itemLabel="CORPORATE" itemValue="CORPORATE"/>
+									<f:ajax render="form" />
+								</h:selectOneMenu>
+							</div>
+						</div><!-- form-group -->
+						
+						<c:if test="#{appBean.customer != null and appBean.customer.customerType == 'CORPORATE'}">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Company name*: </label>
+								<div class="col-sm-8">
+									<h:inputText value="#{appBean.corCustomer.companyName}" pt:class="form-control" pt:required="required" />
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">RC Number: </label>
+								<div class="col-sm-8">
+									<h:inputText value="#{appBean.corCustomer.rcNumber}" pt:class="form-control" />
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Corporate Phone No: </label>
+								<div class="col-sm-8">
+									<h:inputText value="#{appBean.corCustomer.phoneNumber}" pt:class="form-control" />
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<h4>Contact below: -</h4>
+							</div>
+						</c:if>
 					
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Title: </label>
@@ -227,10 +262,9 @@
 				<table id="basicTable" class="table table-striped table-bordered responsive">
 					<thead class="">
 						<tr>
-							<th>Title</th>
-							<th>First name</th>
-							<th>Last name</th>
-							<th>DOB</th>
+							<th>Type</th>
+							<th>Name</th>
+							<!-- <th>DOB</th> -->
 							<th>Address</th>
 							<th>Country</th>
 							<th>State</th>
@@ -243,11 +277,18 @@
 					<tbody>
 						<ui:repeat value="#{appBean.customers}" var="itm">
 							<tr>
-								<td>#{itm.title}</td>
-								<td>#{itm.firstname}</td>
-								<td>#{itm.lastname}</td>
-								<td>#{itm.dob}</td>
-								<td>Address: #{itm.address}<br/>Phone No: #{itm.phoneNo}</td>
+								<td>#{itm.customerType}</td>
+								<td>
+									<h:outputText value="#{itm.corCustomer.companyName}, RC: #{itm.corCustomer.rcNumber}, Contact: " rendered="#{itm.customerType != null and itm.customerType == 'CORPORATE' and itm.corCustomer != null}" />
+									#{itm.title} #{itm.firstname} #{itm.lastname}
+								</td>
+								<!-- <td>#{itm.dob}</td> -->
+								<td>
+									Address: #{itm.address}<br/>
+									Phone No: 
+									<h:outputText value="#{itm.corCustomer.phoneNumber}, " rendered="#{itm.customerType != null and itm.customerType == 'CORPORATE' and itm.corCustomer != null and itm.corCustomer.phoneNumber != null}" />
+									#{itm.phoneNo}
+								</td>
 								<td><h:outputText value="#{itm.country.name}" rendered="#{itm.country != null}" /></td>
 								<td><h:outputText value="#{itm.state.name}" rendered="#{itm.state != null}" /></td>
 								<td><h:outputText value="#{itm.lga.name}" rendered="#{itm.lga != null}" /></td>
@@ -259,6 +300,8 @@
 										<f:setPropertyActionListener value="#{itm}" target="#{appBean.selCustomer}" />
 										<button class="btn btn-dark btn-sm mr5">Edit...</button>
 									</h:commandLink>
+									<br/><br/>
+									<button class="btn btn-primary" type="submit" jsf:action="#{appBean.delete(itm)}" onclick="return confirm('Are you sure?');">Delete</button>
 								</td>
 							</tr>
 						</ui:repeat>

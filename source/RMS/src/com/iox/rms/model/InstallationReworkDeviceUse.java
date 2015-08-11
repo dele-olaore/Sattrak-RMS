@@ -27,6 +27,7 @@ public class InstallationReworkDeviceUse implements Serializable
 	@ManyToOne
 	private Item item;
 	private long count;
+	private String serial_numbers;
 	
 	@ManyToOne
 	private User createdBy;
@@ -71,6 +72,14 @@ public class InstallationReworkDeviceUse implements Serializable
 
 	public void setCount(long count) {
 		this.count = count;
+	}
+
+	public String getSerial_numbers() {
+		return serial_numbers;
+	}
+
+	public void setSerial_numbers(String serial_numbers) {
+		this.serial_numbers = serial_numbers;
 	}
 
 	public User getCreatedBy() {

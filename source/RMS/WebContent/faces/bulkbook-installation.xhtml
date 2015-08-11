@@ -1,0 +1,191 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Bulk Booking</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-shopping-cart"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Bulk Booking</li>
+				</ul>
+				<h4>Bulk Booking</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form id="tabWizard" pt:class="panel-wizard">
+			<ul class="nav nav-justified nav-wizard nav-disabled-click">
+				<li><a href="#tab1-3" data-toggle="tab"><strong>Step 1:</strong> Select Paid Transaction</a></li>
+				<li><a href="#tab2-3" data-toggle="tab"><strong>Step 2:</strong> Installation Point</a></li>
+			</ul>
+			
+			<div class="tab-content">
+				<div class="tab-pane" id="tab1-3">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<c:if test="#{userBean.sessionPartner.sattrak}">
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Partner: </label>
+									<div class="col-sm-8">
+										<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+											<f:selectItem itemLabel="-- Select One --" itemValue="0"/>
+											<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+											<f:ajax render="paidTransactions" />
+										</h:selectOneMenu>
+									</div>
+								</div><!-- form-group -->
+							</c:if>
+							<div class="form-group"><!-- Show the count of pending product purchases in each transaction is a []  -->
+								<label class="col-sm-4 control-label">Paid Transaction: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="paidTransactions" value="#{appBean.ptrans_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItems value="#{appBean.paidTransactions}" var="c" itemLabel="#{c.customer.firstname} #{c.customer.lastname} - #{c.tranRef} - #{c.tranInitDate} [#{c.pending_bookings.size()}]" itemValue="#{c.id}"/>
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane" id="tab2-3">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">State: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="state" value="#{appBean.state_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItem itemLabel="Choose One" itemValue="0"/>
+										<f:selectItems value="#{appBean.states}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+										<f:ajax render="lga installer" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">LGA: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="lga" value="#{appBean.lga_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItem itemLabel="Choose One" itemValue="0"/>
+										<f:selectItems value="#{appBean.lgas}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+										<f:ajax render="installer" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Installation Point: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="installer" value="#{appBean.installer_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItem itemLabel="Choose One" itemValue="0"/>
+										<f:selectItems value="#{appBean.installersByLGA}" var="c" itemLabel="#{c.companyName}" itemValue="#{c.id}"/>
+										<f:ajax render="installer_photo installer_addr" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+							
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Installation Point Photo: </label>
+								<div class="col-sm-8">
+									<h:panelGrid id="installer_photo" columns="1">
+										<c:if test="#{appBean.selInstaller != null}">
+											<img src="#{request.contextPath}/imageservlet/#{appBean.selInstaller.id}-installer-#{appBean.randomNumber}" width="150px" height="100px" alt="Photo" />
+										</c:if>
+									</h:panelGrid>
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Installation Point Address: </label>
+								<div class="col-sm-8">
+									<h:panelGrid id="installer_addr" columns="1">
+									<h:outputText value="#{appBean.selInstaller.address}" />
+									<c:if test="#{appBean.selInstaller != null}">
+										<div id="gmap-marker" style="height:150px; width:400px"></div>
+										<script>
+											jQuery(document).ready(function(){
+												try{
+													var map_marker = new GMaps({
+														div: '#gmap-marker',
+														lat: #{appBean.selInstaller.lat},
+														lng: #{appBean.selInstaller.lng}
+													});
+													GMaps.geocode({
+														address: '#{appBean.selInstaller.address}',
+														callback: function(results, status)
+														{
+															if(status == 'OK')
+															{
+																var latlng = results[0].geometry.location;
+																map_marker.setCenter(latlng.lat(), latlng.lng());
+																map_marker.addMarker({
+																	lat: latlng.lat(),
+																	lng: latlng.lng()
+																});
+															}
+														}
+													});
+												} catch(e){alert(e);}
+											});
+										</script>
+									</c:if>
+									</h:panelGrid>
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Preferred Installation Date: </label>
+								<div class="col-sm-8">
+									<div class="input-group">
+										<h:inputText value="#{appBean.book_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" pt:required="required">
+											<f:ajax render="slot" />
+										</h:inputText>
+										<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+										<script>
+											try
+								    		{
+								    			// Date Picker
+								                jQuery('#datepicker').datepicker({
+								                	changeMonth: true,
+								                	changeYear: true
+								                });
+								    		}catch(e){alert(e);}
+										</script>
+									</div>
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Installation Capacity: </label>
+								<div class="col-sm-8">
+									<!-- Show the total available slots for the selected point and the total amount of installation the this point can handle for the selected day. That should be the max count that the user is allowed to enter -->
+									<h:outputText id="slot" value="#{appBean.installation_point_capacity_details}" />
+								</div>
+							</div><!-- form-group -->
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Installation Count to Book: </label>
+								<div class="col-sm-8">
+									<h:inputText value="#{appBean.ptrans_count}" pt:type="text" pt:class="form-control" pt:id="ptrans_count" pt:required="required" />
+								</div>
+							</div><!-- form-group -->
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<ul class="list-unstyled wizard">
+				<li class="pull-left previous"><h:commandLink><f:ajax /><button type="button" class="btn btn-default">Previous</button></h:commandLink></li>
+				<li class="pull-right next"><h:commandLink><f:ajax /><button type="button" class="btn btn-primary">Next</button></h:commandLink></li>
+				<li class="pull-right finish hide">
+					<button type="submit" class="btn btn-primary" jsf:id="subButton" jsf:action="#{appBean.save(-11)}" onclick="return confirm('Are you sure?');">Finish</button>
+				</li>
+			</ul>
+		</h:form>
+	</div><!-- contentpanel -->
+</ui:define>
+</ui:composition>

@@ -17,7 +17,11 @@
     			<h:outputText value="#{userBean.sessionInstaller.companyName}" rendered="#{userBean.sessionInstaller != null}" /><h:outputText value="(#{userBean.sessionInstaller.uniqueID})" rendered="#{userBean.sessionInstaller != null and userBean.sessionInstaller.uniqueID != null}" />
     			<h:outputText value="#{userBean.sessionSalesAgent.firstname} #{userBean.sessionSalesAgent.lastname}" rendered="#{userBean.sessionSalesAgent != null}" /><h:outputText value="(#{userBean.sessionSalesAgent.uniqueID})" rendered="#{userBean.sessionSalesAgent != null and userBean.sessionSalesAgent.uniqueID != null}" />
     		</h4>
-    		<small class="text-muted"><h:outputText value="#{userBean.sessionUser.role.name}" rendered="#{userBean.sessionUser != null and userBean.sessionUser.role != null}" /></small>
+    		<small class="text-muted">
+    			ROLE: <h:outputText value="#{userBean.sessionUser.role.name}" rendered="#{userBean.sessionUser != null and userBean.sessionUser.role != null}" />
+    			<br/>
+    			PARTNER: <h:outputText value="#{userBean.sessionPartner.name}" rendered="#{userBean.sessionPartner != null and userBean.sessionPartner.name != null}" />
+    		</small>
     	</div>
     </div><!-- media -->
     
@@ -33,9 +37,13 @@
 	    				<li><a href="confirmPaymentAtBank.xhtml">Confirm Payment at Bank</a></li>
 	    			</c:if>
 	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="bulkbook-installation.xhtml">Bulk-Book Installation</a></li>
 	    			<li><a href="schedules.xhtml">Dispatch</a></li>
 	    			<li><a href="manage-schedule.xhtml">Manage Schedules</a></li>
 	    			<li><a href="refund.xhtml">Refund</a></li>
+	    			<li><a href="checkin-customer.xhtml">Check-In Customer</a></li>
+	    			<li><a href="finish-installation.xhtml">Finish Installation</a></li>
+	    			<li><a href="jobcards.xhtml">Job Cards</a></li>
 	    		</ul>
 	    	</li>
     		<li class="parent"><a href=""><i class="fa fa-user-md"></i> <span>Agent Management</span></a>
@@ -100,6 +108,7 @@
 	    			<li><a href="report-installers.xhtml">Registered Installers</a></li>
 	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
 	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    			<li><a href="report-itemsinstalled.xhtml">Total Items Installed</a></li>
 	    			<li><a href="report-installations.xhtml">Installations</a></li>
 	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
 	    		</ul>
@@ -118,6 +127,7 @@
 	    		<ul class="children">
 	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
 	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="bulkbook-installation.xhtml">Bulk-Book Installation</a></li>
 	    			<li><a href="mybookings.xhtml">My Bookings</a></li>
 	    		</ul>
 	    	</li>
@@ -143,6 +153,7 @@
 	    		<ul class="children">
 	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
 	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="bulkbook-installation.xhtml">Bulk-Book Installation</a></li>
 	    			<li><a href="mybookings.xhtml">My Bookings</a></li>
 	    		</ul>
 	    	</li>
@@ -179,6 +190,9 @@
 	    			<li><a href="schedules.xhtml">Dispatch</a></li>
 	    			<li><a href="manage-schedule.xhtml">Manage Schedules</a></li>
 	    			<li><a href="refund.xhtml">Refund</a></li>
+	    			<li><a href="checkin-customer.xhtml">Check-In Customer</a></li>
+	    			<li><a href="finish-installation.xhtml">Finish Installation</a></li>
+	    			<li><a href="jobcards.xhtml">Job Cards</a></li>
 	    		</ul>
 	    	</li>
 	    	<li class="parent"><a href=""><i class="fa fa-file-text"></i> <span>Inventory</span></a>
@@ -209,6 +223,7 @@
 	    			<li><a href="myschedules2.xhtml">My Schedules</a></li>
 	    			<li><a href="checkin-customer.xhtml">Check-In Customer</a></li>
 	    			<li><a href="finish-installation.xhtml">Finish Installation</a></li>
+	    			<li><a href="jobcards.xhtml">Job Cards</a></li>
 	    		</ul>
 	    	</li>
     		<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Installer Management</span></a>
@@ -275,6 +290,7 @@
 	    			<li><a href="report-installers.xhtml">Registered Installers</a></li>
 	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
 	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    			<li><a href="report-itemsinstalled.xhtml">Total Items Installed</a></li>
 	    			<li><a href="report-installations.xhtml">Installations</a></li>
 	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
 	    		</ul>
@@ -286,6 +302,7 @@
 	    			<li><a href="buyProduct.xhtml">Buy Product for Customer</a></li>
 	    			<li><a href="confirmPaymentAtBank.xhtml">Confirm Payment at Bank</a></li>
 	    			<li><a href="book-installation.xhtml">Book Installation</a></li>
+	    			<li><a href="bulkbook-installation.xhtml">Bulk-Book Installation</a></li>
 	    		</ul>
 	    	</li>
 	    	<li class="parent"><a href=""><i class="fa fa-users"></i> <span>Customer</span></a>
@@ -316,6 +333,7 @@
 	    			<li><a href="report-installers.xhtml">Registered Installers</a></li>
 	    			<li><a href="report-devices.xhtml">Device Stock</a></li>
 	    			<li><a href="report-devicemovements.xhtml">Device Movement</a></li>
+	    			<li><a href="report-itemsinstalled.xhtml">Total Items Installed</a></li>
 	    			<li><a href="report-installations.xhtml">Installations</a></li>
 	    			<li><a href="report-renewalsdue.xhtml">Renewals Due</a></li>
 	    		</ul>

@@ -11,11 +11,13 @@ import javax.faces.bean.SessionScoped;
 
 import com.iox.rms.app.model.AppNotification;
 import com.iox.rms.dao.GeneralDAO;
+import com.iox.rms.model.CorporateCustomer;
 import com.iox.rms.model.Customer;
 import com.iox.rms.model.InstallerLocation;
 import com.iox.rms.model.Partner;
 import com.iox.rms.model.PartnerPersonnel;
 import com.iox.rms.model.SalesAgent;
+import com.iox.rms.model.TradePartner;
 
 @ManagedBean(name = "messageBean", eager = true)
 @SessionScoped
@@ -31,6 +33,7 @@ public class MessageBean implements Serializable
 	private List<SalesAgent> salesAgents;
 	private List<InstallerLocation> installers;
 	private List<PartnerPersonnel> ppList;
+	private List<TradePartner> tradePartners;
 	
 	private int totalrecipientCount, totalrecipientSMSCount;
 	private long partner_id;
@@ -56,6 +59,9 @@ public class MessageBean implements Serializable
 		{
 			e.setSelected(true);
 		}
+		for(TradePartner e : getTradePartners()) {
+			e.setSelected(true);
+		}
 	}
 	
 	public void uncheckAllSMSRecipients()
@@ -66,6 +72,9 @@ public class MessageBean implements Serializable
 		}
 		for(InstallerLocation e : getInstallers())
 		{
+			e.setSelected(false);
+		}
+		for(TradePartner e : getTradePartners()) {
 			e.setSelected(false);
 		}
 	}
@@ -88,6 +97,9 @@ public class MessageBean implements Serializable
 		{
 			e.setSelected(true);
 		}
+		for(TradePartner e : getTradePartners()) {
+			e.setSelected(true);
+		}
 	}
 	
 	public void uncheckAllEmailRecipients()
@@ -106,6 +118,9 @@ public class MessageBean implements Serializable
 		}
 		for(PartnerPersonnel e : getPpList())
 		{
+			e.setSelected(false);
+		}
+		for(TradePartner e : getTradePartners()) {
 			e.setSelected(false);
 		}
 	}
@@ -154,6 +169,16 @@ public class MessageBean implements Serializable
 				if(getPpList() != null)
 				{
 					for(PartnerPersonnel e : getPpList())
+					{
+						if(e.isSelected())
+						{
+							toList.add(e.getUser().getUsername());
+						}
+					}
+				}
+				if(getTradePartners() != null)
+				{
+					for(TradePartner e : getTradePartners())
 					{
 						if(e.isSelected())
 						{
@@ -221,6 +246,16 @@ public class MessageBean implements Serializable
 						}
 					}
 				}
+				if(getTradePartners() != null)
+				{
+					for(TradePartner e : getTradePartners())
+					{
+						if(e.isSelected())
+						{
+							toList.add(e.getPhoneNo());
+						}
+					}
+				}
 				
 				String[] to = new String[toList.size()];
 				to = toList.toArray(to);
@@ -265,6 +300,7 @@ public class MessageBean implements Serializable
 		setInstallers(null);
 		setPpList(null);
 		setSalesAgents(null);
+		setTradePartners(null);
 	}
 	
 	public void sortEmailRecipients()
@@ -320,6 +356,26 @@ public class MessageBean implements Serializable
 			Object cusObj = gDAO.search("Customer", params);
 			if(cusObj != null)
 				customers = (List<Customer>)cusObj;
+			if(customers != null && customers.size()>0)
+			{
+				for(Customer e : customers)
+				{
+					if(e.getCustomerType().equals("CORPORATE"))
+					{
+						params = new Hashtable<String, Object>();
+						params.put("customer", e);
+						Object corCusObj = gDAO.search("CorporateCustomer", params);
+						if(corCusObj != null)
+						{
+							List<CorporateCustomer> list = (List<CorporateCustomer>)corCusObj;
+							for(CorporateCustomer cc : list)
+							{
+								e.setCorCustomer(cc);
+							}
+						}
+					}
+				}
+			}
 			gDAO.destroy();
 		}
 		return customers;
@@ -334,7 +390,7 @@ public class MessageBean implements Serializable
 		if(salesAgents == null)
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
-			params.put("partner", getPartner());
+			params.put("user.partner", getPartner());
 			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object all = gDAO.search("SalesAgent", params);
@@ -384,6 +440,25 @@ public class MessageBean implements Serializable
 
 	public void setPpList(List<PartnerPersonnel> ppList) {
 		this.ppList = ppList;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<TradePartner> getTradePartners() {
+		if(tradePartners == null) {
+			Hashtable<String, Object> params = new Hashtable<String, Object>();
+			params.put("user.partner", getPartner());
+			
+			GeneralDAO gDAO = new GeneralDAO();
+			Object cusObj = gDAO.search("TradePartner", params);
+			if(cusObj != null)
+				tradePartners = (List<TradePartner>)cusObj;
+			gDAO.destroy();
+		}
+		return tradePartners;
+	}
+
+	public void setTradePartners(List<TradePartner> tradePartners) {
+		this.tradePartners = tradePartners;
 	}
 
 	public int getTotalrecipientCount() {

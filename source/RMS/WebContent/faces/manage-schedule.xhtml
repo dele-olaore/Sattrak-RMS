@@ -115,7 +115,7 @@
 						<th>Product</th>
 						<th>Payment</th>
 						<th>Schedule</th>
-						<th>Job Card</th>
+						<!-- <th>Downloads</th> -->
 						<th>Status</th>
 						<th>Edit</th>
 					</tr>
@@ -144,13 +144,18 @@
 								Start Time: #{itm.start_dt}<br />
 								End Time: #{itm.end_dt}
 							</td>
-							<td>
+							<!-- <td>
 								<h:outputText value="N/A" rendered="#{not itm.completed}" />
 								<h:commandLink action="#{appBean.downloadJobCard}" rendered="#{itm.completed}">
 									<f:setPropertyActionListener value="#{itm}" target="#{appBean.selectedInstallation}" />
-									<button class="btn btn-dark btn-sm mr5">Download</button>
+									<button class="btn btn-dark btn-sm mr5">Job Card</button>
 								</h:commandLink>
-							</td>
+								<br/>
+								<h:commandLink action="#{appBean.downloadCertificate}" rendered="#{itm.completed and itm.productBooked.type.name.toLowerCase().contains('speed limiter')}">
+									<f:setPropertyActionListener value="#{itm}" target="#{appBean.selectedInstallation}" />
+									<button class="btn btn-dark btn-sm mr5">Certificate</button>
+								</h:commandLink>
+							</td> -->
 							<td>
 								Cancelled: <h:outputText value="Yes" rendered="#{itm.cancel}" /><h:outputText value="No" rendered="#{not itm.cancel}" /><br />
 								Paid: <h:outputText value="Yes" rendered="#{itm.paid}" /><h:outputText value="No" rendered="#{not itm.paid}" /><br />

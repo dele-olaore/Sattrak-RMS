@@ -2,6 +2,7 @@ package com.iox.rms.mbean;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,11 +29,16 @@ import javax.persistence.Query;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 
 import com.dexter.common.util.Hasher;
 import com.iox.rms.app.model.AppNotification;
@@ -40,9 +46,11 @@ import com.iox.rms.dao.GeneralDAO;
 import com.iox.rms.model.Agent;
 import com.iox.rms.model.AppConfiguration;
 import com.iox.rms.model.AppResource;
+import com.iox.rms.model.CorporateCustomer;
 import com.iox.rms.model.Country;
 import com.iox.rms.model.Customer;
 import com.iox.rms.model.CustomerProduct;
+import com.iox.rms.model.CustomerProductPurchase;
 import com.iox.rms.model.CustomerTransaction;
 import com.iox.rms.model.InstallationDeviceUse;
 import com.iox.rms.model.InstallationReworkDeviceUse;
@@ -52,6 +60,7 @@ import com.iox.rms.model.InstallerLocationJobSchedule;
 import com.iox.rms.model.Item;
 import com.iox.rms.model.ItemManufacturer;
 import com.iox.rms.model.ItemMove;
+import com.iox.rms.model.ItemSerial;
 import com.iox.rms.model.ItemType;
 import com.iox.rms.model.LGA;
 import com.iox.rms.model.Notification;
@@ -128,6 +137,7 @@ public class AppBean implements Serializable
 	private List<LGA> lgas, lgas2;
 	private User cusUser;
 	private Customer customer, selCustomer;
+	private CorporateCustomer corCustomer;
 	private List<Customer> customers;
 	
 	private User salesAgentUser;
@@ -156,7 +166,7 @@ public class AppBean implements Serializable
 	private List<PartnerPersonnel> ppList;
 	
 	private String itmMove_dt_str;
-	private long itm_id, product_id, installer_id, edit_installer_id;
+	private long itm_id, product_id, installer_id, edit_installer_id, installation_point_id;
 	private ItemMove itmMove, selItmMove;
 	private List<ItemMove> itmMoveList;
 	
@@ -184,12 +194,13 @@ public class AppBean implements Serializable
 	private String myPendingJobsDate_st_str, myPendingJobsDate_end_str;
 	private long not_checkedin_installation_id, checkedin_installation_id, item_id, job_installer_id;
 	private int item_used_count, item_return_count;
+	private String item_serial_numbers;
 	
 	private String return_reason, return_remarks;
 	
 	private List<CustomerProduct> myProducts;
 	
-	private List<InstallerLocationJobSchedule> searchedInstallation;
+	private List<InstallerLocationJobSchedule> searchedInstallation, jobCards;
 	private BigDecimal expectedEarnings, actualEarnings;
 	private long totalCount, totalPendingCheckIn, totalCheckInPaid, totalCompleted, totalCanceled, totalRConfirm, totalConfirm, totalRefund;
 	
@@ -207,7 +218,7 @@ public class AppBean implements Serializable
 	
 	private List<InstallerLocationJobSchedule> totalSubscriptionReport;
 	private List<CustomerProduct> totalRenewalReport, upcomingRenewalDueReport, overdueRenewalReport;
-	private List<String[]> salesAgentSummaryReport, installationPointSummaryReport, totalSalesReport, salesAgentCommissionReport, installationPointCommissionReport;
+	private List<String[]> salesAgentSummaryReport, installationPointSummaryReport, totalSalesReport, totalItemsInstalledReport, salesAgentCommissionReport, installationPointCommissionReport;
 	
 	private String moveType;
 	private List<ItemMove> deviceMoveReport;
@@ -217,10 +228,14 @@ public class AppBean implements Serializable
 	private ReworkInstallation reworkInstallation;
 	private InstallationReworkDeviceUse reworkDeviceUse;
 	
-	private List<CustomerTransaction> pendingBankDeposits;
+	private List<CustomerTransaction> pendingBankDeposits, paidTransactions;
 	private CustomerTransaction selBankDeposit;
 	private List<CustomerProduct> uninstalledPurchases;
-	private long cp_id;
+	private long cp_id, ptrans_id;
+	private int ptrans_count, total_capability;
+	private String installation_point_capacity_details;
+	
+	private List<CustomerProductPurchase> cart;
 	
 	@ManagedProperty("#{appNotifBean}")
 	private AppNotificationBean appNotifBean;
@@ -229,6 +244,74 @@ public class AppBean implements Serializable
 	
 	public AppBean()
 	{}
+	
+	@SuppressWarnings("unchecked")
+	public void searchJobCards()
+	{
+		setJobCards(null);
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		
+		InstallerLocation il = userBean.getSessionInstaller();
+		Partner partner = userBean.getSessionPartner();
+		GeneralDAO gDAO = new GeneralDAO();
+		if(il == null)
+		{
+			try {
+				il = (InstallerLocation)gDAO.find(InstallerLocation.class, getInstallation_point_id());
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		if(partner.isSattrak())
+		{
+			if(getPartner_id() > 0)
+			{
+				partner = (Partner)gDAO.find(Partner.class, getPartner_id());
+			}
+			else
+				partner = new Partner();
+		}
+		
+		if(il != null && getStart_dt_str() != null && getStart_dt_str().trim().length() > 0 &&
+				getEnd_dt_str() != null && getEnd_dt_str().trim().length() > 0)
+		{
+			Date st = null, et = null;
+			try
+			{
+				SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+				st = sdf.parse(getStart_dt_str());
+				et = sdf.parse(getEnd_dt_str());
+			}
+			catch(Exception ex)
+			{
+				an.setType("ERROR");
+				an.setSubject("Failed");
+				an.setMessage("Invalid date formats detected!");
+				appNotifBean.getAppNotifications().add(an);
+			}
+			
+			if(st != null && et != null)
+			{
+				Query q = gDAO.createQuery("Select e from InstallerLocationJobSchedule e where e.installer=:installer and e.customer.partner=:partner and (e.booked_dt between :st and :et) and e.completed=:completed order by e.booked_dt desc");
+				q.setParameter("installer", il);
+				q.setParameter("partner", partner);
+				q.setParameter("st", st);
+				q.setParameter("et", et);
+				q.setParameter("completed", true);
+				
+				Object list = gDAO.search(q, 0);
+				if(list != null)
+				{
+					setJobCards((List<InstallerLocationJobSchedule>)list);
+					an.setType("SUCCESS");
+					an.setSubject("Success");
+					an.setMessage(getJobCards().size() + " record(s) found!");
+					appNotifBean.getAppNotifications().add(an);
+				}
+			}
+		}
+	}
 	
 	@SuppressWarnings("unchecked")
 	public String confirmBankDeposit()
@@ -564,6 +647,7 @@ public class AppBean implements Serializable
 					Row row = rowIterator.next();
 					String title = "", firstname = "", lastname = "", date_of_birth="", address="", country="", state="", lga="", phoneno="";
 					String username="", password="";
+					String customerType="INDIVIDUAL", companyName="", rcNumber="", corPhoneNumber="";
 					if(pos > 1)
 					{
 						//Get iterator to all cells of current row
@@ -633,6 +717,18 @@ public class AppBean implements Serializable
 							case 10:
 								password = val;
 								break;
+							case 11:
+								customerType = val;
+								break;
+							case 12:
+								companyName = val;
+								break;
+							case 13:
+								rcNumber = val;
+								break;
+							case 14:
+								corPhoneNumber = val;
+								break;
 							}
 						}
 						User cusUser = new User();
@@ -646,6 +742,20 @@ public class AppBean implements Serializable
 						cusUser.setUsername(username);
 						
 						Customer cus = new Customer();
+						CorporateCustomer corCus = null;
+						if(customerType.equals("INDIVIDUAL") || customerType.equals("CORPORATE"))
+							cus.setCustomerType(customerType);
+						if(cus.getCustomerType().equalsIgnoreCase("CORPORATE"))
+						{
+							corCus = new CorporateCustomer();
+							corCus.setCompanyName(companyName);
+							corCus.setPhoneNumber(corPhoneNumber);
+							corCus.setRcNumber(rcNumber);
+							corCus.setPartner(getPartner());
+							corCus.setCreatedBy(userBean.getSessionUser());
+							corCus.setCrt_dt(new Date());
+							corCus.setAddress(address);
+						}
 						cus.setPartner(getPartner());
 						cus.setCreatedBy(userBean.getSessionUser());
 						cus.setCrt_dt(new Date());
@@ -676,6 +786,8 @@ public class AppBean implements Serializable
 									if(e.getName().equalsIgnoreCase(country))
 									{
 										cus.setCountry(e);
+										if(corCus != null)
+											corCus.setCountry(e);
 										break;
 									}
 								}
@@ -693,6 +805,8 @@ public class AppBean implements Serializable
 									if(e.getName().equalsIgnoreCase(state))
 									{
 										cus.setState(e);
+										if(corCus != null)
+											corCus.setState(e);
 										break;
 									}
 								}
@@ -710,6 +824,8 @@ public class AppBean implements Serializable
 									if(e.getName().equalsIgnoreCase(lga))
 									{
 										cus.setLga(e);
+										if(corCus != null)
+											corCus.setLga(e);
 										break;
 									}
 								}
@@ -723,6 +839,16 @@ public class AppBean implements Serializable
 							ret = gDAO.save(cus);
 							if(!ret)
 								break;
+							
+							cus.setUniqueID(generateCustomerReference(cus.getId()));
+							gDAO.update(cus);
+							
+							if(corCus != null)
+							{
+								corCus.setCustomer(cus);
+								corCus.setUniqueID(cus.getUniqueID());
+								gDAO.save(corCus);
+							}
 						}
 						else
 							break;
@@ -1006,6 +1132,117 @@ public class AppBean implements Serializable
 		return page+"?faces-redirect=true";
 	}
 	
+	public void delete(Object entity)
+	{
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		GeneralDAO gDAO = new GeneralDAO();
+		User userEntity = null;
+		if(entity instanceof InstallerLocation)
+		{
+			InstallerLocation obj = (InstallerLocation)entity;
+			obj.setActive(false);
+			userEntity = obj.getUser();
+			userEntity.setActive(false);
+		}
+		else if(entity instanceof Agent)
+		{
+			Agent obj = (Agent)entity;
+			obj.setActive(false);
+		}
+		else if(entity instanceof SalesAgent)
+		{
+			SalesAgent obj = (SalesAgent)entity;
+			obj.setActive(false);
+			userEntity = obj.getUser();
+			userEntity.setActive(false);
+		}
+		else if(entity instanceof Customer)
+		{
+			Customer obj = (Customer)entity;
+			obj.setActive(false);
+			userEntity = obj.getUser();
+			userEntity.setActive(false);
+		}
+		else if(entity instanceof Partner)
+		{
+			Partner obj = (Partner)entity;
+			obj.setActive(false);
+		}
+		else if(entity instanceof PartnerPersonnel)
+		{
+			PartnerPersonnel obj = (PartnerPersonnel)entity;
+			obj.setActive(false);
+			userEntity = obj.getUser();
+			userEntity.setActive(false);
+		}
+		else if(entity instanceof TradePartner)
+		{
+			TradePartner obj = (TradePartner)entity;
+			obj.setActive(false);
+			userEntity = obj.getUser();
+			userEntity.setActive(false);
+		}
+		
+		try
+		{
+			gDAO.startTransaction();
+			gDAO.update(entity);
+			
+			if(userEntity != null)
+				gDAO.update(userEntity);
+			
+			gDAO.commit();
+			an.setType("SUCCESS");
+			an.setSubject("Success");
+			an.setMessage("Updated successfully!");
+			
+			if(entity instanceof InstallerLocation)
+			{
+				setInstallers(null);
+				setInstallersByLGA(null);
+				setInstallersByLGA2(null);
+			}
+			else if(entity instanceof Agent)
+			{
+				setInstallerAgents(null);
+				setMyAgents(null);
+				setAllAgents(null);
+			}
+			else if(entity instanceof SalesAgent)
+			{
+				setSalesAgents(null);
+				setSalesAgentsWithStock(null);
+			}
+			else if(entity instanceof Customer)
+			{
+				setCustomers(null);
+			}
+			else if(entity instanceof Partner)
+			{
+				setPartners(null);
+			}
+			else if(entity instanceof PartnerPersonnel)
+			{
+				setPpList(null);
+			}
+			else if(entity instanceof TradePartner)
+			{
+				setTradePartners(null);
+			}
+		}
+		catch(Exception ex)
+		{
+			gDAO.rollback();
+			an.setType("ERROR");
+			an.setSubject("Error");
+			an.setMessage("Message: " + ex.getMessage() + "!");
+		}
+		
+		gDAO.destroy();
+		appNotifBean.getAppNotifications().add(an);
+	}
+	
 	public void update(Object entity)
 	{
 		appNotifBean.getAppNotifications().clear();
@@ -1200,6 +1437,14 @@ public class AppBean implements Serializable
 				}catch(Exception ex){ex.printStackTrace();}
 			}
 			
+			if(getSelCustomer().getCustomerType().equals("CORPORATE"))
+			{
+				getSelCustomer().getCorCustomer().setAddress(getSelCustomer().getAddress());
+				getSelCustomer().getCorCustomer().setCountry(getSelCustomer().getCountry());
+				getSelCustomer().getCorCustomer().setState(getSelCustomer().getState());
+				getSelCustomer().getCorCustomer().setLga(getSelCustomer().getLga());
+			}
+			
 			entity = getSelCustomer();
 		}
 		
@@ -1246,6 +1491,12 @@ public class AppBean implements Serializable
 						if(remove)
 							gDAO.remove(pi1);
 					}
+				}
+				else if(entity instanceof Customer)
+				{
+					if(getSelCustomer().getCustomerType().equals("CORPORATE") && 
+							getSelCustomer().getCorCustomer() != null && getSelCustomer().getCorCustomer().getId() != null)
+						gDAO.update(getSelCustomer().getCorCustomer());
 				}
 				
 				gDAO.commit();
@@ -1452,11 +1703,11 @@ public class AppBean implements Serializable
 	}
 	
 	@SuppressWarnings("deprecation")
-	private byte[] generateInvoiceForCustomerPurchase(CustomerProduct cp)
+	private byte[] generateInvoiceForCustomerPurchase(CustomerTransaction ct, List<CustomerProductPurchase> pList)
 	{
 		byte[] data = null;
 		
-		if(cp != null)
+		if(ct != null && pList != null && pList.size()>0)
 		{
 			Document document = new Document();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -1499,7 +1750,7 @@ public class AppBean implements Serializable
 				headerTable.addCell(c);
 				
 				font = new Font(helvetica, 10, Font.NORMAL|Font.BOLD);
-				c = new PdfPCell(new Paragraph("TRANSACTION REF. NO.: " + cp.getPurchaseTranRef(), font));
+				c = new PdfPCell(new Paragraph("TRANSACTION REF. NO.: " + ct.getTranRef(), font));
 				c.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
 				c.setBorder(0);
 				headerTable.addCell(c);
@@ -1518,9 +1769,12 @@ public class AppBean implements Serializable
 				pdfTable.addCell(new Paragraph("PRODUCT", font));
 				pdfTable.addCell(new Paragraph("AMOUNT", font));
 				font = new Font(helvetica, 8, Font.NORMAL);
-				pdfTable.addCell(new Paragraph(cp.getPurchaseTransaction().getTranInitDate().toLocaleString(), font));
-				pdfTable.addCell(new Paragraph(cp.getProductBooked().getDetails(), font));
-				pdfTable.addCell(new Paragraph(""+cp.getPurchasedAmount(), font));
+				for(CustomerProductPurchase cpp : pList)
+				{
+					pdfTable.addCell(new Paragraph(cpp.getPurchaseTransaction().getTranInitDate().toLocaleString(), font));
+					pdfTable.addCell(new Paragraph(cpp.getProductBooked().getProductName(), font));
+					pdfTable.addCell(new Paragraph(""+cpp.getPurchasedAmount(), font));
+				}
 				document.add(pdfTable);
 				
 				document.close();
@@ -1997,6 +2251,7 @@ public class AppBean implements Serializable
 				e.setCrt_dt(new Date());
 				e.setItem_id(getItem_id());
 				e.setItem_count(getItem_used_count());
+				e.setSerial_numbers(getItem_serial_numbers());
 				
 				getInstallationDeviceUseList().add(e);
 			}
@@ -2060,6 +2315,181 @@ public class AppBean implements Serializable
 				getProductItemList().remove(i);
 				break;
 			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void downloadCertificate() {
+		if(getSelectedInstallation() != null) {
+			// if the product installed is a speed limiter, then a certificate should be generated here
+			if(getSelectedInstallation().getProductBooked().getType().getName().toLowerCase().contains("speed limiter")) {
+				GeneralDAO gDAO = new GeneralDAO();
+				InstallationDeviceUse ldu = null;
+				Query q = gDAO.createQuery("Select e from InstallationDeviceUse e where e.installation = :installation");
+				q.setParameter("installation", getSelectedInstallation());
+				Object qlist = gDAO.search(q, 0);
+				if(qlist != null) {
+					List<InstallationDeviceUse> list = (List<InstallationDeviceUse>)qlist;
+					if(list.size() > 0)
+						ldu = list.get(0);
+				}
+				gDAO.destroy();
+				
+				if(ldu != null) {
+					try {
+						ByteArrayOutputStream data = generateSpeedLimiterCertificate(getSelectedInstallation(), ldu);
+						if(data != null) {
+							FacesContext fc = FacesContext.getCurrentInstance();
+							ExternalContext ec = fc.getExternalContext();
+							
+							ec.responseReset(); // Some JSF component library or some Filter might have set some headers in the buffer beforehand. We want to get rid of them, else it may collide.
+							ec.setResponseContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"); // Check http://www.iana.org/assignments/media-types for all types. Use if necessary ExternalContext#getMimeType() for auto-detection based on filename.
+							ec.setResponseContentLength(data.size()); // Set it with the file size. This header is optional. It will work if it's omitted, but the download progress will be unknown.
+							ec.setResponseHeader("Content-Disposition", "attachment; filename=\"" + getSelectedInstallation().getJobCode() + ".docx\""); // The Save As popup magic is done here. You can give it any file name you want, this only won't work in MSIE, it will use current request URL as file name instead.
+							ec.setResponseHeader("Expires", "0");
+							ec.setResponseHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+							ec.setResponseHeader("Pragma", "public");
+							
+							OutputStream output = ec.getResponseOutputStream();
+							// Now you can write the InputStream of the file to the above OutputStream the usual way.
+							data.writeTo(output);
+							ec.responseFlushBuffer();
+							
+							fc.responseComplete(); // Important! Otherwise JSF will attempt to render the response which obviously will fail since it's already written with a file and closed.
+						}
+					} catch(Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	private ByteArrayOutputStream generateSpeedLimiterCertificate(InstallerLocationJobSchedule job, InstallationDeviceUse ldu) {
+		ByteArrayOutputStream data = null;
+		XWPFDocument template = null;
+		try {
+			template = new XWPFDocument(new FileInputStream(new File("c:/files/CERTIFICATE OF INSTALLATION TEMPLATE.docx")));
+			String[] toReplace = new String[]{"<CERT>", "<OWNER_NAME>", "<VEHICLE_TYPE>", "<REG_NUMBER>",
+					"<CHASSIS_NUMBER>", "<DEVICE_NUMBER>", "<INSTALLATION_DATE>", "<INSPECTION_DATE>",
+					"<INSTALLATION_CENTER>", "<NAME_OF_TECH>", "<MOBILE_OF_TECH>", "<EMAIL_OF_TECH>",
+					"<INSPECTION_CENTER>", "<EXPIRY_DATE>"}; // , "<MOBILE_OF_TESTER>", "<EMAIL_OF_TESTER>"
+			String[] replaceWith = new String[toReplace.length];
+			replaceWith[0] = job.getJobCode();
+			
+			String cusName = job.getCustomer().getFirstname().toUpperCase() + " " + job.getCustomer().getLastname().toUpperCase();
+			if(job.getCustomer().getCustomerType() != null && job.getCustomer().getCustomerType().equalsIgnoreCase("CORPORATE")) {
+				GeneralDAO gDAO = new GeneralDAO();
+				try {
+					Query q = gDAO.createQuery("Select e from CorporateCustomer e where e.customer = :customer");
+					q.setParameter("customer", job.getCustomer());
+					Object cusObj = gDAO.search(q, 0);
+					if(cusObj != null) {
+						@SuppressWarnings("unchecked")
+						List<CorporateCustomer> list = (List<CorporateCustomer>)cusObj;
+						for(CorporateCustomer cc : list)
+						{
+							cusName = cc.getCompanyName().toUpperCase();
+						}
+					}
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
+				gDAO.destroy();
+			}
+			
+			replaceWith[1] = cusName;
+			replaceWith[2] = job.getVehicleModel().toUpperCase();
+			replaceWith[3] = job.getVehicleRegNum().toUpperCase();
+			replaceWith[4] = job.getVehicleChasis().toUpperCase();
+			if(ldu != null && ldu.getSerial_numbers() != null)
+				replaceWith[5] = ldu.getSerial_numbers().toUpperCase();
+			else
+				replaceWith[5] = "";
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			replaceWith[6] = sdf.format(job.getEnd_dt()).toUpperCase();
+			replaceWith[7] = replaceWith[6];
+			replaceWith[8] = job.getInstaller().getCompanyName().toUpperCase();
+			replaceWith[9] = job.getAgent().getFirstname().toUpperCase() + " " + job.getAgent().getLastname().toUpperCase();
+			replaceWith[10] = job.getInstaller().getPhoneNo().toUpperCase();
+			replaceWith[11] = job.getInstaller().getEmail().toUpperCase();
+			replaceWith[12] = job.getInstaller().getCompanyName().toUpperCase();
+			
+			CustomerProduct cp = null;
+			GeneralDAO gDAO = new GeneralDAO();
+			try {
+				Query q = gDAO.createQuery("Select e from CustomerProduct e where e.job = :job");
+				q.setParameter("job", job);
+				Object obj = gDAO.search(q, 0);
+				if(obj != null) {
+					@SuppressWarnings("unchecked")
+					List<CustomerProduct> list = (List<CustomerProduct>)obj;
+					for(CustomerProduct cc : list)
+					{
+						cp = cc;
+					}
+				}
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+			gDAO.destroy();
+			if(cp != null && cp.getRenewal_due_dt() != null)
+				replaceWith[13] = cp.getRenewal_due_dt().toLocaleString();
+			else
+				replaceWith[13] = "N/A";
+			//replaceWith[13] = job.getAgent().getFirstname().toUpperCase() + " " + job.getAgent().getLastname().toUpperCase();
+			//replaceWith[14] = job.getInstaller().getPhoneNo().toUpperCase();
+			//replaceWith[15] = job.getInstaller().getEmail().toUpperCase();
+			
+			replaceText(template, toReplace, replaceWith);
+			
+			data = new ByteArrayOutputStream();
+			template.write(data);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return data;
+	}
+	
+	private static void replaceText(XWPFDocument doc, String[] toReplace, String[] replaceWith) {
+		for (XWPFParagraph p : doc.getParagraphs()) {
+		    List<XWPFRun> runs = p.getRuns();
+		    if (runs != null) {
+		        for (XWPFRun r : runs) {
+		            String text = r.getText(0);
+		            if (text != null) {
+		            	for(int i=0; i<toReplace.length; i++) {
+		            		String tr = toReplace[i];
+		            		if(text.toLowerCase().contains(tr.toLowerCase())) {
+		            			text = text.replace(tr, replaceWith[i]);
+				                r.setText(text, 0);
+		            		}
+		            	}
+		            }
+		        }
+		    }
+		}
+		for (XWPFTable tbl : doc.getTables()) {
+		   for (XWPFTableRow row : tbl.getRows()) {
+		      for (XWPFTableCell cell : row.getTableCells()) {
+		         for (XWPFParagraph p : cell.getParagraphs()) {
+		            for (XWPFRun r : p.getRuns()) {
+		              String text = r.getText(0);
+		              if (text != null) {
+		            	  for(int i=0; i<toReplace.length; i++) {
+		            		String tr = toReplace[i];
+		            		if(text.toLowerCase().contains(tr.toLowerCase())) {
+		            			text = text.replace(tr, replaceWith[i]);
+				                r.setText(text, 0);
+		            		}
+		            	}
+		              }
+		            }
+		         }
+		      }
+		   }
 		}
 	}
 	
@@ -2171,7 +2601,7 @@ public class AppBean implements Serializable
 							try
 							{
 								InputStream in = getCompleteJobCard().getInputStream();
-								//TODO: Write the file to disk here for future download, don't save to db, would be too large and affect performance
+								//Write the file to disk here for future download, don't save to db, would be too large and affect performance
 								File folder = new File("c:/files/jobcards");
 								//String filename = FilenameUtils.getBaseName(getCompleteJobCard().getName()); 
 								//String extension = FilenameUtils.getExtension(getCompleteJobCard().getName());
@@ -2190,6 +2620,7 @@ public class AppBean implements Serializable
 					userBean.sendEmail(new String[]{selCheckedInJob.getCustomer().getUser().getUsername()}, "Installation Completed on RMS", MessagesUtil.getJobScheduleCompletedEmailMessage(selCheckedInJob.getCustomer().getFirstname(), selCheckedInJob));
 					userBean.sendSMS(selCheckedInJob.getCustomer().getPhoneNo(), MessagesUtil.getJobScheduleCompletedSMSMessage(selCheckedInJob.getCustomer().getFirstname(), selCheckedInJob));
 					
+					setInstallation_point_id(0);
 					setSelCheckedInJob(null);
 					setCheckedin_installation_id(0);
 					setJob_installer_id(0);
@@ -2264,6 +2695,7 @@ public class AppBean implements Serializable
 				setSelNotCheckInJob(null);
 				setNot_checkedin_installation_id(0);
 				setVtype_id(0);setVmake_id(0);
+				setInstallation_point_id(0);
 				
 				resetMyJobs();
 				
@@ -3286,15 +3718,6 @@ public class AppBean implements Serializable
 		{
 		case -1: // quick links buy product for existing customer
 		{
-			Product selProduct = null;
-			for(Product p : getProducts())
-			{
-				if(p.isSelected())
-				{
-					selProduct = p;
-					break;
-				}
-			}
 			Customer cus = null;
 			GeneralDAO gDAO = new GeneralDAO();
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
@@ -3307,7 +3730,6 @@ public class AppBean implements Serializable
 				for(Customer e : cusList)
 					cus = e;
 			}
-			
 			
 			SalesAgent sa = null;
 			TradePartner tp = null;
@@ -3354,69 +3776,75 @@ public class AppBean implements Serializable
 			List<TradePartnerItem> tpils = new ArrayList<TradePartnerItem>();
 			boolean stockAvailable = true;
 			//confirm that the salesagent has stock for the items in the product it's about to sell, that's if the salesagent is marked to hold its own stock
-			if(sa != null && sa.isStockDevice())
+			if(sa != null && sa.isStockDevice() && getCart() != null && getCart().size() > 0)
 			{
-				for(ProductItem pi : selProduct.getItems())
+				for(CustomerProductPurchase cpp : getCart())
 				{
-					params = new Hashtable<String, Object>();
-					params.put("salesAgent", sa);
-					params.put("item", pi.getItem());
-					Object lsobj = gDAO.search("SalesAgentItem", params);
-					if(lsobj != null)
+					for(ProductItem pi : cpp.getProductBooked().getItems())
 					{
-						List<SalesAgentItem> ls = (List<SalesAgentItem>)lsobj;
-						for(SalesAgentItem e : ls)
+						params = new Hashtable<String, Object>();
+						params.put("salesAgent", sa);
+						params.put("item", pi.getItem());
+						Object lsobj = gDAO.search("SalesAgentItem", params);
+						if(lsobj != null)
 						{
-							if(e.getCount() < pi.getItem_count())
+							List<SalesAgentItem> ls = (List<SalesAgentItem>)lsobj;
+							for(SalesAgentItem e : ls)
 							{
-								stockAvailable = false;
-								break;
-							}
-							else
-							{
-								e.setCount(e.getCount()-pi.getItem_count());
-								sails.add(e);
+								if(e.getCount() < (pi.getItem_count()*cpp.getCount()))
+								{
+									stockAvailable = false;
+									break;
+								}
+								else
+								{
+									e.setCount(e.getCount()-(pi.getItem_count()*cpp.getCount()));
+									sails.add(e);
+								}
 							}
 						}
+						if(!stockAvailable)
+							break;
 					}
-					if(!stockAvailable)
-						break;
 				}
 			}
 			//confirm that the tradepartner has stock for the items in the product it's about to sell.
-			if(tp != null)
+			if(tp != null && getCart() != null && getCart().size() > 0)
 			{
-				for(ProductItem pi : selProduct.getItems())
+				for(CustomerProductPurchase cpp : getCart())
 				{
-					params = new Hashtable<String, Object>();
-					params.put("tradePartner", tp);
-					params.put("item", pi.getItem());
-					Object lsobj = gDAO.search("TradePartnerItem", params);
-					if(lsobj != null)
+					for(ProductItem pi : cpp.getProductBooked().getItems())
 					{
-						List<TradePartnerItem> ls = (List<TradePartnerItem>)lsobj;
-						for(TradePartnerItem e : ls)
+						params = new Hashtable<String, Object>();
+						params.put("tradePartner", tp);
+						params.put("item", pi.getItem());
+						Object lsobj = gDAO.search("TradePartnerItem", params);
+						if(lsobj != null)
 						{
-							if(e.getCount() < pi.getItem_count())
+							List<TradePartnerItem> ls = (List<TradePartnerItem>)lsobj;
+							for(TradePartnerItem e : ls)
 							{
-								stockAvailable = false;
-								break;
-							}
-							else
-							{
-								e.setCount(e.getCount()-pi.getItem_count());
-								tpils.add(e);
+								if(e.getCount() < (pi.getItem_count()*cpp.getCount()))
+								{
+									stockAvailable = false;
+									break;
+								}
+								else
+								{
+									e.setCount(e.getCount()-(pi.getItem_count()*cpp.getCount()));
+									tpils.add(e);
+								}
 							}
 						}
+						if(!stockAvailable)
+							break;
 					}
-					if(!stockAvailable)
-						break;
 				}
 			}
 			
 			if(stockAvailable)
 			{
-				if(selProduct != null && (sa != null || tp != null) && cus != null)
+				if(getCart() != null && getCart().size()>0 && (sa != null || tp != null) && cus != null)
 				{
 					gDAO.startTransaction();
 					String tranRef = "";
@@ -3430,28 +3858,44 @@ public class AppBean implements Serializable
 		    		}
 					
 					CustomerTransaction ct = new CustomerTransaction();
-					ct.setAmount(selProduct.getFirstYearPayment());
+					ct.setAmount(getTotal_cost());
 					ct.setCrt_dt(new Date());
 					ct.setCustomer(cus);
 					ct.setPayFor("PURCHASE");
 					ct.setPayMode("Pay at Bank");
-					ct.setProduct(selProduct);
+					//ct.setProduct(selProduct);
 					ct.setStatus("PENDING");
 					ct.setTranInitDate(new Date());
 					ct.setTranRef(tranRef);
 					gDAO.save(ct);
 					
-					CustomerProduct cp = new CustomerProduct();
-					cp.setBooked_dt(new Date());
-					cp.setCreatedBy((sa != null ? sa.getUser() : (tp != null ? tp.getUser() : null)));
-					cp.setCrt_dt(new Date());
-					cp.setCustomer(cus);
-					cp.setProductBooked(selProduct);
-					cp.setPurchasedAmount(selProduct.getFirstYearPayment());
-					cp.setPurchaseTranRef(tranRef);
-					cp.setPurchaseTransaction(ct);
-					cp.setStatus("PENDING");
-					gDAO.save(cp);
+					for(CustomerProductPurchase cpp : getCart())
+					{
+						cpp.setCreatedBy(userBean.getSessionUser());
+						cpp.setCrt_dt(new Date());
+						cpp.setCustomer(cus);
+						cpp.setExpectedAmount(cpp.getProductBooked().getFirstYearPayment()*cpp.getProductBooked().getCount());
+						cpp.setPurchasedAmount(cpp.getProductBooked().getSellingAmount());
+						cpp.setPurchaseTransaction(ct);
+						cpp.setUnitAmount(cpp.getPurchasedAmount()/cpp.getCount());
+						gDAO.save(cpp);
+						
+						for(int icpp=0; icpp<cpp.getCount(); icpp++)
+						{
+							CustomerProduct cp = new CustomerProduct();
+							cp.setBooked_dt(new Date());
+							cp.setCreatedBy((sa != null ? sa.getUser() : (tp != null ? tp.getUser() : null)));
+							cp.setCrt_dt(new Date());
+							cp.setCustomer(cus);
+							cp.setProductBooked(cpp.getProductBooked());
+							cp.setPurchasedAmount(cpp.getProductBooked().getSellingAmount()/cpp.getProductBooked().getCount());
+							cp.setPurchaseTranRef(tranRef);
+							cp.setStatus("PENDING");
+							
+							cp.setPurchaseTransaction(ct);
+							gDAO.save(cp);
+						}
+					}
 					
 					if(sails != null && sails.size()>0)
 					{
@@ -3469,20 +3913,20 @@ public class AppBean implements Serializable
 						gDAO.commit();
 						
 						//Send invoice along with this email to the customer
-						byte[] data = generateInvoiceForCustomerPurchase(cp);
+						byte[] data = generateInvoiceForCustomerPurchase(ct, getCart());
 						if(data != null)
 						{
 							if(sa != null)
-								userBean.sendEmailWithAttachedment(new String[]{cus.getUser().getUsername(), sa.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp), "invoice-"+cp.getPurchaseTranRef()+".pdf", data);
+								userBean.sendEmailWithAttachedment(new String[]{cus.getUser().getUsername(), sa.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()), "invoice-"+ct.getTranRef()+".pdf", data);
 							else if(tp != null)
-								userBean.sendEmailWithAttachedment(new String[]{cus.getUser().getUsername(), tp.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp), "invoice-"+cp.getPurchaseTranRef()+".pdf", data);
+								userBean.sendEmailWithAttachedment(new String[]{cus.getUser().getUsername(), tp.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()), "invoice-"+ct.getTranRef()+".pdf", data);
 						}
 						else
 						{
 							if(sa != null)
-								userBean.sendEmail(new String[]{cus.getUser().getUsername(), sa.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp));
+								userBean.sendEmail(new String[]{cus.getUser().getUsername(), sa.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()));
 							else if(tp != null)
-								userBean.sendEmail(new String[]{cus.getUser().getUsername(), tp.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp));
+								userBean.sendEmail(new String[]{cus.getUser().getUsername(), tp.getUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()));
 						}
 						userBean.sendSMS(cus.getPhoneNo(), "Dear " + cus.getFirstname() + ", we have sent you an email on how to make payment for your transaction(" + tranRef + "). Please notify us after making your payment. Thank you.");
 	        			
@@ -3522,7 +3966,7 @@ public class AppBean implements Serializable
 		}
 		case 0: // quick links register and buy product for new customer
 		{
-			Product selProduct = null;
+			/*Product selProduct = null;
 			for(Product p : getProducts())
 			{
 				if(p.isSelected())
@@ -3530,12 +3974,12 @@ public class AppBean implements Serializable
 					selProduct = p;
 					break;
 				}
-			}
+			}*/
 			if(getCustomer().getFirstname() != null && getCustomer().getFirstname().trim().length() > 0 &&
 					getCustomer().getLastname() != null && getCustomer().getFirstname().trim().length() > 0 &&
 					getCusUser().getUsername() != null && getCusUser().getUsername().trim().length() > 0 &&
 					getCusUser().getPassword() != null && getCusUser().getPassword().trim().length() > 0 && 
-					selProduct != null)
+					getCart() != null && getCart().size() > 0)
 			{
 				if(getCusUser().getPassword().equals(getConfirm_password()))
 				{
@@ -3618,63 +4062,69 @@ public class AppBean implements Serializable
 						List<TradePartnerItem> tpils = new ArrayList<TradePartnerItem>();
 						boolean stockAvailable = true;
 						//confirm that the salesagent has stock for the items in the product it's about to sell, that's if the salesagent is marked to hold its own stock
-						if(sa != null && sa.isStockDevice())
+						if(sa != null && sa.isStockDevice() && getCart() != null && getCart().size() > 0)
 						{
-							for(ProductItem pi : selProduct.getItems())
+							for(CustomerProductPurchase cpp : getCart())
 							{
-								Hashtable<String, Object> params = new Hashtable<String, Object>();
-								params.put("salesAgent", sa);
-								params.put("item", pi.getItem());
-								Object lsobj = gDAO.search("SalesAgentItem", params);
-								if(lsobj != null)
+								for(ProductItem pi : cpp.getProductBooked().getItems())
 								{
-									List<SalesAgentItem> ls = (List<SalesAgentItem>)lsobj;
-									for(SalesAgentItem e : ls)
+									Hashtable<String, Object> params = new Hashtable<String, Object>();
+									params.put("salesAgent", sa);
+									params.put("item", pi.getItem());
+									Object lsobj = gDAO.search("SalesAgentItem", params);
+									if(lsobj != null)
 									{
-										if(e.getCount() < pi.getItem_count())
+										List<SalesAgentItem> ls = (List<SalesAgentItem>)lsobj;
+										for(SalesAgentItem e : ls)
 										{
-											stockAvailable = false;
-											break;
-										}
-										else
-										{
-											e.setCount(e.getCount()-pi.getItem_count());
-											sails.add(e);
+											if(e.getCount() < (pi.getItem_count()*cpp.getCount()))
+											{
+												stockAvailable = false;
+												break;
+											}
+											else
+											{
+												e.setCount(e.getCount()-(pi.getItem_count()*cpp.getCount()));
+												sails.add(e);
+											}
 										}
 									}
+									if(!stockAvailable)
+										break;
 								}
-								if(!stockAvailable)
-									break;
 							}
 						}
 						//confirm that the tradepartner has stock for the items in the product it's about to sell.
-						if(tp != null)
+						if(tp != null && getCart() != null && getCart().size() > 0)
 						{
-							for(ProductItem pi : selProduct.getItems())
+							for(CustomerProductPurchase cpp : getCart())
 							{
-								Hashtable<String, Object> params = new Hashtable<String, Object>();
-								params.put("tradePartner", tp);
-								params.put("item", pi.getItem());
-								Object lsobj = gDAO.search("TradePartnerItem", params);
-								if(lsobj != null)
+								for(ProductItem pi : cpp.getProductBooked().getItems())
 								{
-									List<TradePartnerItem> ls = (List<TradePartnerItem>)lsobj;
-									for(TradePartnerItem e : ls)
+									Hashtable<String, Object> params = new Hashtable<String, Object>();
+									params.put("tradePartner", tp);
+									params.put("item", pi.getItem());
+									Object lsobj = gDAO.search("TradePartnerItem", params);
+									if(lsobj != null)
 									{
-										if(e.getCount() < pi.getItem_count())
+										List<TradePartnerItem> ls = (List<TradePartnerItem>)lsobj;
+										for(TradePartnerItem e : ls)
 										{
-											stockAvailable = false;
-											break;
-										}
-										else
-										{
-											e.setCount(e.getCount()-pi.getItem_count());
-											tpils.add(e);
+											if(e.getCount() < (pi.getItem_count()*cpp.getCount()))
+											{
+												stockAvailable = false;
+												break;
+											}
+											else
+											{
+												e.setCount(e.getCount()-(pi.getItem_count()*cpp.getCount()));
+												tpils.add(e);
+											}
 										}
 									}
+									if(!stockAvailable)
+										break;
 								}
-								if(!stockAvailable)
-									break;
 							}
 						}
 						
@@ -3707,6 +4157,21 @@ public class AppBean implements Serializable
 									getCustomer().setUniqueID(generateCustomerReference(getCustomer().getId()));
 									gDAO.update(getCustomer());
 									
+									if(getCustomer().getCustomerType().equalsIgnoreCase("CORPORATE"))
+									{
+										getCorCustomer().setAddress(getCustomer().getAddress());
+										getCorCustomer().setCountry(getCustomer().getCountry());
+										getCorCustomer().setCreatedBy(getCustomer().getCreatedBy());
+										getCorCustomer().setCrt_dt(new Date());
+										getCorCustomer().setCustomer(getCustomer());
+										getCorCustomer().setLga(getCustomer().getLga());
+										getCorCustomer().setPartner(getCustomer().getPartner());
+										getCorCustomer().setState(getCustomer().getState());
+										getCorCustomer().setUniqueID(getCustomer().getUniqueID());
+										
+										gDAO.save(getCorCustomer());
+									}
+									
 									String tranRef = "";
 						    		try
 						    		{
@@ -3718,28 +4183,54 @@ public class AppBean implements Serializable
 						    		}
 									
 									CustomerTransaction ct = new CustomerTransaction();
-									ct.setAmount(selProduct.getFirstYearPayment());
+									ct.setAmount(getTotal_cost());
 									ct.setCrt_dt(new Date());
 									ct.setCustomer(getCustomer());
 									ct.setPayFor("PURCHASE");
 									ct.setPayMode("Pay at Bank");
-									ct.setProduct(selProduct);
 									ct.setStatus("PENDING");
 									ct.setTranInitDate(new Date());
 									ct.setTranRef(tranRef);
 									gDAO.save(ct);
 									
-									CustomerProduct cp = new CustomerProduct();
-									cp.setBooked_dt(new Date());
-									cp.setCreatedBy(getCustomer().getCreatedBy());
-									cp.setCrt_dt(new Date());
-									cp.setCustomer(getCustomer());
-									cp.setProductBooked(selProduct);
-									cp.setPurchasedAmount(selProduct.getFirstYearPayment());
-									cp.setPurchaseTranRef(tranRef);
-									cp.setPurchaseTransaction(ct);
-									cp.setStatus("PENDING");
-									gDAO.save(cp);
+									for(CustomerProductPurchase cpp : getCart())
+									{
+										cpp.setCreatedBy(userBean.getSessionUser());
+										cpp.setCrt_dt(new Date());
+										cpp.setCustomer(getCustomer());
+										cpp.setExpectedAmount(cpp.getProductBooked().getFirstYearPayment()*cpp.getProductBooked().getCount());
+										cpp.setPurchasedAmount(cpp.getProductBooked().getSellingAmount());
+										cpp.setPurchaseTransaction(ct);
+										cpp.setUnitAmount(cpp.getPurchasedAmount()/cpp.getCount());
+										gDAO.save(cpp);
+										
+										for(int icpp=0; icpp<cpp.getCount(); icpp++)
+										{
+											CustomerProduct cp = new CustomerProduct();
+											cp.setBooked_dt(new Date());
+											cp.setCreatedBy((sa != null ? sa.getUser() : (tp != null ? tp.getUser() : null)));
+											cp.setCrt_dt(new Date());
+											cp.setCustomer(getCustomer());
+											cp.setProductBooked(cpp.getProductBooked());
+											cp.setPurchasedAmount(cpp.getProductBooked().getSellingAmount()/cpp.getProductBooked().getCount());
+											cp.setPurchaseTranRef(tranRef);
+											cp.setStatus("PENDING");
+											
+											cp.setPurchaseTransaction(ct);
+											gDAO.save(cp);
+										}
+									}
+									
+									if(sails != null && sails.size()>0)
+									{
+										for(SalesAgentItem e : sails)
+											gDAO.update(e);
+									}
+									if(tpils != null && tpils.size()>0)
+									{
+										for(TradePartnerItem e : tpils)
+											gDAO.update(e);
+									}
 									
 									try
 									{
@@ -3759,11 +4250,11 @@ public class AppBean implements Serializable
 										userBean.sendSMS(getCustomer().getPhoneNo(), MessagesUtil.getSignUpSMSMessage(getCustomer()));
 										
 										//Send invoice attached with the below email to customer
-										byte[] data = generateInvoiceForCustomerPurchase(cp);
+										byte[] data = generateInvoiceForCustomerPurchase(ct, getCart());
 										if(data != null)
-											userBean.sendEmailWithAttachedment(new String[]{getCusUser().getUsername(), getCustomer().getCreatedBy().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp), "invoice-"+cp.getPurchaseTranRef()+".pdf", data);
+											userBean.sendEmailWithAttachedment(new String[]{getCusUser().getUsername(), getCustomer().getCreatedBy().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()), "invoice-"+ct.getTranRef()+".pdf", data);
 										else
-											userBean.sendEmail(new String[]{getCusUser().getUsername(), getCustomer().getCreatedBy().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp));
+											userBean.sendEmail(new String[]{getCusUser().getUsername(), getCustomer().getCreatedBy().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()));
 										userBean.sendSMS(getCustomer().getPhoneNo(), "Dear " + getCustomer().getFirstname() + ", we have sent you an email on how to make payment for your transaction(" + tranRef + "). Please notify us after making your payment. Thank you.");
 					        			
 										setCustomer(null);
@@ -3913,8 +4404,7 @@ public class AppBean implements Serializable
 		{
 			if(getItm().getName() != null && getItm().getName().trim().length() > 0 &&
 					getItm().getModel() != null && getItm().getModel().trim().length() > 0 &&
-					getItmManu_id() > 0 && getItmType_id() > 0)
-			{
+					getItmManu_id() > 0 && getItmType_id() > 0) {
 				GeneralDAO gDAO = new GeneralDAO();
 				
 				Object manuObj = gDAO.find(ItemManufacturer.class, getItmManu_id());
@@ -3926,8 +4416,113 @@ public class AppBean implements Serializable
 					getItm().setType((ItemType)typeObj);
 				
 				getItm().setCrt_dt(new Date());
+				List<ItemSerial> itmSerials = new ArrayList<ItemSerial>();
+				if(getItm().getStocklevel() > 0 && getItm().getSerialNumbers() != null && !getItm().getSerialNumbers().isEmpty()) {
+					// TODO: This is where we create the serial numbers for the items
+					if(getItm().getSerialNumbers().contains("-")) {
+						String[] serials = getItm().getSerialNumbers().split("-", 2);
+						if(serials.length == 2) {
+							try {
+								long start_serial = Long.parseLong(serials[0]);
+								long end_serial = Long.parseLong(serials[1]);
+								if(end_serial > start_serial) {
+									long count = end_serial - start_serial;
+									if(count != getItm().getStocklevel()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										break;
+									}
+								} else if(start_serial > end_serial) {
+									long count = start_serial - end_serial;
+									if(count != getItm().getStocklevel()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										break;
+									}
+								} else if(start_serial == end_serial) {
+									long count = 1;
+									if(count != getItm().getStocklevel()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										break;
+									}
+								}
+								if(start_serial <= end_serial) {
+									for(long serial=start_serial; serial<=end_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								} else {
+									for(long serial=end_serial; serial<=start_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								}
+							} catch(Exception ex) {
+								ex.printStackTrace();
+								an.setType("ERROR");
+								an.setSubject("Failed");
+								an.setMessage("Error occured while parsing the serial numbers. " + ex.getMessage());
+								appNotifBean.getAppNotifications().add(an);
+							}
+						}
+					} else if(getItm().getSerialNumbers().contains(",")) {
+						String[] serials = getItm().getSerialNumbers().split(",");
+						if(serials.length != getItm().getStocklevel()) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							break;
+						} else {
+							for(String serial : serials) {
+								ItemSerial itms = new ItemSerial();
+								itms.setCrt_dt(new Date());
+								itms.setSerialNo(serial);
+								itmSerials.add(itms);
+							}
+						}
+					} else {
+						String serial = getItm().getSerialNumbers();
+						if(getItm().getStocklevel() != 1) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							break;
+						} else {
+							ItemSerial itms = new ItemSerial();
+							itms.setCrt_dt(new Date());
+							itms.setSerialNo(serial);
+							itmSerials.add(itms);
+						}
+					}
+				}
+				
 				gDAO.startTransaction();
 				gDAO.save(getItm());
+				
+				if(itmSerials.size() > 0) {
+					for(ItemSerial itms : itmSerials) {
+						itms.setAssignedStatus("IN-STOCK");
+						itms.setCrt_dt(new Date());
+						itms.setItem(getItm());
+						itms.setStatus("WORKING");
+						itms.setUser(userBean.getSessionUser());
+						gDAO.save(itms);
+					}
+				}
+				
 				try {
 					gDAO.commit();
 					setItm(null);
@@ -3947,9 +4542,7 @@ public class AppBean implements Serializable
 				gDAO.destroy();
 				
 				appNotifBean.getAppNotifications().add(an);
-			}
-			else
-			{
+			} else {
 				an.setType("ERROR");
 				an.setSubject("Failed");
 				an.setMessage("All fields with the '*' sign are required!");
@@ -3959,8 +4552,7 @@ public class AppBean implements Serializable
 		}
 		case 4: // product type
 		{
-			if(getPtype().getName() != null && getPtype().getName().trim().length() > 0)
-			{
+			if(getPtype().getName() != null && getPtype().getName().trim().length() > 0) {
 				GeneralDAO gDAO = new GeneralDAO();
 				
 				getPtype().setCrt_dt(new Date());
@@ -3974,7 +4566,7 @@ public class AppBean implements Serializable
 					an.setType("SUCCESS");
 					an.setSubject("Success");
 					an.setMessage("Product type created successfully!");
-				} catch(Exception ex){
+				} catch(Exception ex) {
 					gDAO.rollback();
 					an.setType("ERROR");
 					an.setSubject("Error");
@@ -3983,9 +4575,7 @@ public class AppBean implements Serializable
 				gDAO.destroy();
 				
 				appNotifBean.getAppNotifications().add(an);
-			}
-			else
-			{
+			} else {
 				an.setType("ERROR");
 				an.setSubject("Failed");
 				an.setMessage("Product type name is required!");
@@ -3997,8 +4587,7 @@ public class AppBean implements Serializable
 		{
 			if(getProduct().getProductName() != null && getProduct().getProductName().trim().length() > 0 && 
 					getProduct().getDetails() != null && getProduct().getDetails().trim().length() > 0 &&
-					getPtype_id() > 0)
-			{
+					getPtype_id() > 0) {
 				GeneralDAO gDAO = new GeneralDAO();
 				
 				Object ptype = gDAO.find(ProductType.class, getPtype_id());
@@ -4007,12 +4596,9 @@ public class AppBean implements Serializable
 				
 				getProduct().setActive(true);
 				
-				if(getProduct_photo() != null)
-				{
-					if(getProduct_photo().getContentType().indexOf("image")>=0)
-					{
-						try
-						{
+				if(getProduct_photo() != null) {
+					if(getProduct_photo().getContentType().indexOf("image")>=0) {
+						try {
 							InputStream in = getProduct_photo().getInputStream();
 							ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 							int read;
@@ -4022,18 +4608,14 @@ public class AppBean implements Serializable
 							}
 							in.close();
 							getProduct().setPhoto(buffer.toByteArray());
-						}
-						catch(Exception ex)
-						{
+						} catch(Exception ex) {
 							an.setType("ERROR");
 							an.setSubject("Failed");
 							an.setMessage("Could not upload the selected photo!");
 							appNotifBean.getAppNotifications().add(an);
 							an = new AppNotification();
 						}
-					}
-					else
-					{
+					} else {
 						an.setType("ERROR");
 						an.setSubject("Failed");
 						an.setMessage("File uploaded not an image!");
@@ -4046,8 +4628,7 @@ public class AppBean implements Serializable
 				gDAO.startTransaction();
 				gDAO.save(getProduct());
 				
-				for(ProductItem pi : getProductItemList())
-				{
+				for(ProductItem pi : getProductItemList()) {
 					pi.setProduct(getProduct());
 					gDAO.save(pi);
 				}
@@ -4060,13 +4641,11 @@ public class AppBean implements Serializable
 					an.setType("SUCCESS");
 					an.setSubject("Success");
 					an.setMessage("Product created successfully!");
-				} catch(Exception ex){
+				} catch(Exception ex) {
 					ex.printStackTrace();
-					try
-					{
+					try {
 						gDAO.rollback();
-					}
-					catch(Exception e){}
+					} catch(Exception e){}
 					an.setType("ERROR");
 					an.setSubject("Error");
 					an.setMessage("Message: " + ex.getMessage() + "!");
@@ -4146,6 +4725,22 @@ public class AppBean implements Serializable
 							
 							getCustomer().setUniqueID(generateCustomerReference(getCustomer().getId()));
 							gDAO.update(getCustomer());
+							
+							if(getCustomer().getCustomerType().equalsIgnoreCase("CORPORATE"))
+							{
+								getCorCustomer().setAddress(getCustomer().getAddress());
+								getCorCustomer().setCountry(getCustomer().getCountry());
+								getCorCustomer().setCreatedBy(getCustomer().getCreatedBy());
+								getCorCustomer().setCrt_dt(new Date());
+								getCorCustomer().setCustomer(getCustomer());
+								getCorCustomer().setLga(getCustomer().getLga());
+								getCorCustomer().setPartner(getCustomer().getPartner());
+								getCorCustomer().setState(getCustomer().getState());
+								getCorCustomer().setUniqueID(getCustomer().getUniqueID());
+								
+								gDAO.save(getCorCustomer());
+							}
+							
 							try {
 								
 								Notification n = new Notification();
@@ -4163,6 +4758,7 @@ public class AppBean implements Serializable
 								userBean.sendEmail(new String[]{getCusUser().getUsername()}, "Welcome to RMS", MessagesUtil.getSignUpEmailMessage(getCustomer().getFirstname(), getCusUser().getUsername(), getConfirm_password(), getCustomer().getUniqueID()));
 								userBean.sendSMS(getCustomer().getPhoneNo(), MessagesUtil.getSignUpSMSMessage(getCustomer()));
 								
+								setCorCustomer(null);
 								setCustomer(null);
 								setCustomers(null);
 								setSelCustomer(null);
@@ -4487,6 +5083,7 @@ public class AppBean implements Serializable
 				
 				boolean iliexists = false;
 				InstallerLocationItem ili = null;
+				List<ItemSerial> itmSerials = new ArrayList<ItemSerial>();
 				
 				GeneralDAO gDAO = new GeneralDAO();
 				
@@ -4524,11 +5121,115 @@ public class AppBean implements Serializable
 							ili.setCrt_dt(new Date());
 						}
 					}
+					// TODO: Modify item movement for Installation point or supply here
+					if(getItmMove().getSerialNumbers().contains("-")) {
+						String[] serials = getItmMove().getSerialNumbers().split("-", 2);
+						if(serials.length == 2) {
+							try {
+								long start_serial = Long.parseLong(serials[0]);
+								long end_serial = Long.parseLong(serials[1]);
+								if(end_serial > start_serial) {
+									long count = end_serial - start_serial;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the move count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								} else if(start_serial > end_serial) {
+									long count = start_serial - end_serial;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								} else if(start_serial == end_serial) {
+									long count = 1;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								}
+								if(start_serial <= end_serial) {
+									for(long serial=start_serial; serial<=end_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								} else {
+									for(long serial=end_serial; serial<=start_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								}
+							} catch(Exception ex) {
+								ex.printStackTrace();
+								an.setType("ERROR");
+								an.setSubject("Failed");
+								an.setMessage("Error occured while parsing the serial numbers. " + ex.getMessage());
+								appNotifBean.getAppNotifications().add(an);
+							}
+						}
+					} else if(getItmMove().getSerialNumbers().contains(",")) {
+						String[] serials = getItmMove().getSerialNumbers().split(",");
+						if(serials.length != getItmMove().getCount()) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						} else {
+							for(String serial : serials) {
+								ItemSerial itms = new ItemSerial();
+								itms.setCrt_dt(new Date());
+								itms.setSerialNo(serial);
+								itmSerials.add(itms);
+							}
+						}
+					} else {
+						String serial = getItmMove().getSerialNumbers();
+						if(getItmMove().getCount() != 1) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						} else {
+							ItemSerial itms = new ItemSerial();
+							itms.setCrt_dt(new Date());
+							itms.setSerialNo(serial);
+							itmSerials.add(itms);
+						}
+					}
 					
 					if(getItmMove().getMoveType().equalsIgnoreCase("SUPPLY"))
 					{
 						getItmMove().setNew_balance(getItmMove().getBefore_balance() + getItmMove().getCount());
 						getItmMove().getItem().setStocklevel(getItmMove().getNew_balance());
+						
+						if(itmSerials.size() > 0) {
+							for(ItemSerial itms : itmSerials) {
+								itms.setAssignedStatus("IN-STOCK");
+								itms.setCrt_dt(new Date());
+								itms.setItem(getItmMove().getItem());
+								itms.setStatus("WORKING");
+								itms.setUser(userBean.getSessionUser());
+							}
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("DISTRIBUTION"))
 					{
@@ -4537,6 +5238,32 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() + getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setAssignedStatus("ASSIGNED-TO-INSTALLER");
+								itms.setInstallationPoint(getItmMove().getInstaller());
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("RETURNED"))
 					{
@@ -4545,6 +5272,32 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() - getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setAssignedStatus("IN-STOCK");
+								itms.setInstallationPoint(null);
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("DAMAGED"))
 					{
@@ -4552,6 +5305,31 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() - getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setStatus("BAD");
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 				}
 				
@@ -4564,13 +5342,20 @@ public class AppBean implements Serializable
 					gDAO.save(getItmMove());
 					gDAO.update(getItmMove().getItem());
 					
-					if(ili != null)
-					{
+					if(ili != null) {
 						if(!iliexists)
 							gDAO.save(ili);
 						else
 							gDAO.update(ili);
 					}
+					
+					for(ItemSerial itms : itmSerials) {
+						if(itms.getId() != null) {
+							gDAO.update(itms);
+						} else
+							gDAO.save(itms);
+					}
+					
 					try {
 						gDAO.commit();
 						setItmMove(null);
@@ -4625,6 +5410,7 @@ public class AppBean implements Serializable
 				
 				boolean iliexists = false;
 				SalesAgentItem ili = null;
+				List<ItemSerial> itmSerials = new ArrayList<ItemSerial>();
 				
 				GeneralDAO gDAO = new GeneralDAO();
 				
@@ -4663,10 +5449,115 @@ public class AppBean implements Serializable
 						}
 					}
 					
+					// TODO: Modify item movement for Installation point or supply here
+					if(getItmMove().getSerialNumbers().contains("-")) {
+						String[] serials = getItmMove().getSerialNumbers().split("-", 2);
+						if(serials.length == 2) {
+							try {
+								long start_serial = Long.parseLong(serials[0]);
+								long end_serial = Long.parseLong(serials[1]);
+								if(end_serial > start_serial) {
+									long count = end_serial - start_serial;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the move count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								} else if(start_serial > end_serial) {
+									long count = start_serial - end_serial;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								} else if(start_serial == end_serial) {
+									long count = 1;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								}
+								if(start_serial <= end_serial) {
+									for(long serial=start_serial; serial<=end_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								} else {
+									for(long serial=end_serial; serial<=start_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								}
+							} catch(Exception ex) {
+								ex.printStackTrace();
+								an.setType("ERROR");
+								an.setSubject("Failed");
+								an.setMessage("Error occured while parsing the serial numbers. " + ex.getMessage());
+								appNotifBean.getAppNotifications().add(an);
+							}
+						}
+					} else if(getItmMove().getSerialNumbers().contains(",")) {
+						String[] serials = getItmMove().getSerialNumbers().split(",");
+						if(serials.length != getItmMove().getCount()) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						} else {
+							for(String serial : serials) {
+								ItemSerial itms = new ItemSerial();
+								itms.setCrt_dt(new Date());
+								itms.setSerialNo(serial);
+								itmSerials.add(itms);
+							}
+						}
+					} else {
+						String serial = getItmMove().getSerialNumbers();
+						if(getItmMove().getCount() != 1) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						} else {
+							ItemSerial itms = new ItemSerial();
+							itms.setCrt_dt(new Date());
+							itms.setSerialNo(serial);
+							itmSerials.add(itms);
+						}
+					}
+					
 					if(getItmMove().getMoveType().equalsIgnoreCase("SUPPLY"))
 					{
 						getItmMove().setNew_balance(getItmMove().getBefore_balance() + getItmMove().getCount());
 						getItmMove().getItem().setStocklevel(getItmMove().getNew_balance());
+						
+						if(itmSerials.size() > 0) {
+							for(ItemSerial itms : itmSerials) {
+								itms.setAssignedStatus("IN-STOCK");
+								itms.setCrt_dt(new Date());
+								itms.setItem(getItmMove().getItem());
+								itms.setStatus("WORKING");
+								itms.setUser(userBean.getSessionUser());
+							}
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("DISTRIBUTION"))
 					{
@@ -4675,6 +5566,32 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() + getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setAssignedStatus("ASSIGNED-TO-SALESAGENT");
+								itms.setSalesAgent(getItmMove().getSalesAgent());
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("RETURNED"))
 					{
@@ -4683,6 +5600,32 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() - getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setAssignedStatus("IN-STOCK");
+								itms.setSalesAgent(null);
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("DAMAGED"))
 					{
@@ -4690,6 +5633,31 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() - getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setStatus("BAD");
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 				}
 				
@@ -4709,6 +5677,14 @@ public class AppBean implements Serializable
 						else
 							gDAO.update(ili);
 					}
+					
+					for(ItemSerial itms : itmSerials) {
+						if(itms.getId() != null) {
+							gDAO.update(itms);
+						} else
+							gDAO.save(itms);
+					}
+					
 					try {
 						gDAO.commit();
 						setItmMove(null);
@@ -4763,6 +5739,7 @@ public class AppBean implements Serializable
 				
 				boolean iliexists = false;
 				TradePartnerItem ili = null;
+				List<ItemSerial> itmSerials = new ArrayList<ItemSerial>();
 				
 				GeneralDAO gDAO = new GeneralDAO();
 				
@@ -4801,10 +5778,115 @@ public class AppBean implements Serializable
 						}
 					}
 					
+					// TODO: Modify item movement for Installation point or supply here
+					if(getItmMove().getSerialNumbers().contains("-")) {
+						String[] serials = getItmMove().getSerialNumbers().split("-", 2);
+						if(serials.length == 2) {
+							try {
+								long start_serial = Long.parseLong(serials[0]);
+								long end_serial = Long.parseLong(serials[1]);
+								if(end_serial > start_serial) {
+									long count = end_serial - start_serial;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the move count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								} else if(start_serial > end_serial) {
+									long count = start_serial - end_serial;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								} else if(start_serial == end_serial) {
+									long count = 1;
+									if(count != getItmMove().getCount()) {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+										appNotifBean.getAppNotifications().add(an);
+										gDAO.destroy();
+										break;
+									}
+								}
+								if(start_serial <= end_serial) {
+									for(long serial=start_serial; serial<=end_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								} else {
+									for(long serial=end_serial; serial<=start_serial; serial++) {
+										ItemSerial itms = new ItemSerial();
+										itms.setCrt_dt(new Date());
+										itms.setSerialNo(String.valueOf(serial));
+										itmSerials.add(itms);
+									}
+								}
+							} catch(Exception ex) {
+								ex.printStackTrace();
+								an.setType("ERROR");
+								an.setSubject("Failed");
+								an.setMessage("Error occured while parsing the serial numbers. " + ex.getMessage());
+								appNotifBean.getAppNotifications().add(an);
+							}
+						}
+					} else if(getItmMove().getSerialNumbers().contains(",")) {
+						String[] serials = getItmMove().getSerialNumbers().split(",");
+						if(serials.length != getItmMove().getCount()) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						} else {
+							for(String serial : serials) {
+								ItemSerial itms = new ItemSerial();
+								itms.setCrt_dt(new Date());
+								itms.setSerialNo(serial);
+								itmSerials.add(itms);
+							}
+						}
+					} else {
+						String serial = getItmMove().getSerialNumbers();
+						if(getItmMove().getCount() != 1) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The amount of serial numbers you entered does not match the stock level count you entered!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						} else {
+							ItemSerial itms = new ItemSerial();
+							itms.setCrt_dt(new Date());
+							itms.setSerialNo(serial);
+							itmSerials.add(itms);
+						}
+					}
+					
 					if(getItmMove().getMoveType().equalsIgnoreCase("SUPPLY"))
 					{
 						getItmMove().setNew_balance(getItmMove().getBefore_balance() + getItmMove().getCount());
 						getItmMove().getItem().setStocklevel(getItmMove().getNew_balance());
+						
+						if(itmSerials.size() > 0) {
+							for(ItemSerial itms : itmSerials) {
+								itms.setAssignedStatus("IN-STOCK");
+								itms.setCrt_dt(new Date());
+								itms.setItem(getItmMove().getItem());
+								itms.setStatus("WORKING");
+								itms.setUser(userBean.getSessionUser());
+							}
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("DISTRIBUTION"))
 					{
@@ -4813,6 +5895,32 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() + getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setAssignedStatus("ASSIGNED-TO-TRADEPARTNER");
+								itms.setTradePartner(getItmMove().getTradePartner());
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("RETURNED"))
 					{
@@ -4821,6 +5929,32 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() - getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setAssignedStatus("IN-STOCK");
+								itms.setSalesAgent(null);
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 					else if(getItmMove().getMoveType().equalsIgnoreCase("DAMAGED"))
 					{
@@ -4828,6 +5962,31 @@ public class AppBean implements Serializable
 						
 						if(ili != null)
 							ili.setCount(ili.getCount() - getItmMove().getCount());
+						
+						boolean not_found_error = false;
+						for(ItemSerial itms : itmSerials) {
+							Query q = gDAO.createQuery("Select e from ItemSerial e where e.serialNo=:serialNo");
+							q.setParameter("serialNo", itms.getSerialNo());
+							Object itms_ = gDAO.search(q, 1);
+							if(itms_ != null) {
+								itms = (ItemSerial)itms_;
+								
+								itms.setStatus("BAD");
+								itms.setUpdated_dt(new Date());
+								itms.setUser(userBean.getSessionUser());
+							} else {
+								not_found_error = true;
+								break;
+							}
+						}
+						if(not_found_error) {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("One or more serial numbers you entered do not exist!");
+							appNotifBean.getAppNotifications().add(an);
+							gDAO.destroy();
+							break;
+						}
 					}
 				}
 				
@@ -4840,13 +5999,20 @@ public class AppBean implements Serializable
 					gDAO.save(getItmMove());
 					gDAO.update(getItmMove().getItem());
 					
-					if(ili != null)
-					{
+					if(ili != null) {
 						if(!iliexists)
 							gDAO.save(ili);
 						else
 							gDAO.update(ili);
 					}
+					
+					for(ItemSerial itms : itmSerials) {
+						if(itms.getId() != null) {
+							gDAO.update(itms);
+						} else
+							gDAO.save(itms);
+					}
+					
 					try {
 						gDAO.commit();
 						setItmMove(null);
@@ -4921,22 +6087,13 @@ public class AppBean implements Serializable
 		}
 		case 112: // buy product
 		{
-			Product selProduct = null;
-			for(Product p : getProducts())
-			{
-				if(p.isSelected())
-				{
-					selProduct = p;
-					break;
-				}
-			}
 			GeneralDAO gDAO = new GeneralDAO();
 			Customer cus = null;
 			Object customer = gDAO.find(Customer.class, getCustomer_id());
 			if(customer != null)
 				cus = (Customer)customer;
 			
-			if(selProduct != null && userBean.getSessionUser() != null && cus != null && getPaymentType() != null)
+			if(getCart() != null && getCart().size()>0 && userBean.getSessionUser() != null && cus != null && getPaymentType() != null)
 			{
 				gDAO.startTransaction();
 				String tranRef = "";
@@ -4948,31 +6105,18 @@ public class AppBean implements Serializable
 	    		{
 	    			tranRef = cus.getUniqueID() + "-" + System.currentTimeMillis();
 	    		}
-				
 				CustomerTransaction ct = new CustomerTransaction();
-				CustomerProduct cp = new CustomerProduct();
 				
-				ct.setAmount(selProduct.getFirstYearPayment());
+				ct.setAmount(getTotal_cost());
 				ct.setCrt_dt(new Date());
 				ct.setCustomer(cus);
 				ct.setPayFor("PURCHASE");
 				ct.setPayMode(getPaymentType());
-				ct.setProduct(selProduct);
 				ct.setTranInitDate(new Date());
 				ct.setTranRef(tranRef);
-				
-				cp.setBooked_dt(new Date());
-				cp.setCreatedBy(userBean.getSessionUser());
-				cp.setCrt_dt(new Date());
-				cp.setCustomer(cus);
-				cp.setProductBooked(selProduct);
-				cp.setPurchasedAmount(selProduct.getFirstYearPayment());
-				cp.setPurchaseTranRef(tranRef);
-				
 				if(getPaymentType().equals("Pay at Bank"))
 				{
 					ct.setStatus("PENDING");
-					cp.setStatus("PENDING");
 				}
 				else if(getPaymentType().equals("Pay Cash"))
 				{
@@ -4980,13 +6124,44 @@ public class AppBean implements Serializable
 					ct.setConfirmedBy(userBean.getSessionUser());
 					ct.setConfirmationInfo("Cash payment");
 					ct.setPayConfirmDate(new Date());
-					
-					cp.setStatus("NOT-INSTALLED");
 				}
 				gDAO.save(ct);
 				
-				cp.setPurchaseTransaction(ct);
-				gDAO.save(cp);
+				for(CustomerProductPurchase cpp : getCart())
+				{
+					cpp.setCreatedBy(userBean.getSessionUser());
+					cpp.setCrt_dt(new Date());
+					cpp.setCustomer(cus);
+					cpp.setExpectedAmount(cpp.getProductBooked().getFirstYearPayment()*cpp.getProductBooked().getCount());
+					cpp.setPurchasedAmount(cpp.getProductBooked().getSellingAmount());
+					cpp.setPurchaseTransaction(ct);
+					cpp.setUnitAmount(cpp.getPurchasedAmount()/cpp.getCount());
+					gDAO.save(cpp);
+					
+					for(int icpp=0; icpp<cpp.getCount(); icpp++)
+					{
+						CustomerProduct cp = new CustomerProduct();
+						cp.setBooked_dt(new Date());
+						cp.setCreatedBy(userBean.getSessionUser());
+						cp.setCrt_dt(new Date());
+						cp.setCustomer(cus);
+						cp.setProductBooked(cpp.getProductBooked());
+						cp.setPurchasedAmount(cpp.getProductBooked().getSellingAmount()/cpp.getProductBooked().getCount());
+						cp.setPurchaseTranRef(tranRef);
+						
+						if(getPaymentType().equals("Pay at Bank"))
+						{
+							cp.setStatus("PENDING");
+						}
+						else if(getPaymentType().equals("Pay Cash"))
+						{
+							cp.setStatus("NOT-INSTALLED");
+						}
+						
+						cp.setPurchaseTransaction(ct);
+						gDAO.save(cp);
+					}
+				}
 				
 				try
 				{
@@ -4995,19 +6170,20 @@ public class AppBean implements Serializable
 					if(getPaymentType().equals("Pay at Bank"))
 					{
 						// Send mail to customer with invoice attached
-						byte[] data = generateInvoiceForCustomerPurchase(cp);
+						byte[] data = generateInvoiceForCustomerPurchase(ct, getCart());
 						if(data != null)
-							userBean.sendEmailWithAttachedment(new String[]{cus.getUser().getUsername(), userBean.getSessionUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp), "invoice-"+cp.getPurchaseTranRef()+".pdf", data);
+							userBean.sendEmailWithAttachedment(new String[]{cus.getUser().getUsername(), userBean.getSessionUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()), "invoice-"+ct.getTranRef()+".pdf", data);
 						else
-							userBean.sendEmail(new String[]{cus.getUser().getUsername(), userBean.getSessionUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, cp));
+							userBean.sendEmail(new String[]{cus.getUser().getUsername(), userBean.getSessionUser().getUsername()}, "How to pay", MessagesUtil.getHowToPayMessage(tranRef, ct, getCart(), getTotal_cost()));
 						userBean.sendAutoLifeSMS(cus.getPhoneNo(), "Dear " + cus.getFirstname() + ", we have sent you an email on how to make payment for your transaction(" + tranRef + "). Please notify us after making your payment. Thank you.");
 					}
 					else if(getPaymentType().equals("Pay Cash"))
 					{
-						userBean.sendAutoLifeSMS(cus.getPhoneNo(), "Dear " + cus.getFirstname() + ", your payment for transaction (" + tranRef + ") has been confirmed. You can now proceed to book your product installation. Thank you.");
+						userBean.sendAutoLifeSMS(cus.getPhoneNo(), "Dear " + cus.getFirstname() + ", your payment for transaction (" + tranRef + ") has been confirmed. You can now proceed to book your product(s) installation. Thank you.");
 					}
 					
 					setProducts(null);
+					setCart(null);
 					setCustomer_id(0L);
 					an.setType("SUCCESS");
 					an.setSubject("Success");
@@ -5105,6 +6281,9 @@ public class AppBean implements Serializable
 						{
 							gDAO.startTransaction();
 							gDAO.save(getBooking());
+							cp.setStatus("ACTIVE");
+							cp.setJob(getBooking());
+							gDAO.update(cp);
 							try {
 								Notification n = new Notification();
 								n.setCrt_dt(new Date());
@@ -5131,6 +6310,7 @@ public class AppBean implements Serializable
 									userBean.sendEmail(supportEmails, "Installation Schedule on RMS", MessagesUtil.getJobScheduleSupportEmailMessage(getBooking()));
 								}
 								
+								setUninstalledPurchases(null);
 								setBooking(null);setSlots(null);
 								setSelCustomer(null);setSelInstaller(null);
 								setCp_id(0);setSlot_id(0);
@@ -5179,6 +6359,180 @@ public class AppBean implements Serializable
 				appNotifBean.getAppNotifications().add(an);
 			}
 			gDAO.destroy();
+			break;
+		}
+		case -11: // bulk product booking
+		{
+			//TODO: Implement bulk product booking database activities here
+			if(getPaidTransactions() != null && getPaidTransactions().size() > 0 && getPtrans_id() > 0 && getPtrans_count() > 0 &&
+					getSelInstaller() != null && getBooking().getBooked_dt() != null) {
+				GeneralDAO gDAO = new GeneralDAO();
+				CustomerTransaction ct = null;
+				for(CustomerTransaction e : getPaidTransactions()) {
+					if(e.getId().longValue() == getPtrans_id()) {
+						ct = e;
+						break;
+					}
+				}
+				if(ct != null) {
+					List<CustomerProduct> pending_cplist = ct.getPending_bookings();
+					if(getPtrans_count() <= pending_cplist.size()) {
+						if(total_capability == -2 || (total_capability > 0 && total_capability>=getPtrans_count())) {
+							List<Slot> allSlots = null;
+							Object allSlot = gDAO.findAll("Slot");
+							if(allSlot != null)
+								allSlots = (List<Slot>)allSlot;
+							int last_slot_index = 0;
+							List<InstallerLocationJobSchedule> jobs = new ArrayList<InstallerLocationJobSchedule>();
+							gDAO.startTransaction();
+							for(int pi=0; pi<getPtrans_count(); pi++) {
+								CustomerProduct cp = pending_cplist.get(pi);
+								Slot s = null;
+								if(total_capability == -2) {
+									s = allSlots.get(last_slot_index);
+									last_slot_index+=1;
+									if(last_slot_index == allSlots.size())
+										last_slot_index = 0;
+								} else {
+									for(Slot slot : allSlots) {
+										Hashtable<String, Object> params = new Hashtable<String, Object>();
+										params.put("booked_dt", getBooking().getBooked_dt());
+										params.put("installer", getSelInstaller());
+										params.put("slot", slot);
+										params.put("cancel", false);
+										Object obj = gDAO.search("InstallerLocationJobSchedule", params);
+										if(obj != null) {
+											List<InstallerLocationJobSchedule> bookings = (List<InstallerLocationJobSchedule>)obj;
+											int slot_used_size = bookings.size();
+											if(slot_used_size < getSelInstaller().getMaxMultiSlotInstallation()) {
+												s = slot;
+												break;
+											}
+										}
+									}
+								}
+								if(s != null) {
+									InstallerLocationJobSchedule job = new InstallerLocationJobSchedule();
+									job.setBooked_dt(getBooking().getBooked_dt());
+									job.setCrt_dt(new Date());
+									job.setCustomer(cp.getCustomer());
+									job.setCost(cp.getPurchasedAmount());
+									job.setCreatedBy(userBean.getSessionUser());
+									job.setCrt_dt(new Date());
+									job.setInstaller(getSelInstaller());
+									job.setProductBooked(cp.getProductBooked());
+									// this booking will require customer service to confirm it if the product is a special product
+									job.setRequire_confirmation(cp.getProductBooked().isSpecialProduct());
+									job.setSlot(s);
+									job.setJobCode(generateReference());
+									job.setPaid(true);
+									job.setPaymentType(cp.getPurchaseTransaction().getPayMode());
+									job.setCheckedIn(false);
+									job.setCompleted(false);
+									
+									Calendar c = Calendar.getInstance();
+									c.setTime(job.getBooked_dt());
+									c.set(Calendar.HOUR_OF_DAY, job.getSlot().getStart_hour());
+									c.set(Calendar.MINUTE, 0);
+									c.set(Calendar.SECOND, 0);
+									c.set(Calendar.MILLISECOND, 0);
+									job.setStart_dt(c.getTime());
+									c.add(Calendar.HOUR_OF_DAY, job.getSlot().getAmount_of_hours());
+									job.setEnd_dt(c.getTime());
+									
+									Calendar todaymax = Calendar.getInstance();
+									todaymax.set(Calendar.HOUR_OF_DAY, todaymax.getMaximum(Calendar.HOUR_OF_DAY));
+									todaymax.set(Calendar.MINUTE, todaymax.getMaximum(Calendar.MINUTE));
+									todaymax.set(Calendar.SECOND, todaymax.getMaximum(Calendar.SECOND));
+									todaymax.set(Calendar.MILLISECOND, todaymax.getMaximum(Calendar.MILLISECOND));
+									
+									if(job.getBooked_dt().after(todaymax.getTime())) {
+										gDAO.save(job);
+										cp.setStatus("ACTIVE");
+										cp.setJob(job);
+										gDAO.update(cp);
+										jobs.add(job);
+									} else {
+										an.setType("ERROR");
+										an.setSubject("Failed");
+										an.setMessage("Your book date must be from tomorrow upwards!");
+										appNotifBean.getAppNotifications().add(an);
+										break;
+									}
+								} else {
+									an.setType("ERROR");
+									an.setSubject("Failed");
+									an.setMessage("Could not identify the avialable slot for the next booking!");
+									appNotifBean.getAppNotifications().add(an);
+								}
+							}
+							try {
+								Notification n = new Notification();
+								n.setCrt_dt(new Date());
+								n.setNotified(false);
+								n.setSubject("Bulk Installation Scheduled");
+								n.setPage_url("dashboard");
+								n.setUser(ct.getCustomer().getUser());
+								n.setMessage("Bulk installation booking with Trans Ref.: " + ct.getTranRef() + " has been scheduled for successfully!");
+								
+								gDAO.save(n);
+								
+								gDAO.commit();
+								
+								userBean.sendEmail(new String[]{ct.getCustomer().getUser().getUsername()}, "Bulk Installation Schedule on RMS", MessagesUtil.getJobsScheduleEmailMessage(ct.getCustomer().getFirstname(), jobs));
+								userBean.sendSMS(ct.getCustomer().getPhoneNo(), MessagesUtil.getJobsScheduleSMSMessage(ct.getCustomer().getFirstname(), ct.getTranRef()));
+								
+								userBean.sendEmail(new String[]{getSelInstaller().getUser().getUsername()}, "Bulk Installation Schedule on RMS", MessagesUtil.getJobsScheduleInstallerEmailMessage(jobs));
+								
+								// send notification to support
+								AppConfiguration currectAppConfig = getCurrentAppConfig();
+								if(currectAppConfig != null && currectAppConfig.getCustomerSupportEmail() != null && 
+										currectAppConfig.getCustomerSupportEmail().trim().length() > 0) {
+									String[] supportEmails = currectAppConfig.getCustomerSupportEmail().split(",");
+									userBean.sendEmail(supportEmails, "Bulk Installation Schedule on RMS", MessagesUtil.getJobsScheduleSupportEmailMessage(jobs));
+								}
+								
+								setPaidTransactions(null);
+								setBooking(null);setSlots(null);
+								setSelCustomer(null);setSelInstaller(null);
+								setPtrans_id(0);setSlot_id(0);setPtrans_count(0);
+								setBook_dt_str(null);setMySchedules_cus(null);
+								an.setType("SUCCESS");
+								an.setSubject("Success");
+								an.setMessage("Purchase installations booked successfully!");
+								appNotifBean.getAppNotifications().add(an);
+							} catch(Exception ex){
+								gDAO.rollback();
+								an.setType("ERROR");
+								an.setSubject("Error");
+								an.setMessage("Message: " + ex.getMessage() + "!");
+								appNotifBean.getAppNotifications().add(an);
+							}
+						} else {
+							an.setType("ERROR");
+							an.setSubject("Failed");
+							an.setMessage("The installation count to book you entered is more than the available installation capacity of the selected installation point!");
+							appNotifBean.getAppNotifications().add(an);
+						}
+					} else {
+						an.setType("ERROR");
+						an.setSubject("Failed");
+						an.setMessage("The installation count to book you entered is more than your available pending bookings!");
+						appNotifBean.getAppNotifications().add(an);
+					}
+				} else {
+					an.setType("ERROR");
+					an.setSubject("Failed");
+					an.setMessage("Could not identify the selected Transaction!");
+					appNotifBean.getAppNotifications().add(an);
+				}
+				gDAO.destroy();
+			} else {
+				an.setType("ERROR");
+				an.setSubject("Failed");
+				an.setMessage("All fields with the '*' sign are required!");
+				appNotifBean.getAppNotifications().add(an);
+			}
 			break;
 		}
 		case 12: // installation point installer agent
@@ -5728,8 +7082,11 @@ public class AppBean implements Serializable
 	public List<Partner> getPartners() {
 		if(partners == null)
 		{
+			Hashtable<String, Object> params = new Hashtable<String, Object>();
+			params.put("active", true);
+			
 			GeneralDAO gDAO = new GeneralDAO();
-			Object all = gDAO.findAll("Partner");
+			Object all = gDAO.search("Partner", params);
 			if(all != null)
 				partners = (List<Partner>)all;
 			gDAO.destroy();
@@ -5987,14 +7344,141 @@ public class AppBean implements Serializable
 
 	public void selectProduct(long id)
 	{
-		if(products != null)
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		
+		boolean exists = false;
+		for(CustomerProductPurchase cpp : getCart())
 		{
-			for(Product p : products)
+			if(cpp.getProductBooked().getId().longValue() == id)
 			{
-				if(p.getId().longValue() == id)
-					p.setSelected(true);
+				exists = true;
+				break;
+			}
+		}
+		if(!exists)
+		{
+			if(products != null)
+			{
+				for(Product p : products)
+				{
+					if(p.getId().longValue() == id)
+					{
+						if(p.getCount() > 0)
+						{
+							p.setSelected(true);
+							p.setSellingAmount(p.getFirstYearPayment()*p.getCount());
+							CustomerProductPurchase cpp = new CustomerProductPurchase();
+							cpp.setProductBooked(p);
+							cpp.setCount(p.getCount());
+							getCart().add(cpp);
+							
+							an.setMessage("Product " + p.getProductName() + " added to cart successfully");
+							an.setSubject("Add To Cart");
+							an.setType("SUCCESS");
+							appNotifBean.getAppNotifications().add(an);
+						}
+						break;
+					}
+					/*else
+						p.setSelected(false);*/
+				}
+			}
+		}
+		else
+		{
+			an.setMessage("Product already exists in cart");
+			an.setSubject("Add To Cart");
+			an.setType("ERROR");
+			appNotifBean.getAppNotifications().add(an);
+		}
+	}
+	
+	public void updateProductInCart(long id)
+	{
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		
+		for(CustomerProductPurchase cpp : getCart())
+		{
+			if(cpp.getProductBooked().getId().longValue() == id)
+			{
+				if(cpp.getProductBooked().getCount() > 0)
+				{
+					cpp.getProductBooked().setSellingAmount(cpp.getProductBooked().getFirstYearPayment()*cpp.getProductBooked().getCount());
+					cpp.setCount(cpp.getProductBooked().getCount());
+					
+					an.setMessage("Product " + cpp.getProductBooked().getProductName() + " updated in cart successfully");
+					an.setSubject("Update In Cart");
+					an.setType("SUCCESS");
+					appNotifBean.getAppNotifications().add(an);
+				}
+				break;
+			}
+		}
+	}
+	
+	public void updateProductSellingAmount(long id)
+	{
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		
+		for(CustomerProductPurchase cpp : getCart())
+		{
+			if(cpp.getProductBooked().getId().longValue() == id)
+			{
+				if(cpp.getProductBooked().getSellingAmount() > 0)
+				{
+					an.setMessage("Product " + cpp.getProductBooked().getProductName() + "'s selling amount updated in cart successfully");
+					an.setSubject("Update In Cart");
+					an.setType("SUCCESS");
+					appNotifBean.getAppNotifications().add(an);
+				}
 				else
-					p.setSelected(false);
+				{
+					cpp.getProductBooked().setSellingAmount(cpp.getProductBooked().getFirstYearPayment()*cpp.getProductBooked().getCount());
+					an.setMessage("Can not update selling amount for product " + cpp.getProductBooked().getProductName() + " to a Zero value or less");
+					an.setSubject("Update In Cart");
+					an.setType("ERROR");
+					appNotifBean.getAppNotifications().add(an);
+				}
+				break;
+			}
+		}
+	}
+	
+	public void removeProductInCart(long id)
+	{
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		
+		int size = getCart().size();
+		for(int i=0;i<size;i++)
+		{
+			CustomerProductPurchase cpp = getCart().get(i);
+			if(cpp.getProductBooked().getId().longValue() == id)
+			{
+				getCart().remove(i);
+				
+				if(products != null)
+				{
+					for(Product p : products)
+					{
+						if(p.getId().longValue() == id)
+						{
+							p.setSelected(false);
+							p.setSellingAmount(0);
+							p.setCount(0);
+							break;
+						}
+					}
+				}
+				
+				an.setMessage("Product " + cpp.getProductBooked().getProductName() + " removed from cart successfully");
+				an.setSubject("Remove From Cart");
+				an.setType("SUCCESS");
+				appNotifBean.getAppNotifications().add(an);
+				break;
 			}
 		}
 	}
@@ -6048,6 +7532,46 @@ public class AppBean implements Serializable
 
 	public void setProducts(List<Product> products) {
 		this.products = products;
+	}
+	
+	public void deleteProduct(long id)
+	{
+		appNotifBean.getAppNotifications().clear();
+		AppNotification an = new AppNotification();
+		boolean deleted = false;
+		if(products != null && products.size() > 0)
+		{
+			for(Product p : products)
+			{
+				if(p.getId().longValue() == id)
+				{
+					p.setActive(false);
+					try {
+					GeneralDAO gDAO = new GeneralDAO();
+					gDAO.startTransaction();
+					gDAO.update(p);
+					gDAO.commit();
+					gDAO.destroy();
+					
+					an.setMessage("Product " + p.getProductName() + " disabled/deleted successfully");
+					an.setSubject("Delete Product");
+					an.setType("SUCCESS");
+					appNotifBean.getAppNotifications().add(an);
+					deleted = true;
+					} catch(Exception ex) {
+						ex.printStackTrace();
+					}
+					break;
+				}
+			}
+		}
+		if(!deleted)
+		{
+			an.setMessage("Product not deleted. Either the product was not found or an error occured while deleting.");
+			an.setSubject("Delete Product");
+			an.setType("ERROR");
+			appNotifBean.getAppNotifications().add(an);
+		}
 	}
 
 	public Part getProduct_photo() {
@@ -6220,6 +7744,16 @@ public class AppBean implements Serializable
 		this.selCustomer = selCustomer;
 	}
 
+	public CorporateCustomer getCorCustomer() {
+		if(corCustomer == null)
+			corCustomer = new CorporateCustomer();
+		return corCustomer;
+	}
+
+	public void setCorCustomer(CorporateCustomer corCustomer) {
+		this.corCustomer = corCustomer;
+	}
+
 	public User getInstallerUser() {
 		if(installerUser == null)
 			installerUser = new User();
@@ -6232,10 +7766,20 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<Customer> getCustomers() {
-		if(customers == null)
+		boolean search = true;
+		if(customers != null && !customers.isEmpty())
+		{
+			try {
+			if(customers.get(0).getPartner().getId().longValue() == getPartner().getId().longValue())
+				search = false;
+			} catch(Exception ex){}
+		}
+		
+		if(search)
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("partner", getPartner());
+			params.put("active", true);
 			
 			if(userBean.getSessionSalesAgent() != null)
 			{
@@ -6246,6 +7790,27 @@ public class AppBean implements Serializable
 			Object cusObj = gDAO.search("Customer", params);
 			if(cusObj != null)
 				customers = (List<Customer>)cusObj;
+			
+			if(customers != null && customers.size()>0)
+			{
+				for(Customer e : customers)
+				{
+					if(e.getCustomerType().equals("CORPORATE"))
+					{
+						params = new Hashtable<String, Object>();
+						params.put("customer", e);
+						Object corCusObj = gDAO.search("CorporateCustomer", params);
+						if(corCusObj != null)
+						{
+							List<CorporateCustomer> list = (List<CorporateCustomer>)corCusObj;
+							for(CorporateCustomer cc : list)
+							{
+								e.setCorCustomer(cc);
+							}
+						}
+					}
+				}
+			}
 			gDAO.destroy();
 		}
 		return customers;
@@ -6293,10 +7858,20 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<SalesAgent> getSalesAgents() {
-		if(salesAgents == null)
+		boolean search = true;
+		if(salesAgents != null && !salesAgents.isEmpty())
+		{
+			try {
+			if(salesAgents.get(0).getUser().getPartner().getId().longValue() == getPartner().getId().longValue())
+				search = false;
+			} catch(Exception ex){}
+		}
+		
+		if(search)
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("user.partner", getPartner());
+			params.put("active", true);
 			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object all = gDAO.search("SalesAgent", params);
@@ -6318,6 +7893,7 @@ public class AppBean implements Serializable
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("user.partner", getPartner());
 			params.put("stockDevice", true);
+			params.put("active", true);
 			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object all = gDAO.search("SalesAgent", params);
@@ -6370,10 +7946,20 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<TradePartner> getTradePartners() {
-		if(tradePartners == null)
+		boolean search = true;
+		if(tradePartners != null && !tradePartners.isEmpty())
+		{
+			try {
+				if(tradePartners.get(0).getUser().getPartner().getId().longValue() == getPartner().getId().longValue())
+					search = false;
+			} catch(Exception ex){}
+		}
+		
+		if(search)
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("user.partner", getPartner());
+			params.put("active", true);
 			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object all = gDAO.search("TradePartner", params);
@@ -6463,7 +8049,9 @@ public class AppBean implements Serializable
 		if(installers == null)
 		{
 			GeneralDAO gDAO = new GeneralDAO();
-			Object all = gDAO.findAll("InstallerLocation");
+			Hashtable<String, Object> params = new Hashtable<String, Object>();
+			params.put("active", true);
+			Object all = gDAO.search("InstallerLocation", params, "e.companyName");
 			if(all != null)
 				installers = (List<InstallerLocation>)all;
 			gDAO.destroy();
@@ -6497,6 +8085,7 @@ public class AppBean implements Serializable
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("lga.id", getLga_id());
+			params.put("active", true);
 			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object obj = gDAO.search("InstallerLocation", params);
@@ -6533,6 +8122,7 @@ public class AppBean implements Serializable
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("lga.id", getInstaller_lga_id());
+			params.put("active", true);
 			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object obj = gDAO.search("InstallerLocation", params);
@@ -6585,6 +8175,8 @@ public class AppBean implements Serializable
 			installerAgents = null;
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("company.id", getInstaller_id());
+			params.put("active", true);
+			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object list = gDAO.search("Agent", params);
 			if(list != null)
@@ -6605,11 +8197,23 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<Agent> getMyAgents() {
-		if(myAgents == null && userBean.getSessionInstaller() != null)
+		InstallerLocation il = userBean.getSessionInstaller();
+		
+		GeneralDAO gDAO = new GeneralDAO();
+		if(il == null)
+		{
+			try {
+				il = (InstallerLocation)gDAO.find(InstallerLocation.class, getInstallation_point_id());
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		if(myAgents == null && il != null)
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
-			params.put("company", userBean.getSessionInstaller());
-			GeneralDAO gDAO = new GeneralDAO();
+			params.put("company", il);
+			params.put("active", true);
 			Object list = gDAO.search("Agent", params);
 			if(list != null)
 				myAgents = (List<Agent>)list;
@@ -6624,8 +8228,11 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<Agent> getAllAgents() {
+		Hashtable<String, Object> params = new Hashtable<String, Object>();
+		params.put("active", true);
+		
 		GeneralDAO gDAO = new GeneralDAO();
-		Object list = gDAO.findAll("Agent");
+		Object list = gDAO.search("Agent", params);
 		if(list != null)
 			allAgents = (List<Agent>)list;
 		gDAO.destroy();
@@ -6690,10 +8297,22 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<PartnerPersonnel> getPpList() {
-		if(ppList == null)
+		boolean research = true;
+		if(ppList != null && !ppList.isEmpty())
+		{
+			try
+			{
+				if(ppList.get(0).getPartner().getId().longValue() == getPartner().getId().longValue())
+					research = false;
+			}catch(Exception ex){}
+		}
+		
+		if(research)
 		{
 			Hashtable<String, Object> params = new Hashtable<String, Object>();
 			params.put("partner", getPartner());
+			params.put("active", true);
+			
 			GeneralDAO gDAO = new GeneralDAO();
 			Object cusObj = gDAO.search("PartnerPersonnel", params);
 			if(cusObj != null)
@@ -6771,6 +8390,14 @@ public class AppBean implements Serializable
 				gDAO.destroy();
 			}
 		}
+	}
+
+	public long getInstallation_point_id() {
+		return installation_point_id;
+	}
+
+	public void setInstallation_point_id(long installation_point_id) {
+		this.installation_point_id = installation_point_id;
 	}
 
 	public ItemMove getItmMove() {
@@ -6865,16 +8492,21 @@ public class AppBean implements Serializable
 
 	public double getTotal_cost() {
 		total_cost = 0;
-		if(getProducts() != null)
+		if(getCart() != null && getCart().size() > 0)
 		{
-			for(Product p : getProducts())
+			for(CustomerProductPurchase cpp : getCart())
+			{
+				total_cost += cpp.getProductBooked().getSellingAmount();
+			}
+			
+			/*for(Product p : getProducts())
 			{
 				if(p.isSelected())
 				{
 					total_cost += p.getFirstYearPayment();
 					break; // just the first selected product
 				}
-			}
+			}*/
 		}
 		return total_cost;
 	}
@@ -7205,32 +8837,56 @@ public class AppBean implements Serializable
 	public List<InstallerLocationJobSchedule> getMyNotCheckInJobs() {
 		if(myNotCheckInJobs == null)
 		{
+			InstallerLocation il = userBean.getSessionInstaller();
+			Partner partner = userBean.getSessionPartner();
 			GeneralDAO gDAO = new GeneralDAO();
-			Query q = gDAO.createQuery("Select e from InstallerLocationJobSchedule e where e.installer=:installer and e.checkedIn=:checkedIn and e.paid=:paid and e.cancel=:cancel order by e.booked_dt, e.slot.start_hour"); // and e.booked_dt between :st_dt and :end_dt
-			q.setParameter("installer", userBean.getSessionInstaller());
-			q.setParameter("checkedIn", false);
-			q.setParameter("paid", true);
-			q.setParameter("cancel", false);
+			if(il == null)
+			{
+				try {
+					il = (InstallerLocation)gDAO.find(InstallerLocation.class, getInstallation_point_id());
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			if(partner.isSattrak())
+			{
+				if(getPartner_id() > 0)
+				{
+					partner = (Partner)gDAO.find(Partner.class, getPartner_id());
+				}
+				else
+					partner = new Partner();
+			}
 			
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.HOUR_OF_DAY, cal.getMinimum(Calendar.HOUR_OF_DAY));
-			cal.set(Calendar.MINUTE, cal.getMinimum(Calendar.MINUTE));
-			cal.set(Calendar.SECOND, cal.getMinimum(Calendar.SECOND));
-			cal.set(Calendar.MILLISECOND, cal.getMinimum(Calendar.MILLISECOND));
-			Date st_dt = cal.getTime();
-			
-			cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
-			cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
-			cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
-			cal.set(Calendar.MILLISECOND, cal.getMaximum(Calendar.MILLISECOND));
-			Date end_dt = cal.getTime();
-			
-			//q.setParameter("st_dt", st_dt);
-			//q.setParameter("end_dt", end_dt);
-			
-			Object list = gDAO.search(q, 0);
-			if(list != null)
-				myNotCheckInJobs = (List<InstallerLocationJobSchedule>)list;
+			if(il != null)
+			{
+				Query q = gDAO.createQuery("Select e from InstallerLocationJobSchedule e where e.installer=:installer and e.checkedIn=:checkedIn and e.paid=:paid and e.cancel=:cancel and e.customer.partner=:partner order by e.booked_dt, e.slot.start_hour"); // and e.booked_dt between :st_dt and :end_dt
+				q.setParameter("installer", il);
+				q.setParameter("checkedIn", false);
+				q.setParameter("paid", true);
+				q.setParameter("cancel", false);
+				q.setParameter("partner", partner);
+				
+				Calendar cal = Calendar.getInstance();
+				cal.set(Calendar.HOUR_OF_DAY, cal.getMinimum(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, cal.getMinimum(Calendar.MINUTE));
+				cal.set(Calendar.SECOND, cal.getMinimum(Calendar.SECOND));
+				cal.set(Calendar.MILLISECOND, cal.getMinimum(Calendar.MILLISECOND));
+				Date st_dt = cal.getTime();
+				
+				cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+				cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+				cal.set(Calendar.MILLISECOND, cal.getMaximum(Calendar.MILLISECOND));
+				Date end_dt = cal.getTime();
+				
+				//q.setParameter("st_dt", st_dt);
+				//q.setParameter("end_dt", end_dt);
+				
+				Object list = gDAO.search(q, 0);
+				if(list != null)
+					myNotCheckInJobs = (List<InstallerLocationJobSchedule>)list;
+			}
 			gDAO.destroy();
 		}
 		return myNotCheckInJobs;
@@ -7250,16 +8906,40 @@ public class AppBean implements Serializable
 	public List<InstallerLocationJobSchedule> getMyCheckedInJobs() {
 		if(myCheckedInJobs == null)
 		{
+			InstallerLocation il = userBean.getSessionInstaller();
+			Partner partner = userBean.getSessionPartner();
 			GeneralDAO gDAO = new GeneralDAO();
-			Query q = gDAO.createQuery("Select e from InstallerLocationJobSchedule e where e.installer=:installer and e.checkedIn=:checkedIn and e.paid=:paid and e.completed=:completed order by e.booked_dt, e.slot.start_hour");
-			q.setParameter("installer", userBean.getSessionInstaller());
-			q.setParameter("checkedIn", true);
-			q.setParameter("paid", true);
-			q.setParameter("completed", false);
+			if(il == null)
+			{
+				try {
+					il = (InstallerLocation)gDAO.find(InstallerLocation.class, getInstallation_point_id());
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			if(partner.isSattrak())
+			{
+				if(getPartner_id() > 0)
+				{
+					partner = (Partner)gDAO.find(Partner.class, getPartner_id());
+				}
+				else
+					partner = new Partner();
+			}
 			
-			Object list = gDAO.search(q, 0);
-			if(list != null)
-				myCheckedInJobs = (List<InstallerLocationJobSchedule>)list;
+			if(il != null)
+			{
+				Query q = gDAO.createQuery("Select e from InstallerLocationJobSchedule e where e.installer=:installer and e.checkedIn=:checkedIn and e.paid=:paid and e.completed=:completed and e.customer.partner=:partner order by e.booked_dt, e.slot.start_hour");
+				q.setParameter("installer", il);
+				q.setParameter("checkedIn", true);
+				q.setParameter("paid", true);
+				q.setParameter("completed", false);
+				q.setParameter("partner", partner);
+				
+				Object list = gDAO.search(q, 0);
+				if(list != null)
+					myCheckedInJobs = (List<InstallerLocationJobSchedule>)list;
+			}
 			gDAO.destroy();
 		}
 		return myCheckedInJobs;
@@ -7327,7 +9007,15 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<InstallerLocationJobSchedule> getMyUpcomingJobs() {
-		if(myUpcomingJobs == null)
+		boolean research = true;
+		if(myUpcomingJobs != null && myUpcomingJobs.size() > 0) {
+			Partner p = getPartner();
+			if(p != null && p.getId() != null &&
+					myUpcomingJobs.get(0).getCustomer().getPartner().getId().longValue() == p.getId().longValue())
+				research = false;
+		}
+		
+		if(research)
 		{
 			GeneralDAO gDAO = new GeneralDAO();
 			
@@ -7369,7 +9057,15 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<InstallerLocationJobSchedule> getMyInprogressJobs() {
-		if(myInprogressJobs == null)
+		boolean research = true;
+		if(myInprogressJobs != null && myInprogressJobs.size() > 0) {
+			Partner p = getPartner();
+			if(p != null && p.getId() != null &&
+					myInprogressJobs.get(0).getCustomer().getPartner().getId().longValue() == p.getId().longValue())
+				research = false;
+		}
+		
+		if(research)
 		{
 			GeneralDAO gDAO = new GeneralDAO();
 			
@@ -7405,7 +9101,15 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<InstallerLocationJobSchedule> getMyOverdueJobs() {
-		if(myOverdueJobs == null)
+		boolean research = true;
+		if(myOverdueJobs != null && myOverdueJobs.size() > 0) {
+			Partner p = getPartner();
+			if(p != null && p.getId() != null &&
+					myOverdueJobs.get(0).getCustomer().getPartner().getId().longValue() == p.getId().longValue())
+				research = false;
+		}
+		
+		if(research)
 		{
 			GeneralDAO gDAO = new GeneralDAO();
 			
@@ -7447,7 +9151,15 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<InstallerLocationJobSchedule> getMyCompletedJobs() {
-		if(myCompletedJobs == null)
+		boolean research = true;
+		if(myCompletedJobs != null && myCompletedJobs.size() > 0) {
+			Partner p = getPartner();
+			if(p != null && p.getId() != null &&
+					myCompletedJobs.get(0).getCustomer().getPartner().getId().longValue() == p.getId().longValue())
+				research = false;
+		}
+		
+		if(research)
 		{
 			GeneralDAO gDAO = new GeneralDAO();
 			
@@ -7483,7 +9195,15 @@ public class AppBean implements Serializable
 
 	@SuppressWarnings("unchecked")
 	public List<InstallerLocationJobSchedule> getMyCancelledJobs() {
-		if(myCancelledJobs == null)
+		boolean research = true;
+		if(myCancelledJobs != null && myCancelledJobs.size() > 0) {
+			Partner p = getPartner();
+			if(p != null && p.getId() != null &&
+					myCancelledJobs.get(0).getCustomer().getPartner().getId().longValue() == p.getId().longValue())
+				research = false;
+		}
+		
+		if(research)
 		{
 			GeneralDAO gDAO = new GeneralDAO();
 			
@@ -7618,6 +9338,14 @@ public class AppBean implements Serializable
 		this.item_used_count = item_used_count;
 	}
 
+	public String getItem_serial_numbers() {
+		return item_serial_numbers;
+	}
+
+	public void setItem_serial_numbers(String item_serial_numbers) {
+		this.item_serial_numbers = item_serial_numbers;
+	}
+
 	public int getItem_return_count() {
 		return item_return_count;
 	}
@@ -7671,6 +9399,14 @@ public class AppBean implements Serializable
 	public void setSearchedInstallation(
 			List<InstallerLocationJobSchedule> searchedInstallation) {
 		this.searchedInstallation = searchedInstallation;
+	}
+
+	public List<InstallerLocationJobSchedule> getJobCards() {
+		return jobCards;
+	}
+
+	public void setJobCards(List<InstallerLocationJobSchedule> jobCards) {
+		this.jobCards = jobCards;
 	}
 
 	public BigDecimal getExpectedEarnings() {
@@ -8098,6 +9834,48 @@ public class AppBean implements Serializable
 		this.totalSalesReport = totalSalesReport;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<String[]> getTotalItemsInstalledReport() {
+		GeneralDAO gDAO = new GeneralDAO();
+		Object productsObj = gDAO.findAll("ProductItem");
+		if(productsObj != null)
+		{
+			totalItemsInstalledReport = new ArrayList<String[]>();
+			List<ProductItem> products = (List<ProductItem>)productsObj;
+			for(ProductItem p : products)
+			{
+				if(p.getItem() != null && p.getProduct() != null)
+				{
+					String[] e = new String[2];
+					e[0] = p.getItem().getName() + "(" + p.getItem().getModel() + ")";
+					e[1] = "0";
+					Query q = gDAO.createQuery("Select COUNT(e.id) from CustomerTransaction e where e.customer.partner=:partner and e.product=:product and e.status=:status");
+					q.setParameter("partner", userBean.getSessionPartner());
+					q.setParameter("product", p.getProduct());
+					q.setParameter("status", "PAID");
+					
+					Object[] obj = (Object[])gDAO.search(q, 1);
+					if(obj != null && obj.length > 0)
+					{
+						String count = (obj[0] != null) ? obj[0].toString() : "0";
+						try {
+							int countInt = Integer.parseInt(count);
+							e[1] = String.valueOf(p.getItem_count()*countInt);
+						} catch(Exception ex){}
+					}
+					totalItemsInstalledReport.add(e);
+				}
+			}
+		}
+		gDAO.destroy();
+		return totalItemsInstalledReport;
+	}
+
+	public void setTotalItemsInstalledReport(
+			List<String[]> totalItemsInstalledReport) {
+		this.totalItemsInstalledReport = totalItemsInstalledReport;
+	}
+
 	public List<String[]> getSalesAgentCommissionReport() {
 		return salesAgentCommissionReport;
 	}
@@ -8202,12 +9980,119 @@ public class AppBean implements Serializable
 		this.uninstalledPurchases = uninstalledPurchases;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<CustomerTransaction> getPaidTransactions() {
+		paidTransactions = new ArrayList<CustomerTransaction>();
+		List<CustomerTransaction> paidTransactions1 = new ArrayList<CustomerTransaction>();
+		GeneralDAO gDAO = new GeneralDAO();
+		Query q = gDAO.createQuery("Select e from CustomerTransaction e where e.status=:status and e.customer.partner=:partner order by e.tranInitDate desc");
+		q.setParameter("partner", getPartner());
+		q.setParameter("status", "PAID");
+		Object obj = gDAO.search(q, 0);
+		if(obj != null)
+			paidTransactions1 = (List<CustomerTransaction>)obj;
+		if(paidTransactions1!=null && paidTransactions1.size() > 0) {
+			for(CustomerTransaction e : paidTransactions1) {
+				q = gDAO.createQuery("Select e from CustomerProduct e where e.job is null and e.purchaseTransaction=:purchaseTransaction");
+				q.setParameter("purchaseTransaction", e);
+				Object obj1 = gDAO.search(q, 0);
+				if(obj1 != null) {
+					List<CustomerProduct> cplist = (List<CustomerProduct>)obj1;
+					if(cplist.size() > 0) {
+						e.setPending_bookings(cplist);
+						paidTransactions.add(e);
+					}
+				}
+			}
+		}
+		gDAO.destroy();
+		return paidTransactions;
+	}
+
+	public void setPaidTransactions(List<CustomerTransaction> paidTransactions) {
+		this.paidTransactions = paidTransactions;
+	}
+
+	@SuppressWarnings("unchecked")
+	public String getInstallation_point_capacity_details() {
+		total_capability = -1;
+		installation_point_capacity_details = "N/A";
+		if(getSelInstaller() != null && getSelInstaller().getMaxMultiSlotInstallation() <= 0) {
+			total_capability = -2;
+			installation_point_capacity_details = "This installation point can handle unlimited installation per slot!";
+		} else {
+			List<Slot> allSlots = null;
+			GeneralDAO gDAO = new GeneralDAO();
+			Object all = gDAO.findAll("Slot");
+			if(all != null)
+				allSlots = (List<Slot>)all;
+			
+			if(allSlots != null && getSelInstaller() != null) {
+				Hashtable<String, Object> params = new Hashtable<String, Object>();
+				params.put("booked_dt", getBooking().getBooked_dt());
+				params.put("installer", getSelInstaller());
+				params.put("cancel", false);
+				Object obj = gDAO.search("InstallerLocationJobSchedule", params);
+				if(obj != null) {
+					List<InstallerLocationJobSchedule> bookings = (List<InstallerLocationJobSchedule>)obj;
+					total_capability = allSlots.size()*getSelInstaller().getMaxMultiSlotInstallation();
+					for(Slot e : allSlots) {
+						boolean exists = false;
+						int slot_used_size = 0;
+						for(InstallerLocationJobSchedule bk : bookings) {
+							if(bk.getSlot().getId().longValue() == e.getId().longValue()) {
+								exists = true;
+								slot_used_size += 1;
+							}
+						}
+						if(exists)
+							total_capability -= slot_used_size;
+					}
+					installation_point_capacity_details = "This installation point can only handle " + total_capability + " installation(s) for selected date!";
+				}
+			}
+			gDAO.destroy();
+		}
+		return installation_point_capacity_details;
+	}
+
+	public void setInstallation_point_capacity_details(
+			String installation_point_capacity_details) {
+		this.installation_point_capacity_details = installation_point_capacity_details;
+	}
+
+	public long getPtrans_id() {
+		return ptrans_id;
+	}
+
+	public void setPtrans_id(long ptrans_id) {
+		this.ptrans_id = ptrans_id;
+	}
+
+	public int getPtrans_count() {
+		return ptrans_count;
+	}
+
+	public void setPtrans_count(int ptrans_count) {
+		this.ptrans_count = ptrans_count;
+	}
+
 	public long getCp_id() {
 		return cp_id;
 	}
 
 	public void setCp_id(long cp_id) {
 		this.cp_id = cp_id;
+	}
+
+	public List<CustomerProductPurchase> getCart() {
+		if(cart == null)
+			cart = new ArrayList<CustomerProductPurchase>();
+		return cart;
+	}
+
+	public void setCart(List<CustomerProductPurchase> cart) {
+		this.cart = cart;
 	}
 
 	public InstallerLocationJobSchedule getSelCheckedInJob() {
@@ -8252,7 +10137,7 @@ public class AppBean implements Serializable
 	}
 	
 	public Partner getPartner() {
-		Partner partner = null;
+		Partner partner = new Partner();
 		if(!userBean.getSessionPartner().isSattrak())
 		{
 			partner = userBean.getSessionPartner();

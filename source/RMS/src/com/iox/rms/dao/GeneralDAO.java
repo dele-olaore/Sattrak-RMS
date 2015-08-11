@@ -163,6 +163,49 @@ public class GeneralDAO
 		return ret;
 	}
 	
+	public Object search(String classname, Hashtable<String, Object> params, String orderByCols)
+	{
+		Object ret = null;
+		StringBuilder strBuilder = new StringBuilder("Select e from " + classname + " e");
+		if(params.size() > 0)
+		{
+			int i = 1;
+			for(String e : params.keySet())
+			{
+				if(i == 1)
+					strBuilder.append(" where e." + e + "= :p" + i);
+				else
+					strBuilder.append(" and e." + e + "= :p" + i);
+				i+=1;
+			}
+		}
+		
+		if(orderByCols != null && orderByCols.trim().length() > 0)
+			strBuilder.append(" order by ").append(orderByCols);
+		
+		Query q = em.createQuery(strBuilder.toString());
+		if(params.size() > 0)
+		{
+			int i = 1;
+			for(String e : params.keySet())
+			{
+				q.setParameter("p"+i, params.get(e));
+				i+=1;
+			}
+		}
+		try
+		{
+			q.setHint(QueryHints.REFRESH, HintValues.TRUE);
+			ret = q.getResultList();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
+	
 	public Object runQuery(String query)
 	{
 		Query q = em.createQuery(query);

@@ -43,6 +43,11 @@ public class Product implements Serializable
 	@Transient
 	private List<ProductItem> items;
 	
+	@Transient
+	private int count = 1;
+	@Transient
+	private double sellingAmount = 0.0;
+	
 	public Product()
 	{}
 
@@ -166,6 +171,22 @@ public class Product implements Serializable
 
 	public void setItems(List<ProductItem> items) {
 		this.items = items;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public double getSellingAmount() {
+		return sellingAmount;
+	}
+
+	public void setSellingAmount(double sellingAmount) {
+		this.sellingAmount = sellingAmount;
 	}
 	
 }

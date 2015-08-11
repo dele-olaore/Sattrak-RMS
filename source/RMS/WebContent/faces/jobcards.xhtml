@@ -1,0 +1,151 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                template="/WEB-INF/layout/general_layout.xhtml">
+<ui:define name="title">Job Cards</ui:define>
+<ui:define name="content">
+	<div class="pageheader">
+		<div class="media">
+			<div class="pageicon pull-left">
+				<i class="fa fa-book"></i>
+			</div>
+			<div class="media-body">
+				<ul class="breadcrumb">
+					<li><a href="dashboard.xhtml"><i class="glyphicon glyphicon-home"></i></a></li>
+					<li>Job Cards</li>
+				</ul>
+				<h4>Job Cards</h4>
+			</div>
+		</div><!-- media -->
+	</div><!-- pageheader -->
+	<div class="contentpanel">
+		<!-- CONTENT GOES HERE -->
+		<h:form>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<c:if test="#{userBean.sessionInstaller == null}">
+						<c:if test="#{userBean.sessionPartner.sattrak and userBean.sessionCustomer == null}">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Partner: </label>
+								<div class="col-sm-8">
+									<h:selectOneMenu id="partner" value="#{appBean.partner_id}" pt:data-placeholder="Choose One" pt:class="width300">
+										<f:selectItem itemLabel="Select one" itemValue="0"/>
+										<f:selectItems value="#{appBean.partners}" var="c" itemLabel="#{c.name}" itemValue="#{c.id}"/>
+										<f:ajax render="insPoint job jobdetails" />
+									</h:selectOneMenu>
+								</div>
+							</div><!-- form-group -->
+						</c:if>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Installation Point: </label>
+							<div class="col-sm-8">
+								<h:selectOneMenu id="insPoint" value="#{appBean.installation_point_id}" pt:data-placeholder="Choose One" pt:class="width300">
+									<f:selectItem itemLabel="Choose One" itemValue="0"/>
+									<f:selectItems value="#{appBean.installers}" var="c" itemLabel="#{c.companyName} - #{c.address}" itemValue="#{c.id}"/>
+									<f:ajax render="job jobdetails" />
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</c:if>
+					
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Start Date: </label>
+						<div class="col-sm-8">
+							<div class="input-group">
+								<h:inputText value="#{appBean.start_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker" />
+								<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+								<script>
+									try
+						    		{
+						    			// Date Picker
+						                jQuery('#datepicker').datepicker({
+						                	changeMonth: true,
+						                	changeYear: true
+						                });
+						    		}catch(e){alert(e);}
+								</script>
+							</div>
+						</div>
+					</div><!-- form-group -->
+					<div class="form-group">
+						<label class="col-sm-4 control-label">End Date: </label>
+						<div class="col-sm-8">
+							<div class="input-group">
+								<h:inputText value="#{appBean.end_dt_str}" pt:type="text" pt:class="form-control" pt:placeholder="mm/dd/yyyy" pt:id="datepicker2" />
+								<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+								<script>
+									try
+						    		{
+						    			// Date Picker
+						                jQuery('#datepicker2').datepicker({
+						                	changeMonth: true,
+						                	changeYear: true
+						                });
+						    		}catch(e){alert(e);}
+								</script>
+							</div>
+						</div>
+					</div><!-- form-group -->
+				</div>
+				<div class="panel-footer">
+					<h:commandLink action="#{appBean.searchJobCards}">
+						<button class="btn btn-primary mr5">Search</button>
+					</h:commandLink>
+					<button type="reset" class="btn btn-default">Reset</button>
+				</div><!-- panel-footer -->
+			</div>
+			<c:if test="#{appBean.jobCards != null and appBean.jobCards.size() > 0}">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<table id="basicTable" class="table table-striped table-bordered responsive">
+							<thead class="">
+								<tr>
+									<th>Agent</th>
+									<th>Customer</th>
+									<th>Product</th>
+									<th>Payment</th>
+									<th>Schedule</th>
+									<th>Remarks</th>
+									<th>Edit</th>
+									<th>Download</th>
+								</tr>
+							</thead>
+							<tbody>
+								<ui:repeat value="#{appBean.searchedInstallation}" var="itm">
+									<tr>
+										<td>#{itm.installer.companyName}</td>
+										<td>#{itm.customer.firstname} #{itm.customer.lastname}</td>
+										<td>
+											Name: #{itm.productBooked.productName}<br />
+											Booked Date: #{itm.booked_dt}
+										</td>
+										<td>
+											Type: #{itm.paymentType}<br />
+											Cost: #{itm.cost}
+										</td>
+										<td>
+											Start Time: #{itm.start_dt}<br />
+											End Time: #{itm.end_dt}
+										</td>
+										<td>
+											Installation remark: #{itm.installerRemarks}<br/>
+											Confirm remark: #{itm.confirmationRemarks}
+										</td>
+										<td>Edit...</td>
+										<td>
+											<a href="#{request.contextPath}/imageservlet/#{itm.jobCode}-jobcard-#{appBean.randomNumber}">Download</a>
+										</td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</c:if>
+		</h:form>
+	</div>
+</ui:define>
+</ui:composition>
